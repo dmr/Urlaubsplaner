@@ -1,9 +1,6 @@
-import { Offer } from "./types";
+import { Offer, ScheduleEntry } from "./types";
 import { OFFERS } from "@/data/offers";
 
-/**
- * Look up an offer by ID in the built-in catalog and the user's custom offers.
- */
 export function offerById(
   id: string,
   customOffers: Offer[] = []
@@ -11,10 +8,6 @@ export function offerById(
   return OFFERS.find((o) => o.id === id) ?? customOffers.find((o) => o.id === id);
 }
 
-/**
- * Compute a UI warning string for an offer, given the youngest child is 3.
- * Returns null when no warning applies.
- */
 export function ageWarning(offer: Offer): string | null {
   if (offer.warning) return offer.warning;
   if (offer.minAge && offer.minAge > 3) {
@@ -23,24 +16,39 @@ export function ageWarning(offer: Offer): string | null {
   return null;
 }
 
-/**
- * Format an ISO date as 'D. Juni' (German).
- */
 export function formatDayMonth(isoDate: string): string {
   const d = new Date(isoDate);
   const monthNames = [
-    "Januar",
-    "Februar",
-    "März",
-    "April",
-    "Mai",
-    "Juni",
-    "Juli",
-    "August",
-    "September",
-    "Oktober",
-    "November",
-    "Dezember",
+    "Januar", "Februar", "März", "April", "Mai", "Juni",
+    "Juli", "August", "September", "Oktober", "November", "Dezember",
   ];
   return `${d.getDate()}. ${monthNames[d.getMonth()]}`;
+}
+
+export function getPlannedOfferIds(entries: ScheduleEntry[]): string[] {
+  return entries
+    .filter((e) => e.type === "offer" && e.offerId)
+    .map((e) => e.offerId!);
+}
+
+export function isOfferPlannedOnDate(
+  schedule: Record<string, ScheduleEntry[]>,
+  offerId: string,
+  date: string
+): boolean {
+  return (schedule[date] ?? []).some(
+    (e) => e.type === "offer" && e.offerId === offerId
+  );
+}
+
+export function isOfferPlannedAnyDay(
+  schedule: Record<string, ScheduleEntry[]>,
+  offerId: string
+): string | null {
+  for (const [date, entries] of Object.entries(schedule)) {
+    if (entries.some((e) => e.type === "offer" && e.offerId === offerId)) {
+      return date;
+    }
+  }
+  return null;
 }

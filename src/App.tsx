@@ -1,7 +1,7 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { AppState, DEFAULT_STATE, BreakType } from "@/lib/types";
-import { loadState, saveState, clearState } from "@/lib/storage";
-import { offerById } from "@/lib/helpers";
+import { loadState, saveState, clearState, exportState, importState } from "@/lib/storage";
+import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { OFFERS } from "@/data/offers";
 import { TRIP_DAYS } from "@/data/tripDays";
 import TopoBackground from "@/components/TopoBackground";
@@ -9,11 +9,12 @@ import Header from "@/components/Header";
 import HochschwarzwaldHint from "@/components/HochschwarzwaldHint";
 import DayStrip from "@/components/DayStrip";
 import DayDetail from "@/components/DayDetail";
+import WeekOverview from "@/components/WeekOverview";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
 import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar, Download, Upload } from "lucide-react";
 
 type SaveStatus = "idle" | "saving" | "saved";
 type ViewMode = "list" | "map";
@@ -30,30 +31,11 @@ export default function App() {
   const [maxDistance, setMaxDistance] = useState<number>(80);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
+  const [showWeek, setShowWeek] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    const loaded = loadState();
-    if (!loaded.schedule) {
-      loaded.schedule = {};
-    }
-    // Migrate legacy plan entries to schedule
-    for (const [date, offerIds] of Object.entries(loaded.plan)) {
-      const existing = loaded.schedule[date] ?? [];
-      const existingOfferIds = new Set(
-        existing.filter((e) => e.type === "offer").map((e) => e.offerId)
-      );
-      for (const offerId of offerIds) {
-        if (!existingOfferIds.has(offerId)) {
-          existing.push({
-            id: nextEntryId(),
-            type: "offer",
-            offerId,
-          });
-        }
-      }
-      loaded.schedule[date] = existing;
-    }
-    setState(loaded);
+    setState(loadState());
   }, []);
 
   useEffect(() => {
@@ -70,16 +52,14 @@ export default function App() {
   const addToDay = useCallback((offerId: string, date: string) => {
     setState((s) => {
       if (!s) return s;
-      const current = s.plan[date] ?? [];
-      if (current.includes(offerId)) return s;
-      const schedule = { ...s.schedule };
-      const entries = [...(schedule[date] ?? [])];
-      entries.push({ id: nextEntryId(), type: "offer", offerId });
-      schedule[date] = entries;
+      const entries = s.schedule[date] ?? [];
+      if (entries.some((e) => e.type === "offer" && e.offerId === offerId)) return s;
       return {
         ...s,
-        plan: { ...s.plan, [date]: [...current, offerId] },
-        schedule,
+        schedule: {
+          ...s.schedule,
+          [date]: [...entries, { id: nextEntryId(), type: "offer" as const, offerId }],
+        },
       };
     });
   }, []);
@@ -87,18 +67,14 @@ export default function App() {
   const removeFromDay = useCallback((offerId: string, date: string) => {
     setState((s) => {
       if (!s) return s;
-      const schedule = { ...s.schedule };
-      const entries = (schedule[date] ?? []).filter(
-        (e) => !(e.type === "offer" && e.offerId === offerId)
-      );
-      schedule[date] = entries;
       return {
         ...s,
-        plan: {
-          ...s.plan,
-          [date]: (s.plan[date] ?? []).filter((id) => id !== offerId),
+        schedule: {
+          ...s.schedule,
+          [date]: (s.schedule[date] ?? []).filter(
+            (e) => !(e.type === "offer" && e.offerId === offerId)
+          ),
         },
-        schedule,
       };
     });
   }, []);
@@ -107,16 +83,16 @@ export default function App() {
     (date: string, breakType: BreakType, label?: string) => {
       setState((s) => {
         if (!s) return s;
-        const schedule = { ...s.schedule };
-        const entries = [...(schedule[date] ?? [])];
-        entries.push({
-          id: nextEntryId(),
-          type: "break",
-          breakType,
-          label,
-        });
-        schedule[date] = entries;
-        return { ...s, schedule };
+        return {
+          ...s,
+          schedule: {
+            ...s.schedule,
+            [date]: [
+              ...(s.schedule[date] ?? []),
+              { id: nextEntryId(), type: "break" as const, breakType, label },
+            ],
+          },
+        };
       });
     },
     []
@@ -125,16 +101,13 @@ export default function App() {
   const removeEntry = useCallback((date: string, entryId: string) => {
     setState((s) => {
       if (!s) return s;
-      const schedule = { ...s.schedule };
-      const entries = (schedule[date] ?? []).filter((e) => e.id !== entryId);
-      schedule[date] = entries;
-      // Also sync plan
-      const plan = { ...s.plan };
-      const removed = (s.schedule[date] ?? []).find((e) => e.id === entryId);
-      if (removed?.type === "offer" && removed.offerId) {
-        plan[date] = (plan[date] ?? []).filter((id) => id !== removed.offerId);
-      }
-      return { ...s, schedule, plan };
+      return {
+        ...s,
+        schedule: {
+          ...s.schedule,
+          [date]: (s.schedule[date] ?? []).filter((e) => e.id !== entryId),
+        },
+      };
     });
   }, []);
 
@@ -142,12 +115,15 @@ export default function App() {
     (date: string, entryId: string, startTime: string, endTime: string) => {
       setState((s) => {
         if (!s) return s;
-        const schedule = { ...s.schedule };
-        const entries = (schedule[date] ?? []).map((e) =>
-          e.id === entryId ? { ...e, startTime, endTime } : e
-        );
-        schedule[date] = entries;
-        return { ...s, schedule };
+        return {
+          ...s,
+          schedule: {
+            ...s.schedule,
+            [date]: (s.schedule[date] ?? []).map((e) =>
+              e.id === entryId ? { ...e, startTime, endTime } : e
+            ),
+          },
+        };
       });
     },
     []
@@ -158,14 +134,39 @@ export default function App() {
   }, []);
 
   const resetAll = useCallback(() => {
-    if (
-      confirm(
-        "Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht."
-      )
-    ) {
+    if (confirm("Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht.")) {
       clearState();
       setState({ ...DEFAULT_STATE });
     }
+  }, []);
+
+  const handleExport = useCallback(() => {
+    if (!state) return;
+    const json = exportState(state);
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `urlaubsplan-schwarzwald-${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }, [state]);
+
+  const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      const result = importState(reader.result as string);
+      if (result) {
+        setState(result);
+        saveState(result);
+      } else {
+        alert("Ungültige Datei — konnte den Plan nicht lesen.");
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = "";
   }, []);
 
   if (!state) {
@@ -176,14 +177,12 @@ export default function App() {
     );
   }
 
-  const activeDay =
-    TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
-  const plannedIds = state.plan[activeDate] ?? [];
+  const activeDay = TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
+  const scheduleEntries = state.schedule[activeDate] ?? [];
+  const plannedIds = getPlannedOfferIds(scheduleEntries);
   const plannedOffers = plannedIds
     .map((id) => offerById(id, state.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
-
-  const scheduleEntries = state.schedule[activeDate] ?? [];
 
   const filteredOffers = OFFERS.filter((o) => {
     if (o.distance > maxDistance) return false;
@@ -193,14 +192,13 @@ export default function App() {
   });
 
   const counts = Object.fromEntries(
-    TRIP_DAYS.map((d) => [
-      d.date,
-      (d.date in state.schedule
-        ? state.schedule[d.date]
-        : (state.plan[d.date] ?? []).map(() => null)
-      ).length,
-    ])
+    TRIP_DAYS.map((d) => [d.date, (state.schedule[d.date] ?? []).length])
   );
+
+  const allPlannedIds = Object.values(state.schedule)
+    .flat()
+    .filter((e) => e.type === "offer" && e.offerId)
+    .map((e) => e.offerId!);
 
   return (
     <div className="min-h-screen bg-forest-gradient text-cream relative">
@@ -212,26 +210,38 @@ export default function App() {
 
         {/* Day Strip */}
         <section className="px-5 pb-5">
-          <div className="flex justify-between items-baseline mb-3">
+          <div className="flex justify-between items-center mb-3">
             <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
               Die Tage
             </h2>
-            <div className="text-[10px] text-moss-soft tracking-wider uppercase flex items-center gap-1">
-              {saveStatus === "saving" && (
-                <>
-                  <Loader2 size={11} className="animate-spin" /> Speichert
-                </>
-              )}
-              {saveStatus === "saved" && (
-                <>
-                  <Check size={11} /> Gespeichert
-                </>
-              )}
-              {saveStatus === "idle" && (
-                <>
-                  <Save size={11} /> Auto-Save
-                </>
-              )}
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowWeek(!showWeek)}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors ${
+                  showWeek
+                    ? "bg-moss/80 text-cream"
+                    : "bg-transparent text-moss-soft hover:text-cream border border-cream/15"
+                }`}
+              >
+                <Calendar size={10} /> Woche
+              </button>
+              <div className="text-[10px] text-moss-soft tracking-wider uppercase flex items-center gap-1">
+                {saveStatus === "saving" && (
+                  <>
+                    <Loader2 size={11} className="animate-spin" /> Speichert
+                  </>
+                )}
+                {saveStatus === "saved" && (
+                  <>
+                    <Check size={11} /> Gespeichert
+                  </>
+                )}
+                {saveStatus === "idle" && (
+                  <>
+                    <Save size={11} /> Auto-Save
+                  </>
+                )}
+              </div>
             </div>
           </div>
           <DayStrip
@@ -241,6 +251,20 @@ export default function App() {
             onSelect={setActiveDate}
           />
         </section>
+
+        {/* Week Overview */}
+        {showWeek && (
+          <section className="px-5 pb-5">
+            <WeekOverview
+              schedule={state.schedule}
+              customOffers={state.customOffers}
+              onDayClick={(date) => {
+                setActiveDate(date);
+                setShowWeek(false);
+              }}
+            />
+          </section>
+        )}
 
         {/* Day Detail */}
         <section className="px-5 pb-7">
@@ -252,9 +276,7 @@ export default function App() {
             customOffers={state.customOffers}
             onRemove={(id) => removeFromDay(id, activeDate)}
             onNoteChange={(text) => setNote(activeDate, text)}
-            onAddBreak={(breakType, label) =>
-              addBreak(activeDate, breakType, label)
-            }
+            onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
             onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}
             onUpdateEntryTime={(entryId, start, end) =>
               updateEntryTime(activeDate, entryId, start, end)
@@ -262,29 +284,52 @@ export default function App() {
           />
         </section>
 
-        {/* View Toggle */}
+        {/* View Toggle + Export/Import */}
         <section className="px-5 pb-4">
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setViewMode("list")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                viewMode === "list"
-                  ? "bg-moss text-cream"
-                  : "bg-stone/40 text-moss-soft hover:text-cream"
-              }`}
-            >
-              <List size={15} /> Angebote
-            </button>
-            <button
-              onClick={() => setViewMode("map")}
-              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                viewMode === "map"
-                  ? "bg-moss text-cream"
-                  : "bg-stone/40 text-moss-soft hover:text-cream"
-              }`}
-            >
-              <Map size={15} /> Karte & Routen
-            </button>
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                  viewMode === "list"
+                    ? "bg-moss text-cream"
+                    : "bg-stone/40 text-moss-soft hover:text-cream"
+                }`}
+              >
+                <List size={15} /> Angebote
+              </button>
+              <button
+                onClick={() => setViewMode("map")}
+                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                  viewMode === "map"
+                    ? "bg-moss text-cream"
+                    : "bg-stone/40 text-moss-soft hover:text-cream"
+                }`}
+              >
+                <Map size={15} /> Karte & Routen
+              </button>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExport}
+                className="flex items-center gap-1 px-3 py-1.5 rounded text-[11px] tracking-wider uppercase text-moss-soft hover:text-cream border border-cream/15 hover:border-cream/30 transition-colors"
+              >
+                <Download size={12} /> Export
+              </button>
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                className="flex items-center gap-1 px-3 py-1.5 rounded text-[11px] tracking-wider uppercase text-moss-soft hover:text-cream border border-cream/15 hover:border-cream/30 transition-colors"
+              >
+                <Upload size={12} /> Import
+              </button>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".json"
+                onChange={handleImport}
+                className="hidden"
+              />
+            </div>
           </div>
         </section>
 
@@ -316,6 +361,7 @@ export default function App() {
                     key={o.id}
                     offer={o}
                     activeDay={activeDate}
+                    schedule={state.schedule}
                     onAdd={(date) => addToDay(o.id, date)}
                   />
                 ))
@@ -324,7 +370,10 @@ export default function App() {
           </section>
         ) : (
           <section className="px-5 pb-10">
-            <MapView plannedOfferIds={plannedIds} />
+            <MapView
+              plannedOfferIds={allPlannedIds}
+              activeDayOfferIds={plannedIds}
+            />
           </section>
         )}
 

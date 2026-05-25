@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { Offer } from "@/lib/types";
+import { Offer, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
-import { ageWarning } from "@/lib/helpers";
+import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
 import {
   MapPin,
   Clock,
@@ -11,11 +11,13 @@ import {
   Plus,
   ChevronDown,
   ChevronUp,
+  CheckCircle,
 } from "lucide-react";
 
 interface OfferCardProps {
   offer: Offer;
   activeDay: string;
+  schedule: Record<string, ScheduleEntry[]>;
   onAdd: (date: string) => void;
 }
 
@@ -35,10 +37,14 @@ function TagChip({ tag }: { tag: keyof typeof TAG_META }) {
   );
 }
 
-export default function OfferCard({ offer, activeDay, onAdd }: OfferCardProps) {
+export default function OfferCard({ offer, activeDay, schedule, onAdd }: OfferCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [picking, setPicking] = useState(false);
   const warn = ageWarning(offer);
+
+  const plannedDates = TRIP_DAYS
+    .filter((d) => isOfferPlannedOnDate(schedule, offer.id, d.date))
+    .map((d) => d.weekday);
 
   return (
     <div className="bg-parchment rounded-sm overflow-hidden flex flex-col border border-cream">
@@ -52,14 +58,21 @@ export default function OfferCard({ offer, activeDay, onAdd }: OfferCardProps) {
               {offer.name}
             </h3>
           </div>
-          {offer.cardIncluded && (
-            <div
-              title="Hochschwarzwald Card inklusive"
-              className="px-2 py-0.5 bg-amber/15 text-amber-deep border border-amber/40 rounded-sm text-[10px] font-semibold flex items-center gap-1 shrink-0"
-            >
-              <Ticket size={10} /> CARD
-            </div>
-          )}
+          <div className="flex items-center gap-1.5 shrink-0">
+            {plannedDates.length > 0 && (
+              <div className="px-2 py-0.5 bg-moss/15 text-moss border border-moss/40 rounded-sm text-[10px] font-semibold flex items-center gap-1">
+                <CheckCircle size={10} /> {plannedDates.join(", ")}
+              </div>
+            )}
+            {offer.cardIncluded && (
+              <div
+                title="Hochschwarzwald Card inklusive"
+                className="px-2 py-0.5 bg-amber/15 text-amber-deep border border-amber/40 rounded-sm text-[10px] font-semibold flex items-center gap-1"
+              >
+                <Ticket size={10} /> CARD
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="mt-2.5 flex gap-3 flex-wrap text-xs text-stone">
@@ -156,20 +169,30 @@ export default function OfferCard({ offer, activeDay, onAdd }: OfferCardProps) {
               An welchen Tag?
             </div>
             <div className="grid grid-cols-7 gap-1">
-              {TRIP_DAYS.map((d) => (
-                <button
-                  key={d.date}
-                  onClick={() => {
-                    onAdd(d.date);
-                    setPicking(false);
-                  }}
-                  className={`py-2 rounded-sm cursor-pointer text-[11px] font-semibold text-cream ${
-                    d.date === activeDay ? "bg-amber" : "bg-forest hover:bg-forest-deep"
-                  }`}
-                >
-                  {d.weekday}
-                </button>
-              ))}
+              {TRIP_DAYS.map((d) => {
+                const alreadyPlanned = isOfferPlannedOnDate(schedule, offer.id, d.date);
+                return (
+                  <button
+                    key={d.date}
+                    onClick={() => {
+                      if (!alreadyPlanned) {
+                        onAdd(d.date);
+                      }
+                      setPicking(false);
+                    }}
+                    disabled={alreadyPlanned}
+                    className={`py-2 rounded-sm text-[11px] font-semibold ${
+                      alreadyPlanned
+                        ? "bg-stone/30 text-stone/60 cursor-not-allowed"
+                        : d.date === activeDay
+                        ? "bg-amber text-cream cursor-pointer"
+                        : "bg-forest hover:bg-forest-deep text-cream cursor-pointer"
+                    }`}
+                  >
+                    {alreadyPlanned ? "✓" : d.weekday}
+                  </button>
+                );
+              })}
             </div>
             <button
               onClick={() => setPicking(false)}

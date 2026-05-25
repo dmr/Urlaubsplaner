@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Offer, TripDay, ScheduleEntry, BreakType } from "@/lib/types";
 import { formatDayMonth } from "@/lib/helpers";
 import {
@@ -14,9 +14,20 @@ import {
   Pause,
 } from "lucide-react";
 import PlannedItem from "./PlannedItem";
-import DayTimeline, { BREAK_META } from "./DayTimeline";
+import DayTimeline from "./DayTimeline";
 
 type DayViewMode = "list" | "timeline";
+
+const BREAK_META: Record<
+  BreakType,
+  { label: string; icon: typeof Coffee; color: string }
+> = {
+  breakfast: { label: "Frühstück", icon: Coffee, color: "#c98a3a" },
+  lunch: { label: "Mittagessen", icon: UtensilsCrossed, color: "#5a7f4b" },
+  dinner: { label: "Abendessen", icon: Sunset, color: "#a14a2a" },
+  snack: { label: "Snack / Eis", icon: Cookie, color: "#9c6420" },
+  pause: { label: "Pause", icon: Pause, color: "#8aa57a" },
+};
 
 const BREAK_OPTIONS: { type: BreakType; icon: typeof Coffee }[] = [
   { type: "breakfast", icon: Coffee },
@@ -59,6 +70,21 @@ export default function DayDetail({
   const [showBreakMenu, setShowBreakMenu] = useState(false);
   const [customLabel, setCustomLabel] = useState("");
   const [addingCustom, setAddingCustom] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!showBreakMenu) return;
+    function handleClick(e: MouseEvent) {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setShowBreakMenu(false);
+        setAddingCustom(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [showBreakMenu]);
+
+  const hasAnyTimes = scheduleEntries.some((e) => e.startTime && e.endTime);
 
   return (
     <div className="bg-cream/[0.04] border border-cream/15 rounded-sm p-5">
@@ -103,7 +129,7 @@ export default function DayDetail({
           </button>
         </div>
 
-        <div className="relative">
+        <div className="relative" ref={menuRef}>
           <button
             onClick={() => setShowBreakMenu(!showBreakMenu)}
             className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-medium bg-amber/20 text-amber hover:bg-amber/30 transition-colors"
@@ -199,7 +225,6 @@ export default function DayDetail({
                     endTime={entry.endTime}
                     onRemove={() => {
                       onRemove(entry.offerId!);
-                      onRemoveEntry(entry.id);
                     }}
                     onUpdateTime={(start, end) =>
                       onUpdateEntryTime(entry.id, start, end)
@@ -238,11 +263,18 @@ export default function DayDetail({
             const entry = scheduleEntries.find((e) => e.id === entryId);
             if (entry?.type === "offer" && entry.offerId) {
               onRemove(entry.offerId);
+            } else {
+              onRemoveEntry(entryId);
             }
-            onRemoveEntry(entryId);
           }}
           onUpdateTime={onUpdateEntryTime}
         />
+      )}
+
+      {!hasAnyTimes && dayView === "timeline" && scheduleEntries.length > 0 && (
+        <div className="mt-2 text-[11px] text-moss-soft italic text-center">
+          Tipp: Zeiten in der Liste unten setzen, damit Einträge auf der Zeitleiste erscheinen.
+        </div>
       )}
 
       <div className="mt-4">
@@ -310,3 +342,5 @@ function BreakItem({
     </div>
   );
 }
+
+export { BREAK_META };

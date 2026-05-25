@@ -76,8 +76,10 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 
 export default function MapView({
   plannedOfferIds,
+  activeDayOfferIds = [],
 }: {
   plannedOfferIds: string[];
+  activeDayOfferIds?: string[];
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
@@ -124,17 +126,18 @@ export default function MapView({
         const coords = OFFER_COORDS[offer.id];
         if (!coords) return;
 
+        const isActiveDay = activeDayOfferIds.includes(offer.id);
         const isPlanned = plannedOfferIds.includes(offer.id);
         const marker = L.circleMarker(coords, {
-          radius: isPlanned ? 10 : 7,
-          fillColor: isPlanned ? "#c98a3a" : offer.cardIncluded ? "#5a7f4b" : "#8aa57a",
-          color: isPlanned ? "#f3ead7" : "#162820",
-          weight: isPlanned ? 2.5 : 1.5,
+          radius: isActiveDay ? 12 : isPlanned ? 9 : 7,
+          fillColor: isActiveDay ? "#c98a3a" : isPlanned ? "#9c6420" : offer.cardIncluded ? "#5a7f4b" : "#8aa57a",
+          color: isActiveDay ? "#f3ead7" : isPlanned ? "#f3ead7" : "#162820",
+          weight: isActiveDay ? 3 : isPlanned ? 2 : 1.5,
           opacity: 1,
-          fillOpacity: 0.9,
+          fillOpacity: isActiveDay ? 1 : 0.85,
         }).addTo(map);
 
-        marker.bindPopup(buildOfferPopup(offer, isPlanned));
+        marker.bindPopup(buildOfferPopup(offer, isPlanned, isActiveDay));
       });
     }
 
@@ -152,7 +155,7 @@ export default function MapView({
         polyline.on("click", () => setSelectedRoute(route));
       });
     }
-  }, [plannedOfferIds, showOffers, showRoutes]);
+  }, [plannedOfferIds, activeDayOfferIds, showOffers, showRoutes]);
 
   return (
     <div className="space-y-4">
@@ -195,7 +198,10 @@ export default function MapView({
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-[11px] text-moss-soft">
         <span className="flex items-center gap-1">
-          <span className="w-3 h-3 rounded-full bg-amber inline-block" /> Geplant
+          <span className="w-3.5 h-3.5 rounded-full bg-amber inline-block border-2 border-cream" /> Heute
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-3 h-3 rounded-full bg-amber-deep inline-block" /> Geplant
         </span>
         <span className="flex items-center gap-1">
           <span className="w-3 h-3 rounded-full bg-moss inline-block" /> Card inkl.
@@ -306,7 +312,7 @@ function RouteCard({
   );
 }
 
-function buildOfferPopup(offer: Offer, isPlanned: boolean): string {
+function buildOfferPopup(offer: Offer, isPlanned: boolean, isActiveDay: boolean): string {
   return `
     <div style="font-family: 'DM Sans', sans-serif; min-width: 160px;">
       <strong style="font-size: 13px;">${offer.name}</strong>
@@ -315,7 +321,7 @@ function buildOfferPopup(offer: Offer, isPlanned: boolean): string {
         📍 ${offer.location}<br/>
         ⏱ ${offer.duration} · ${offer.price}
         ${offer.cardIncluded ? '<br/><span style="color: #c98a3a;">🎫 Card inkl.</span>' : ""}
-        ${isPlanned ? '<br/><span style="color: #c98a3a; font-weight: 600;">✓ Geplant</span>' : ""}
+        ${isActiveDay ? '<br/><span style="color: #c98a3a; font-weight: 600;">★ Heute geplant</span>' : isPlanned ? '<br/><span style="color: #9c6420;">✓ Geplant</span>' : ""}
       </div>
     </div>
   `;

@@ -56,9 +56,7 @@ export type BreakType = "breakfast" | "lunch" | "dinner" | "snack" | "pause";
 export interface ScheduleEntry {
   id: string;
   type: "offer" | "break";
-  /** For type "offer": the offerId. For "break": unused. */
   offerId?: string;
-  /** For type "break" */
   breakType?: BreakType;
   label?: string;
   startTime?: string;
@@ -66,8 +64,6 @@ export interface ScheduleEntry {
 }
 
 export interface AppState {
-  /** date -> [offerId] — legacy, kept for backwards compat */
-  plan: Record<string, string[]>;
   /** date -> ordered schedule entries with times */
   schedule: Record<string, ScheduleEntry[]>;
   /** date -> note */
@@ -77,7 +73,6 @@ export interface AppState {
 }
 
 export const DEFAULT_STATE: AppState = {
-  plan: {},
   schedule: {},
   notes: {},
   customOffers: [],
