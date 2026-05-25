@@ -48,9 +48,25 @@ export interface TripDay {
   holiday?: string;
 }
 
+export type BreakType = "breakfast" | "lunch" | "dinner" | "snack" | "pause";
+
+export interface ScheduleEntry {
+  id: string;
+  type: "offer" | "break";
+  /** For type "offer": the offerId. For "break": unused. */
+  offerId?: string;
+  /** For type "break" */
+  breakType?: BreakType;
+  label?: string;
+  startTime?: string;
+  endTime?: string;
+}
+
 export interface AppState {
-  /** date -> [offerId] */
+  /** date -> [offerId] — legacy, kept for backwards compat */
   plan: Record<string, string[]>;
+  /** date -> ordered schedule entries with times */
+  schedule: Record<string, ScheduleEntry[]>;
   /** date -> note */
   notes: Record<string, string>;
   /** User-defined offers (UI not yet implemented) */
@@ -59,6 +75,7 @@ export interface AppState {
 
 export const DEFAULT_STATE: AppState = {
   plan: {},
+  schedule: {},
   notes: {},
   customOffers: [],
 };

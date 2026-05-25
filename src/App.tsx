@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { AppState, DEFAULT_STATE } from "@/lib/types";
+import { AppState, DEFAULT_STATE, BreakType } from "@/lib/types";
 import { loadState, saveState, clearState } from "@/lib/storage";
 import { offerById } from "@/lib/helpers";
 import { OFFERS } from "@/data/offers";
@@ -18,6 +18,11 @@ import { Loader2, Save, Check, List, Map } from "lucide-react";
 type SaveStatus = "idle" | "saving" | "saved";
 type ViewMode = "list" | "map";
 
+let entryCounter = 0;
+function nextEntryId(): string {
+  return `entry-${Date.now()}-${++entryCounter}`;
+}
+
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
   const [activeDate, setActiveDate] = useState<string>(TRIP_DAYS[0].date);
@@ -26,12 +31,31 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 
-  // Initial load
   useEffect(() => {
-    setState(loadState());
+    const loaded = loadState();
+    if (!loaded.schedule) {
+      loaded.schedule = {};
+    }
+    // Migrate legacy plan entries to schedule
+    for (const [date, offerIds] of Object.entries(loaded.plan)) {
+      const existing = loaded.schedule[date] ?? [];
+      const existingOfferIds = new Set(
+        existing.filter((e) => e.type === "offer").map((e) => e.offerId)
+      );
+      for (const offerId of offerIds) {
+        if (!existingOfferIds.has(offerId)) {
+          existing.push({
+            id: nextEntryId(),
+            type: "offer",
+            offerId,
+          });
+        }
+      }
+      loaded.schedule[date] = existing;
+    }
+    setState(loaded);
   }, []);
 
-  // Debounced auto-save
   useEffect(() => {
     if (!state) return;
     setSaveStatus("saving");
@@ -48,22 +72,86 @@ export default function App() {
       if (!s) return s;
       const current = s.plan[date] ?? [];
       if (current.includes(offerId)) return s;
-      return { ...s, plan: { ...s.plan, [date]: [...current, offerId] } };
+      const schedule = { ...s.schedule };
+      const entries = [...(schedule[date] ?? [])];
+      entries.push({ id: nextEntryId(), type: "offer", offerId });
+      schedule[date] = entries;
+      return {
+        ...s,
+        plan: { ...s.plan, [date]: [...current, offerId] },
+        schedule,
+      };
     });
   }, []);
 
   const removeFromDay = useCallback((offerId: string, date: string) => {
     setState((s) => {
       if (!s) return s;
+      const schedule = { ...s.schedule };
+      const entries = (schedule[date] ?? []).filter(
+        (e) => !(e.type === "offer" && e.offerId === offerId)
+      );
+      schedule[date] = entries;
       return {
         ...s,
         plan: {
           ...s.plan,
           [date]: (s.plan[date] ?? []).filter((id) => id !== offerId),
         },
+        schedule,
       };
     });
   }, []);
+
+  const addBreak = useCallback(
+    (date: string, breakType: BreakType, label?: string) => {
+      setState((s) => {
+        if (!s) return s;
+        const schedule = { ...s.schedule };
+        const entries = [...(schedule[date] ?? [])];
+        entries.push({
+          id: nextEntryId(),
+          type: "break",
+          breakType,
+          label,
+        });
+        schedule[date] = entries;
+        return { ...s, schedule };
+      });
+    },
+    []
+  );
+
+  const removeEntry = useCallback((date: string, entryId: string) => {
+    setState((s) => {
+      if (!s) return s;
+      const schedule = { ...s.schedule };
+      const entries = (schedule[date] ?? []).filter((e) => e.id !== entryId);
+      schedule[date] = entries;
+      // Also sync plan
+      const plan = { ...s.plan };
+      const removed = (s.schedule[date] ?? []).find((e) => e.id === entryId);
+      if (removed?.type === "offer" && removed.offerId) {
+        plan[date] = (plan[date] ?? []).filter((id) => id !== removed.offerId);
+      }
+      return { ...s, schedule, plan };
+    });
+  }, []);
+
+  const updateEntryTime = useCallback(
+    (date: string, entryId: string, startTime: string, endTime: string) => {
+      setState((s) => {
+        if (!s) return s;
+        const schedule = { ...s.schedule };
+        const entries = (schedule[date] ?? []).map((e) =>
+          e.id === entryId ? { ...e, startTime, endTime } : e
+        );
+        schedule[date] = entries;
+        return { ...s, schedule };
+      });
+    },
+    []
+  );
 
   const setNote = useCallback((date: string, text: string) => {
     setState((s) => (s ? { ...s, notes: { ...s.notes, [date]: text } } : s));
@@ -71,7 +159,9 @@ export default function App() {
 
   const resetAll = useCallback(() => {
     if (
-      confirm("Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht.")
+      confirm(
+        "Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht."
+      )
     ) {
       clearState();
       setState({ ...DEFAULT_STATE });
@@ -86,11 +176,14 @@ export default function App() {
     );
   }
 
-  const activeDay = TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
+  const activeDay =
+    TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
   const plannedIds = state.plan[activeDate] ?? [];
   const plannedOffers = plannedIds
     .map((id) => offerById(id, state.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
+
+  const scheduleEntries = state.schedule[activeDate] ?? [];
 
   const filteredOffers = OFFERS.filter((o) => {
     if (o.distance > maxDistance) return false;
@@ -100,7 +193,13 @@ export default function App() {
   });
 
   const counts = Object.fromEntries(
-    TRIP_DAYS.map((d) => [d.date, (state.plan[d.date] ?? []).length])
+    TRIP_DAYS.map((d) => [
+      d.date,
+      (d.date in state.schedule
+        ? state.schedule[d.date]
+        : (state.plan[d.date] ?? []).map(() => null)
+      ).length,
+    ])
   );
 
   return (
@@ -149,8 +248,17 @@ export default function App() {
             day={activeDay}
             plannedOffers={plannedOffers}
             note={state.notes[activeDate] ?? ""}
+            scheduleEntries={scheduleEntries}
+            customOffers={state.customOffers}
             onRemove={(id) => removeFromDay(id, activeDate)}
             onNoteChange={(text) => setNote(activeDate, text)}
+            onAddBreak={(breakType, label) =>
+              addBreak(activeDate, breakType, label)
+            }
+            onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}
+            onUpdateEntryTime={(entryId, start, end) =>
+              updateEntryTime(activeDate, entryId, start, end)
+            }
           />
         </section>
 

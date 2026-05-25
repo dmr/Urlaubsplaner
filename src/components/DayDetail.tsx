@@ -1,23 +1,65 @@
-import { Offer, TripDay } from "@/lib/types";
+import { useState } from "react";
+import { Offer, TripDay, ScheduleEntry, BreakType } from "@/lib/types";
 import { formatDayMonth } from "@/lib/helpers";
-import { AlertTriangle, StickyNote } from "lucide-react";
+import {
+  AlertTriangle,
+  StickyNote,
+  List,
+  Clock,
+  Plus,
+  Coffee,
+  UtensilsCrossed,
+  Sunset,
+  Cookie,
+  Pause,
+} from "lucide-react";
 import PlannedItem from "./PlannedItem";
+import DayTimeline, { BREAK_META } from "./DayTimeline";
+
+type DayViewMode = "list" | "timeline";
+
+const BREAK_OPTIONS: { type: BreakType; icon: typeof Coffee }[] = [
+  { type: "breakfast", icon: Coffee },
+  { type: "lunch", icon: UtensilsCrossed },
+  { type: "dinner", icon: Sunset },
+  { type: "snack", icon: Cookie },
+  { type: "pause", icon: Pause },
+];
 
 interface DayDetailProps {
   day: TripDay;
   plannedOffers: Offer[];
   note: string;
+  scheduleEntries: ScheduleEntry[];
+  customOffers: Offer[];
   onRemove: (offerId: string) => void;
   onNoteChange: (text: string) => void;
+  onAddBreak: (breakType: BreakType, label?: string) => void;
+  onRemoveEntry: (entryId: string) => void;
+  onUpdateEntryTime: (
+    entryId: string,
+    startTime: string,
+    endTime: string
+  ) => void;
 }
 
 export default function DayDetail({
   day,
   plannedOffers,
   note,
+  scheduleEntries,
+  customOffers,
   onRemove,
   onNoteChange,
+  onAddBreak,
+  onRemoveEntry,
+  onUpdateEntryTime,
 }: DayDetailProps) {
+  const [dayView, setDayView] = useState<DayViewMode>("list");
+  const [showBreakMenu, setShowBreakMenu] = useState(false);
+  const [customLabel, setCustomLabel] = useState("");
+  const [addingCustom, setAddingCustom] = useState(false);
+
   return (
     <div className="bg-cream/[0.04] border border-cream/15 rounded-sm p-5">
       <div className="flex justify-between items-baseline flex-wrap gap-2">
@@ -36,21 +78,172 @@ export default function DayDetail({
         )}
       </div>
 
-      <div className="mt-4 flex flex-col gap-2">
-        {plannedOffers.length === 0 ? (
-          <div className="py-8 px-5 text-center text-moss-soft text-sm italic border border-dashed border-cream/20 rounded-sm">
-            Noch nichts geplant — wähle unten ein Angebot aus.
-          </div>
-        ) : (
-          plannedOffers.map((o) => (
-            <PlannedItem
-              key={o.id}
-              offer={o}
-              onRemove={() => onRemove(o.id)}
-            />
-          ))
-        )}
+      {/* View toggle + Add break */}
+      <div className="mt-4 flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => setDayView("list")}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-medium transition-colors ${
+              dayView === "list"
+                ? "bg-moss/80 text-cream"
+                : "bg-stone/30 text-moss-soft hover:text-cream"
+            }`}
+          >
+            <List size={12} /> Liste
+          </button>
+          <button
+            onClick={() => setDayView("timeline")}
+            className={`flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-medium transition-colors ${
+              dayView === "timeline"
+                ? "bg-moss/80 text-cream"
+                : "bg-stone/30 text-moss-soft hover:text-cream"
+            }`}
+          >
+            <Clock size={12} /> Zeitleiste
+          </button>
+        </div>
+
+        <div className="relative">
+          <button
+            onClick={() => setShowBreakMenu(!showBreakMenu)}
+            className="flex items-center gap-1 px-3 py-1.5 rounded-md text-[11px] font-medium bg-amber/20 text-amber hover:bg-amber/30 transition-colors"
+          >
+            <Plus size={12} /> Essen / Pause
+          </button>
+
+          {showBreakMenu && (
+            <div className="absolute right-0 top-full mt-1 z-20 bg-forest border border-moss/30 rounded-lg shadow-xl p-2 min-w-[180px]">
+              {BREAK_OPTIONS.map(({ type, icon: Icon }) => {
+                const meta = BREAK_META[type];
+                return (
+                  <button
+                    key={type}
+                    onClick={() => {
+                      onAddBreak(type);
+                      setShowBreakMenu(false);
+                    }}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] text-cream hover:bg-moss/20 transition-colors text-left"
+                  >
+                    <Icon size={14} style={{ color: meta.color }} />
+                    {meta.label}
+                  </button>
+                );
+              })}
+              <div className="border-t border-moss/20 mt-1 pt-1">
+                {!addingCustom ? (
+                  <button
+                    onClick={() => setAddingCustom(true)}
+                    className="w-full flex items-center gap-2 px-3 py-2 rounded-md text-[12px] text-moss-soft hover:text-cream hover:bg-moss/20 transition-colors text-left"
+                  >
+                    <Plus size={14} /> Eigener Eintrag …
+                  </button>
+                ) : (
+                  <div className="px-2 py-1">
+                    <input
+                      type="text"
+                      value={customLabel}
+                      onChange={(e) => setCustomLabel(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" && customLabel.trim()) {
+                          onAddBreak("pause", customLabel.trim());
+                          setCustomLabel("");
+                          setAddingCustom(false);
+                          setShowBreakMenu(false);
+                        }
+                      }}
+                      placeholder="z.B. Eisdiele, Spielplatz …"
+                      autoFocus
+                      className="w-full bg-forest-deep border border-moss/30 rounded px-2 py-1.5 text-[11px] text-cream placeholder:text-moss-soft/60 outline-none focus:border-amber/50"
+                    />
+                    <button
+                      onClick={() => {
+                        if (customLabel.trim()) {
+                          onAddBreak("pause", customLabel.trim());
+                          setCustomLabel("");
+                          setAddingCustom(false);
+                          setShowBreakMenu(false);
+                        }
+                      }}
+                      className="mt-1 w-full bg-amber/20 text-amber text-[11px] rounded px-2 py-1 hover:bg-amber/30"
+                    >
+                      Hinzufügen
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
+
+      {/* List view */}
+      {dayView === "list" && (
+        <div className="mt-4 flex flex-col gap-2">
+          {scheduleEntries.length === 0 ? (
+            <div className="py-8 px-5 text-center text-moss-soft text-sm italic border border-dashed border-cream/20 rounded-sm">
+              Noch nichts geplant — wähle unten ein Angebot aus oder füge eine
+              Pause hinzu.
+            </div>
+          ) : (
+            scheduleEntries.map((entry) => {
+              if (entry.type === "offer" && entry.offerId) {
+                const offer = plannedOffers.find(
+                  (o) => o.id === entry.offerId
+                );
+                if (!offer) return null;
+                return (
+                  <PlannedItem
+                    key={entry.id}
+                    offer={offer}
+                    startTime={entry.startTime}
+                    endTime={entry.endTime}
+                    onRemove={() => {
+                      onRemove(entry.offerId!);
+                      onRemoveEntry(entry.id);
+                    }}
+                    onUpdateTime={(start, end) =>
+                      onUpdateEntryTime(entry.id, start, end)
+                    }
+                  />
+                );
+              }
+              if (entry.type === "break") {
+                const meta = BREAK_META[entry.breakType || "pause"];
+                const Icon = meta.icon;
+                return (
+                  <BreakItem
+                    key={entry.id}
+                    entry={entry}
+                    meta={meta}
+                    Icon={Icon}
+                    onRemove={() => onRemoveEntry(entry.id)}
+                    onUpdateTime={(start, end) =>
+                      onUpdateEntryTime(entry.id, start, end)
+                    }
+                  />
+                );
+              }
+              return null;
+            })
+          )}
+        </div>
+      )}
+
+      {/* Timeline view */}
+      {dayView === "timeline" && (
+        <DayTimeline
+          entries={scheduleEntries}
+          customOffers={customOffers}
+          onRemove={(entryId) => {
+            const entry = scheduleEntries.find((e) => e.id === entryId);
+            if (entry?.type === "offer" && entry.offerId) {
+              onRemove(entry.offerId);
+            }
+            onRemoveEntry(entryId);
+          }}
+          onUpdateTime={onUpdateEntryTime}
+        />
+      )}
 
       <div className="mt-4">
         <label className="text-[10px] tracking-[0.18em] uppercase text-moss-soft flex items-center gap-1">
@@ -64,6 +257,56 @@ export default function DayDetail({
           className="mt-1.5 w-full bg-parchment border-none rounded-sm px-3 py-2.5 text-[13px] text-ink resize-y outline-none focus:ring-2 focus:ring-amber/40"
         />
       </div>
+    </div>
+  );
+}
+
+function BreakItem({
+  entry,
+  meta,
+  Icon,
+  onRemove,
+  onUpdateTime,
+}: {
+  entry: ScheduleEntry;
+  meta: { label: string; color: string };
+  Icon: typeof Coffee;
+  onRemove: () => void;
+  onUpdateTime: (start: string, end: string) => void;
+}) {
+  return (
+    <div
+      className="bg-parchment p-4 rounded-sm border-l-[3px] flex justify-between gap-3 items-center"
+      style={{ borderColor: meta.color }}
+    >
+      <div className="flex items-center gap-2 flex-1 min-w-0">
+        <Icon size={16} style={{ color: meta.color }} className="shrink-0" />
+        <span className="font-serif text-lg font-medium text-ink leading-tight">
+          {entry.label || meta.label}
+        </span>
+      </div>
+      <div className="flex items-center gap-1.5 shrink-0">
+        <input
+          type="time"
+          value={entry.startTime || ""}
+          onChange={(e) => onUpdateTime(e.target.value, entry.endTime || "")}
+          className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]"
+        />
+        <span className="text-stone text-[11px]">–</span>
+        <input
+          type="time"
+          value={entry.endTime || ""}
+          onChange={(e) => onUpdateTime(entry.startTime || "", e.target.value)}
+          className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]"
+        />
+      </div>
+      <button
+        onClick={onRemove}
+        aria-label="Entfernen"
+        className="bg-transparent border border-ink/20 text-ink w-8 h-8 rounded-sm cursor-pointer flex items-center justify-center shrink-0 hover:bg-ink/5"
+      >
+        <span className="text-[14px]">×</span>
+      </button>
     </div>
   );
 }

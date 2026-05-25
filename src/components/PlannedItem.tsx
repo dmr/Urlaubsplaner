@@ -4,10 +4,19 @@ import { MapPin, Clock, Ticket, AlertTriangle, X } from "lucide-react";
 
 interface PlannedItemProps {
   offer: Offer;
+  startTime?: string;
+  endTime?: string;
   onRemove: () => void;
+  onUpdateTime?: (startTime: string, endTime: string) => void;
 }
 
-export default function PlannedItem({ offer, onRemove }: PlannedItemProps) {
+export default function PlannedItem({
+  offer,
+  startTime,
+  endTime,
+  onRemove,
+  onUpdateTime,
+}: PlannedItemProps) {
   const warn = ageWarning(offer);
   const leftBorder = offer.cardIncluded ? "border-amber" : "border-moss";
 
@@ -35,6 +44,23 @@ export default function PlannedItem({ offer, onRemove }: PlannedItemProps) {
             </span>
           )}
         </div>
+        {onUpdateTime && (
+          <div className="flex items-center gap-1.5 mt-2">
+            <input
+              type="time"
+              value={startTime || ""}
+              onChange={(e) => onUpdateTime(e.target.value, endTime || "")}
+              className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]"
+            />
+            <span className="text-stone text-[11px]">–</span>
+            <input
+              type="time"
+              value={endTime || ""}
+              onChange={(e) => onUpdateTime(startTime || "", e.target.value)}
+              className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]"
+            />
+          </div>
+        )}
         {warn && (
           <div className="mt-2 text-[11px] text-blood flex items-start gap-1">
             <AlertTriangle size={11} className="mt-0.5 shrink-0" />
