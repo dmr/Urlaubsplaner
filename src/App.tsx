@@ -11,10 +11,12 @@ import DayStrip from "@/components/DayStrip";
 import DayDetail from "@/components/DayDetail";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
+import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check } from "lucide-react";
+import { Loader2, Save, Check, List, Map } from "lucide-react";
 
 type SaveStatus = "idle" | "saving" | "saved";
+type ViewMode = "list" | "map";
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
@@ -22,6 +24,7 @@ export default function App() {
   const [filter, setFilter] = useState<FilterKey>("all");
   const [maxDistance, setMaxDistance] = useState<number>(60);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
+  const [viewMode, setViewMode] = useState<ViewMode>("list");
 
   // Initial load
   useEffect(() => {
@@ -151,39 +154,71 @@ export default function App() {
           />
         </section>
 
-        {/* Catalog */}
-        <section className="px-5 pb-10">
-          <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
-            Angebote
-          </h2>
-          <div className="text-[11px] text-moss-soft mb-4">
-            {filteredOffers.length} Vorschläge — kuratiert rund um Löffingen
-          </div>
-
-          <FilterBar
-            filter={filter}
-            maxDistance={maxDistance}
-            onFilterChange={setFilter}
-            onDistanceChange={setMaxDistance}
-          />
-
-          <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
-            {filteredOffers.length === 0 ? (
-              <div className="col-span-full py-7 text-center text-moss-soft italic text-[13px]">
-                Nichts gefunden — Filter lockern.
-              </div>
-            ) : (
-              filteredOffers.map((o) => (
-                <OfferCard
-                  key={o.id}
-                  offer={o}
-                  activeDay={activeDate}
-                  onAdd={(date) => addToDay(o.id, date)}
-                />
-              ))
-            )}
+        {/* View Toggle */}
+        <section className="px-5 pb-4">
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => setViewMode("list")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                viewMode === "list"
+                  ? "bg-moss text-cream"
+                  : "bg-stone/40 text-moss-soft hover:text-cream"
+              }`}
+            >
+              <List size={15} /> Angebote
+            </button>
+            <button
+              onClick={() => setViewMode("map")}
+              className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
+                viewMode === "map"
+                  ? "bg-moss text-cream"
+                  : "bg-stone/40 text-moss-soft hover:text-cream"
+              }`}
+            >
+              <Map size={15} /> Karte & Routen
+            </button>
           </div>
         </section>
+
+        {/* Catalog or Map */}
+        {viewMode === "list" ? (
+          <section className="px-5 pb-10">
+            <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
+              Angebote
+            </h2>
+            <div className="text-[11px] text-moss-soft mb-4">
+              {filteredOffers.length} Vorschläge — kuratiert rund um Löffingen
+            </div>
+
+            <FilterBar
+              filter={filter}
+              maxDistance={maxDistance}
+              onFilterChange={setFilter}
+              onDistanceChange={setMaxDistance}
+            />
+
+            <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
+              {filteredOffers.length === 0 ? (
+                <div className="col-span-full py-7 text-center text-moss-soft italic text-[13px]">
+                  Nichts gefunden — Filter lockern.
+                </div>
+              ) : (
+                filteredOffers.map((o) => (
+                  <OfferCard
+                    key={o.id}
+                    offer={o}
+                    activeDay={activeDate}
+                    onAdd={(date) => addToDay(o.id, date)}
+                  />
+                ))
+              )}
+            </div>
+          </section>
+        ) : (
+          <section className="px-5 pb-10">
+            <MapView plannedOfferIds={plannedIds} />
+          </section>
+        )}
 
         <Footer onReset={resetAll} />
       </div>
