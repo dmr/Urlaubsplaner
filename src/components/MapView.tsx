@@ -46,6 +46,18 @@ const OFFER_COORDS: Record<string, [number, number]> = {
   "badkrozingen-vita-classica": [47.919, 7.699],
   "schwarzwaldhaus-natur": [47.857, 8.003],
   "mundenhof-freiburg": [47.979, 7.800],
+  "spasspark-schluchsee": [47.820, 8.180],
+  "abenteuer-golfpark": [47.852, 8.172],
+  "alpaka-wanderung": [47.920, 8.070],
+  "schwarzwaldzoo": [48.093, 7.960],
+  "action-forest": [47.905, 8.148],
+  "rothaus-express": [47.820, 8.290],
+  "schwarzwaldhaus-sinne": [47.815, 8.290],
+  "skimuseum-vr": [47.901, 8.103],
+  "bootstour-titisee": [47.898, 8.148],
+  "tretboot-schluchsee": [47.822, 8.185],
+  "minigolf-schluchsee": [47.821, 8.183],
+  "konus-nahverkehr": [47.884, 8.343],
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
