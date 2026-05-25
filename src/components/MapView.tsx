@@ -58,6 +58,14 @@ const OFFER_COORDS: Record<string, [number, number]> = {
   "tretboot-schluchsee": [47.822, 8.185],
   "minigolf-schluchsee": [47.821, 8.183],
   "konus-nahverkehr": [47.884, 8.343],
+  "spielscheune-unterkirnach": [47.877, 8.268],
+  "todtnauer-wasserfaelle": [47.836, 7.952],
+  ravennaschlucht: [47.894, 8.074],
+  "wildgehege-stblasien": [47.764, 8.126],
+  kirnbergsee: [47.898, 8.364],
+  erdmannshoehle: [47.654, 7.901],
+  "baumkronenweg-waldkirch": [48.098, 7.968],
+  "maerklin-world": [47.905, 8.149],
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
