@@ -1,0 +1,38 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+  html,
+  body,
+  #root {
+    margin: 0;
+    min-height: 100%;
+    background-color: theme("colors.forest-deep");
+    color: theme("colors.cream");
+    font-family: theme("fontFamily.sans");
+    -webkit-font-smoothing: antialiased;
+  }
+}
+
+@layer utilities {
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}
+
+/* Forest gradient background */
+.bg-forest-gradient {
+  background-image: radial-gradient(
+    circle at 20% 10%,
+    theme("colors.forest") 0%,
+    theme("colors.forest-deep") 60%
+  );
+}
