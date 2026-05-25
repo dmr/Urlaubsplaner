@@ -682,10 +682,11 @@ export const OFFERS: Offer[] = [
     tags: ["outdoor", "animals"],
     price: "€€",
     cardIncluded: true,
+    availableDays: ["Di"],
     description:
-      "Geführte Wanderung mit Alpakas. Kinder 0–7 gratis auch ohne Card. Ab 6 Teilnehmern Wanderung, sonst 'Kuscheln' auf der Weide.",
+      "Geführte Wanderung mit Alpakas. Kinder 0–7 gratis auch ohne Card. Ab 6 Teilnehmern Wanderung, sonst 'Kuscheln' auf der Weide. Nur dienstags!",
     pro: "Card-inkl. Magisch für Kinder. 3-Jähriger darf gratis mit.",
-    con: "Voranmeldung nötig. Mind. 6 Personen für Wanderung.",
+    con: "Nur dienstags. Voranmeldung nötig. Mind. 6 Personen für Wanderung.",
     url: "https://haberjockelshof.de",
   },
   {

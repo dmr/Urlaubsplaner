@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowUpDown } from "lucide-react";
+import type { SortKey } from "@/lib/ranking";
 
 export type FilterKey =
   | "all"
@@ -33,18 +34,29 @@ const MORE_FILTERS: { id: FilterKey; label: string }[] = [
   { id: "badWeather", label: "Schlechtwetter" },
 ];
 
+const SORT_OPTIONS: { id: SortKey; label: string }[] = [
+  { id: "empfohlen", label: "Empfohlen" },
+  { id: "distanz", label: "Nähe" },
+  { id: "preis", label: "Preis" },
+  { id: "name", label: "A–Z" },
+];
+
 interface FilterBarProps {
   filter: FilterKey;
   maxDistance: number;
+  sortKey: SortKey;
   onFilterChange: (f: FilterKey) => void;
   onDistanceChange: (km: number) => void;
+  onSortChange: (s: SortKey) => void;
 }
 
 export default function FilterBar({
   filter,
   maxDistance,
+  sortKey,
   onFilterChange,
   onDistanceChange,
+  onSortChange,
 }: FilterBarProps) {
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -111,22 +123,41 @@ export default function FilterBar({
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5">
-        <span className="text-[10px] tracking-wider uppercase text-moss-soft">
-          Max. Fahrt
-        </span>
-        <input
-          type="range"
-          min={0}
-          max={80}
-          value={maxDistance}
-          onChange={(e) => onDistanceChange(Number(e.target.value))}
-          className="flex-1 max-w-[200px]"
-          style={{ accentColor: "#c98a3a" }}
-        />
-        <span className="font-serif text-sm text-cream min-w-[50px]">
-          {maxDistance} km
-        </span>
+      <div className="flex items-center gap-4 flex-wrap">
+        <div className="flex items-center gap-2.5">
+          <span className="text-[10px] tracking-wider uppercase text-moss-soft">
+            Max. Fahrt
+          </span>
+          <input
+            type="range"
+            min={0}
+            max={80}
+            value={maxDistance}
+            onChange={(e) => onDistanceChange(Number(e.target.value))}
+            className="flex-1 max-w-[160px]"
+            style={{ accentColor: "#c98a3a" }}
+          />
+          <span className="font-serif text-sm text-cream min-w-[42px]">
+            {maxDistance} km
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <ArrowUpDown size={11} className="text-moss-soft" />
+          {SORT_OPTIONS.map((s) => (
+            <button
+              key={s.id}
+              onClick={() => onSortChange(s.id)}
+              className={`px-2 py-1 rounded text-[10px] tracking-wider uppercase transition-colors ${
+                sortKey === s.id
+                  ? "bg-cream/15 text-cream font-medium"
+                  : "text-moss-soft hover:text-cream"
+              }`}
+            >
+              {s.label}
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import { AppState, DEFAULT_STATE, BreakType } from "@/lib/types";
 import { loadState, saveState, clearState, exportState, importState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
+import { sortOffers, SortKey } from "@/lib/ranking";
 import { OFFERS } from "@/data/offers";
 import { TRIP_DAYS } from "@/data/tripDays";
 import TopoBackground from "@/components/TopoBackground";
@@ -32,6 +33,7 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
+  const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -184,12 +186,17 @@ export default function App() {
     .map((id) => offerById(id, state.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
 
-  const filteredOffers = OFFERS.filter((o) => {
-    if (o.distance > maxDistance) return false;
-    if (filter === "all") return true;
-    if (filter === "card") return o.cardIncluded;
-    return o.tags.includes(filter);
-  });
+  const filteredOffers = sortOffers(
+    OFFERS.filter((o) => {
+      if (o.distance > maxDistance) return false;
+      if (filter === "all") return true;
+      if (filter === "card") return o.cardIncluded;
+      return o.tags.includes(filter);
+    }),
+    sortKey,
+    state.schedule,
+    activeDate
+  );
 
   const counts = Object.fromEntries(
     TRIP_DAYS.map((d) => [d.date, (state.schedule[d.date] ?? []).length])
@@ -346,8 +353,10 @@ export default function App() {
             <FilterBar
               filter={filter}
               maxDistance={maxDistance}
+              sortKey={sortKey}
               onFilterChange={setFilter}
               onDistanceChange={setMaxDistance}
+              onSortChange={setSortKey}
             />
 
             <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">

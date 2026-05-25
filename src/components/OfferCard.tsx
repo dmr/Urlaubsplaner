@@ -3,11 +3,13 @@ import { Offer, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
+import { computeRanking, getRankingExplanation } from "@/lib/ranking";
 import {
   MapPin,
   Clock,
   Ticket,
   AlertTriangle,
+  CalendarX,
   Plus,
   ChevronDown,
   ChevronUp,
@@ -40,11 +42,19 @@ function TagChip({ tag }: { tag: keyof typeof TAG_META }) {
 export default function OfferCard({ offer, activeDay, schedule, onAdd }: OfferCardProps) {
   const [expanded, setExpanded] = useState(false);
   const [picking, setPicking] = useState(false);
+  const [showRanking, setShowRanking] = useState(false);
   const warn = ageWarning(offer);
+  const ranking = computeRanking(offer, schedule, activeDay);
+  const rankingExplanation = getRankingExplanation(ranking);
 
   const plannedDates = TRIP_DAYS
     .filter((d) => isOfferPlannedOnDate(schedule, offer.id, d.date))
     .map((d) => d.weekday);
+
+  const activeDayData = TRIP_DAYS.find((d) => d.date === activeDay);
+  const notAvailableToday = offer.availableDays &&
+    activeDayData &&
+    !offer.availableDays.includes(activeDayData.weekday);
 
   return (
     <div className="bg-parchment rounded-sm overflow-hidden flex flex-col border border-cream">
@@ -87,11 +97,41 @@ export default function OfferCard({ offer, activeDay, schedule, onAdd }: OfferCa
           <span>{offer.price}</span>
         </div>
 
-        <div className="mt-2.5 flex flex-wrap gap-1.5">
+        <div className="mt-2.5 flex flex-wrap gap-1.5 items-center">
           {offer.tags.map((t) => (
             <TagChip key={t} tag={t} />
           ))}
+          <button
+            onClick={() => setShowRanking(!showRanking)}
+            className="text-[10px] px-2 py-0.5 rounded-full bg-forest/10 text-forest border border-forest/20 font-medium cursor-pointer hover:bg-forest/20"
+            title="Empfehlungs-Score"
+          >
+            {ranking.total} Pkt
+          </button>
         </div>
+
+        {showRanking && (
+          <div className="mt-2 px-2.5 py-2 bg-forest/5 border border-forest/15 rounded-sm text-[10px] text-stone leading-relaxed">
+            <div className="font-medium text-ink mb-1">Empfehlung: {ranking.total}/100</div>
+            <div className="grid grid-cols-2 gap-x-3 gap-y-0.5">
+              <span>Nähe ({offer.distance} km)</span><span className="text-right">{Math.round(ranking.distanceScore)}/25</span>
+              <span>Card-Wert</span><span className="text-right">{ranking.cardScore}/20</span>
+              <span>Familientauglich</span><span className="text-right">{ranking.familyScore}/30</span>
+              <span>Wetterfest</span><span className="text-right">{ranking.weatherScore}/10</span>
+              <span>Vielfalt</span><span className="text-right">{ranking.varietyScore}/15</span>
+            </div>
+            <div className="mt-1.5 pt-1.5 border-t border-forest/10 text-[10px] text-stone/80">
+              {rankingExplanation.join(" · ")}
+            </div>
+          </div>
+        )}
+
+        {notAvailableToday && (
+          <div className="mt-2.5 px-2.5 py-2 bg-amber/10 border border-amber/30 rounded-sm text-[11px] text-amber-deep flex items-start gap-1.5">
+            <CalendarX size={12} className="mt-0.5 shrink-0" />
+            <span>Nur {offer.availableDays!.join(", ")} verfügbar — heute ist {activeDayData?.weekday}.</span>
+          </div>
+        )}
 
         <p className="text-[13px] text-ink leading-relaxed mt-3 mb-0">
           {offer.description}

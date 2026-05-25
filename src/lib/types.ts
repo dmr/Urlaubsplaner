@@ -36,6 +36,8 @@ export interface Offer {
   /** Explicit warning rendered prominently */
   warning?: string;
   url?: string;
+  /** If set, offer is only available on these weekdays (Mo, Di, Mi, Do, Fr, Sa, So) */
+  availableDays?: string[];
 }
 
 export interface TripDay {
