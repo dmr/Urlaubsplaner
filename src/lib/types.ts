@@ -7,7 +7,10 @@ export type OfferTag =
   | "hike"
   | "train"
   | "thrill"
-  | "badWeather";
+  | "badWeather"
+  | "culture"
+  | "nature"
+  | "viewpoint";
 
 export type Price = "€" | "€€" | "€€€" | "Gratis";
 

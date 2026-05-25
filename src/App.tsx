@@ -27,7 +27,7 @@ export default function App() {
   const [state, setState] = useState<AppState | null>(null);
   const [activeDate, setActiveDate] = useState<string>(TRIP_DAYS[0].date);
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [maxDistance, setMaxDistance] = useState<number>(60);
+  const [maxDistance, setMaxDistance] = useState<number>(80);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
 

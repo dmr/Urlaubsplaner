@@ -7,6 +7,9 @@ export type FilterKey =
   | "animals"
   | "hike"
   | "thrill"
+  | "culture"
+  | "nature"
+  | "viewpoint"
   | "badWeather";
 
 const FILTERS: { id: FilterKey; label: string }[] = [
@@ -18,6 +21,9 @@ const FILTERS: { id: FilterKey; label: string }[] = [
   { id: "animals", label: "Tiere" },
   { id: "hike", label: "Wandern" },
   { id: "thrill", label: "Action" },
+  { id: "culture", label: "Kultur" },
+  { id: "nature", label: "Natur" },
+  { id: "viewpoint", label: "Aussicht" },
   { id: "badWeather", label: "Schlechtwetter" },
 ];
 
@@ -57,7 +63,7 @@ export default function FilterBar({
         <input
           type="range"
           min={0}
-          max={60}
+          max={80}
           value={maxDistance}
           onChange={(e) => onDistanceChange(Number(e.target.value))}
           className="flex-1 max-w-[200px]"
