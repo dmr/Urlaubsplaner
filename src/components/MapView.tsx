@@ -66,6 +66,7 @@ const OFFER_COORDS: Record<string, [number, number]> = {
   erdmannshoehle: [47.654, 7.901],
   "baumkronenweg-waldkirch": [48.098, 7.968],
   "maerklin-world": [47.905, 8.149],
+  "rheinfall-schaffhausen": [47.6779, 8.6153],
 };
 
 const DIFFICULTY_COLORS: Record<string, string> = {
@@ -260,9 +261,9 @@ function RouteCard({
   const color = DIFFICULTY_COLORS[route.difficulty];
 
   return (
-    <button
+    <div
       onClick={onSelect}
-      className={`text-left p-4 rounded-xl border transition-all ${
+      className={`text-left p-4 rounded-xl border transition-all cursor-pointer ${
         isSelected
           ? "bg-forest border-moss/60 ring-1 ring-moss/40"
           : "bg-forest-deep/60 border-moss/20 hover:border-moss/40"
@@ -290,6 +291,12 @@ function RouteCard({
         <span>{route.elevation}</span>
       </div>
 
+      {route.strollerFriendly && (
+        <div className="mt-1.5 text-[10px] text-moss">
+          ✓ Kinderwagen-tauglich
+        </div>
+      )}
+
       {route.highlights.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-2">
           {route.highlights.map((h) => (
@@ -308,7 +315,92 @@ function RouteCard({
           <AlertTriangle size={12} /> {route.warning}
         </div>
       )}
-    </button>
+
+      {/* Expanded details when selected */}
+      {isSelected && (
+        <div className="mt-3 pt-3 border-t border-moss/20 space-y-3">
+          {/* Elevation Profile */}
+          {route.elevationProfile && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-1.5">
+                Höhenprofil
+              </div>
+              <div className="flex items-end gap-px h-12 mb-1">
+                {route.elevationProfile.waypoints.map((wp, i) => {
+                  const range = route.elevationProfile!.max - Math.min(...route.elevationProfile!.waypoints.map(w => w.elevation));
+                  const min = Math.min(...route.elevationProfile!.waypoints.map(w => w.elevation));
+                  const pct = range > 0 ? ((wp.elevation - min) / range) * 100 : 50;
+                  return (
+                    <div
+                      key={i}
+                      className="flex-1 bg-moss/40 rounded-t-sm relative group"
+                      style={{ height: `${Math.max(pct, 10)}%` }}
+                      title={`${wp.name}: ${wp.elevation} m (km ${wp.km})`}
+                    >
+                      <div className="absolute bottom-full mb-0.5 left-1/2 -translate-x-1/2 hidden group-hover:block bg-forest text-cream text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap z-10">
+                        {wp.elevation} m
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="flex justify-between text-[9px] text-moss-soft/70">
+                <span>{route.elevationProfile.waypoints[0]?.name}</span>
+                <span>{route.elevationProfile.waypoints[route.elevationProfile.waypoints.length - 1]?.name}</span>
+              </div>
+              <div className="text-[10px] text-cream-soft mt-1">
+                Start {route.elevationProfile.start} m · Max {route.elevationProfile.max} m · ↑{route.elevationProfile.totalAscent} m ↓{route.elevationProfile.totalDescent} m
+              </div>
+            </div>
+          )}
+
+          {/* Surface */}
+          <div>
+            <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Untergrund</div>
+            <div className="text-[11px] text-cream/80">{route.surface}</div>
+          </div>
+
+          {/* Parking */}
+          {route.parking && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Parkplatz</div>
+              <div className="text-[11px] text-cream/80">
+                {route.parking.name} · {route.parking.cost}
+                {route.parking.notes && <span className="text-moss-soft"> · {route.parking.notes}</span>}
+              </div>
+            </div>
+          )}
+
+          {/* Photo Spots */}
+          {route.photoSpots.length > 0 && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Foto-Spots</div>
+              <div className="space-y-0.5">
+                {route.photoSpots.map((spot, i) => (
+                  <div key={i} className="text-[10px] text-cream/70">
+                    📸 {spot}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Facilities */}
+          {route.facilities.length > 0 && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Einrichtungen</div>
+              <div className="flex flex-wrap gap-1.5">
+                {route.facilities.map((f, i) => (
+                  <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-stone/30 text-moss-soft">
+                    {f}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
 

@@ -836,6 +836,25 @@ export const OFFERS: Offer[] = [
     con: "Fahrpläne im ländlichen Bereich ausgedünnt — vorher checken.",
   },
 
+  {
+    id: "rheinfall-schaffhausen",
+    name: "Rheinfall Schaffhausen",
+    sub: "Größter Wasserfall Europas",
+    location: "Neuhausen/Schweiz (55 km)",
+    distance: 55,
+    duration: "Halbtags (3–4 h)",
+    minAge: 0,
+    tags: ["outdoor", "nature", "water"],
+    price: "€€",
+    cardIncluded: false,
+    description:
+      "23 m hoch, 150 m breit — atemberaubend! Nordufer gratis, Schloss Laufen 5 CHF/Erw. (unter 6 frei). 15-Min-Bootsrundfahrt (~10,50 CHF/Pers., unter 6 frei). Panoramalift, Spielplatz, Grillplatz.",
+    pro: "Absoluter Wow-Faktor. Nordufer kostenlos + Spielplatz. Früh morgens kommen (vor 10 Uhr). Route über Stühlingen: keine Vignette nötig!",
+    con: "Schweiz — CHF (Kreditkarte akzeptiert). Parken ~9 CHF/3h. Felsenfahrt (100 Stufen) nicht für 3-Jährige.",
+    warning: "Ausweis mitnehmen (Schweiz). Regenjacke — am Känzeli wird man nass! Route über B315/Stühlingen spart 40 CHF Vignette.",
+    url: "https://www.rheinfall.ch",
+  },
+
   // ── Weitere Sehenswürdigkeiten (Recherche 2) ──
 
   {
