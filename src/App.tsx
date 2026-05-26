@@ -351,7 +351,7 @@ export default function App() {
           <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <span className="font-serif italic text-[15px] text-cream">
-                {activeDay.full}, {activeDay.day}. Mai
+                {activeDay.weekday}, {activeDay.day}. Mai
               </span>
               <span className="text-[10px] text-moss-soft">
                 {Object.values(counts).reduce((a, b) => a + b, 0)} geplant
