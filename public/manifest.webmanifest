@@ -1,7 +1,7 @@
 {
   "name": "Schwarzwald Urlaubsplaner",
   "short_name": "Urlaubsplaner",
-  "description": "Familienurlaub im Schwarzwald planen — Löffingen, Pfingsten 2026",
+  "description": "Familienurlaub im Schwarzwald planen — Löffingen, Mai 2026",
   "start_url": "/Urlaubsplaner/",
   "scope": "/Urlaubsplaner/",
   "display": "standalone",
@@ -12,9 +12,15 @@
   "lang": "de",
   "icons": [
     {
-      "src": "/Urlaubsplaner/logo.jpg",
+      "src": "/Urlaubsplaner/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/Urlaubsplaner/icon-512.png",
       "sizes": "512x512",
-      "type": "image/jpeg",
+      "type": "image/png",
       "purpose": "any"
     }
   ]
