@@ -29,7 +29,13 @@ function nextEntryId(): string {
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
-  const [activeDate, setActiveDate] = useState<string>(TRIP_DAYS[0].date);
+  const [activeDate, setActiveDate] = useState<string>(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    const match = TRIP_DAYS.find((d) => d.date === today);
+    if (match) return match.date;
+    const future = TRIP_DAYS.find((d) => d.date >= today);
+    return future?.date ?? TRIP_DAYS[0].date;
+  });
   const [filter, setFilter] = useState<FilterKey>("all");
   const [maxDistance, setMaxDistance] = useState<number>(80);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -247,12 +253,17 @@ export default function App() {
         <Header />
         <HochschwarzwaldHint />
 
-        {/* Day Strip */}
-        <section className="px-5 pb-5">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
-              Die Tage
-            </h2>
+        {/* Day Strip — sticky */}
+        <section className="sticky top-0 z-30 px-5 pb-3 pt-3 bg-forest-deep/95 backdrop-blur-sm border-b border-cream/5">
+          <div className="flex justify-between items-center mb-2">
+            <div className="flex items-center gap-2">
+              <h2 className="font-serif font-light italic text-[18px] text-cream m-0 -tracking-[0.01em]">
+                Die Tage
+              </h2>
+              <span className="text-[10px] text-moss-soft">
+                {Object.values(counts).reduce((a, b) => a + b, 0)} Aktivitäten geplant
+              </span>
+            </div>
             <div className="flex items-center gap-2">
               <button
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}

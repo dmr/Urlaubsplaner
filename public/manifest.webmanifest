@@ -12,10 +12,10 @@
   "lang": "de",
   "icons": [
     {
-      "src": "/Urlaubsplaner/favicon.svg",
-      "sizes": "any",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "src": "/Urlaubsplaner/logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any"
     }
   ]
 }
