@@ -49,6 +49,7 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
   const [showDaySheet, setShowDaySheet] = useState(false);
+  const [highlightedOfferId, setHighlightedOfferId] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
 
   const openDaySheet = useCallback((date?: string) => {
@@ -482,9 +483,6 @@ export default function App() {
               <MapView
                 plannedOfferIds={allPlannedIds}
                 activeDayOfferIds={plannedIds}
-                activeDay={activeDate}
-                schedule={state.schedule}
-                onAddHike={(hikeId, date) => addToDay(`hike-${hikeId}`, date)}
               />
             </Suspense>
           </section>
@@ -529,10 +527,17 @@ export default function App() {
           note={state.notes[activeDate] ?? ""}
           scheduleEntries={scheduleEntries}
           customOffers={state.customOffers}
+          highlightedId={highlightedOfferId}
           onRemove={(id) => removeFromDay(id, activeDate)}
           onNoteChange={(text) => setNote(activeDate, text)}
           onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
           onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}
+          onHighlight={setHighlightedOfferId}
+          onOpenDetail={(offerId) => {
+            setShowDaySheet(false);
+            const found = allOffers.find((o) => o.id === offerId);
+            if (found) openModal(found);
+          }}
           onUpdateEntryTime={(entryId, start, end) =>
             updateEntryTime(activeDate, entryId, start, end)
           }

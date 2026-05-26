@@ -12,9 +12,11 @@ const LOEFFINGEN: [number, number] = [47.884, 8.343];
 export default function DayMap({
   entries,
   customOffers,
+  highlightedId,
 }: {
   entries: ScheduleEntry[];
   customOffers: import("@/lib/types").Offer[];
+  highlightedId?: string | null;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
@@ -55,9 +57,15 @@ export default function DayMap({
       .addTo(map).bindPopup("<b>Löffingen</b>");
 
     items.forEach((item, i) => {
-      L.circleMarker(item.coords, { radius: 9, fillColor: item.color, color: "#f3ead7", weight: 2, fillOpacity: 0.9 })
-        .addTo(map)
-        .bindPopup(`<b>${i + 1}. ${item.name}</b>${item.isHike ? "<br>🥾 Wanderung" : ""}`);
+      const isHighlighted = highlightedId === item.offerId;
+      const marker = L.circleMarker(item.coords, {
+        radius: isHighlighted ? 14 : 9,
+        fillColor: isHighlighted ? "#d49540" : item.color,
+        color: isHighlighted ? "#fff" : "#f3ead7",
+        weight: isHighlighted ? 3 : 2,
+        fillOpacity: isHighlighted ? 1 : 0.9,
+      }).addTo(map).bindPopup(`<b>${i + 1}. ${item.name}</b>${item.isHike ? "<br>🥾 Wanderung" : ""}`);
+      if (isHighlighted) { marker.openPopup(); map.panTo(item.coords); }
 
       L.marker(item.coords, {
         icon: L.divIcon({
@@ -96,7 +104,7 @@ export default function DayMap({
 
     mapInstance.current = map;
     return () => { map.remove(); mapInstance.current = null; };
-  }, [entries.map((e) => e.id).join(",")]);
+  }, [entries.map((e) => e.id).join(","), highlightedId]);
 
   if (items.length === 0) return null;
 

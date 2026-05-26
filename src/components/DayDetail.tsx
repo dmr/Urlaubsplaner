@@ -30,10 +30,13 @@ interface DayDetailProps {
   note: string;
   scheduleEntries: ScheduleEntry[];
   customOffers: Offer[];
+  highlightedId: string | null;
   onRemove: (offerId: string) => void;
   onNoteChange: (text: string) => void;
   onAddBreak: (breakType: BreakType, label?: string) => void;
   onRemoveEntry: (entryId: string) => void;
+  onHighlight: (offerId: string | null) => void;
+  onOpenDetail: (offerId: string) => void;
   onUpdateEntryTime: (
     entryId: string,
     startTime: string,
@@ -47,9 +50,12 @@ export default function DayDetail({
   note,
   scheduleEntries,
   customOffers,
+  highlightedId,
   onRemove,
   onNoteChange,
   onAddBreak,
+  onHighlight,
+  onOpenDetail,
   onRemoveEntry,
   onUpdateEntryTime,
 }: DayDetailProps) {
@@ -200,6 +206,9 @@ export default function DayDetail({
                     offer={offer}
                     startTime={entry.startTime}
                     endTime={entry.endTime}
+                    highlighted={highlightedId === entry.offerId}
+                    onTap={() => onHighlight(highlightedId === entry.offerId ? null : entry.offerId!)}
+                    onOpenDetail={() => onOpenDetail(entry.offerId!)}
                     onRemove={() => {
                       onRemove(entry.offerId!);
                     }}
@@ -270,7 +279,7 @@ export default function DayDetail({
       {/* Day Map */}
       {scheduleEntries.some((e) => e.type === "offer") && (
         <Suspense fallback={<div className="mt-4 py-4 text-center text-moss-soft text-[11px]"><Loader2 size={14} className="animate-spin inline mr-1" />Karte …</div>}>
-          <DayMap entries={scheduleEntries} customOffers={customOffers} />
+          <DayMap entries={scheduleEntries} customOffers={customOffers} highlightedId={highlightedId} />
         </Suspense>
       )}
     </div>
