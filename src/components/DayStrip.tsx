@@ -17,7 +17,7 @@ export default function DayStrip({
   const today = new Date().toISOString().slice(0, 10);
 
   return (
-    <div className="flex gap-1.5 overflow-x-auto hide-scrollbar">
+    <div className="flex gap-1.5 overflow-x-auto hide-scrollbar scroll-snap-x">
       {days.map((d) => (
         <DayTab
           key={d.date}

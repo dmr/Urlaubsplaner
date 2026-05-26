@@ -94,9 +94,20 @@ export default function OfferModal({
           </button>
         </div>
 
-        {/* Image gallery */}
+        {/* Image gallery with swipe */}
         {images.length > 0 && (
-          <div className="relative h-[220px] sm:h-[280px] overflow-hidden rounded-t-lg bg-forest-deep">
+          <div
+            className="relative h-[220px] sm:h-[280px] overflow-hidden rounded-t-lg bg-forest-deep"
+            onTouchStart={(e) => { (e.currentTarget as any)._touchX = e.touches[0].clientX; }}
+            onTouchEnd={(e) => {
+              const startX = (e.currentTarget as any)._touchX;
+              if (startX == null) return;
+              const diff = startX - e.changedTouches[0].clientX;
+              if (Math.abs(diff) > 50 && images.length > 1) {
+                setImageIdx((i) => diff > 0 ? (i + 1) % images.length : (i - 1 + images.length) % images.length);
+              }
+            }}
+          >
             <img
               src={images[imageIdx]}
               alt={offer.name}
@@ -112,7 +123,7 @@ export default function OfferModal({
                   onClick={() =>
                     setImageIdx((i) => (i - 1 + images.length) % images.length)
                   }
-                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-ink/50 text-cream w-8 h-8 rounded-full flex items-center justify-center hover:bg-ink/70"
+                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-ink/50 text-cream w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink/70"
                 >
                   <ChevronLeft size={16} />
                 </button>
@@ -120,7 +131,7 @@ export default function OfferModal({
                   onClick={() =>
                     setImageIdx((i) => (i + 1) % images.length)
                   }
-                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-ink/50 text-cream w-8 h-8 rounded-full flex items-center justify-center hover:bg-ink/70"
+                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-ink/50 text-cream w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink/70"
                 >
                   <ChevronRight size={16} />
                 </button>

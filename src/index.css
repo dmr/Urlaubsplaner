@@ -66,6 +66,12 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+  .scroll-snap-x {
+    scroll-snap-type: x mandatory;
+  }
+  .scroll-snap-x > * {
+    scroll-snap-align: center;
+  }
 }
 
 /* Forest gradient background */

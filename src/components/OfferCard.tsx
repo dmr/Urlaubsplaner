@@ -91,7 +91,7 @@ export default function OfferCard({
           </div>
         </div>
 
-        <div className="mt-2 flex gap-3 flex-wrap text-xs text-ink/70">
+        <div className="mt-2 flex gap-3 flex-wrap text-[13px] text-ink/80">
           <span>
             <MapPin size={11} className="inline mr-0.5" />
             {offer.distance} km
@@ -109,7 +109,7 @@ export default function OfferCard({
             return (
               <span
                 key={t}
-                className="text-[9px] px-1.5 py-0.5 rounded-full border font-medium"
+                className="text-[10px] px-2 py-0.5 rounded-full border font-medium"
                 style={{
                   backgroundColor: meta.color + "18",
                   color: meta.color,
@@ -125,7 +125,7 @@ export default function OfferCard({
           )}
         </div>
 
-        <p className="text-[12px] text-ink leading-relaxed mt-2 mb-0 line-clamp-2 flex-1">
+        <p className="text-[13px] text-ink leading-relaxed mt-2 mb-0 line-clamp-2 flex-1">
           {offer.description}
         </p>
 

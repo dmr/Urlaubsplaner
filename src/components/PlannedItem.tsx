@@ -71,9 +71,9 @@ export default function PlannedItem({
       <button
         onClick={onRemove}
         aria-label="Entfernen"
-        className="bg-transparent border border-ink/20 text-ink w-8 h-8 rounded-sm cursor-pointer flex items-center justify-center shrink-0 hover:bg-ink/5"
+        className="bg-transparent border border-ink/20 text-ink w-10 h-10 rounded-sm cursor-pointer flex items-center justify-center shrink-0 hover:bg-ink/5 active:bg-ink/10"
       >
-        <X size={14} />
+        <X size={16} />
       </button>
     </div>
   );

@@ -80,8 +80,8 @@ export default function FilterBar({
 
   const btnCls = (active: boolean) =>
     active
-      ? "px-3 py-1.5 bg-cream text-forest border border-cream rounded-full text-[11px] tracking-wider uppercase font-medium cursor-pointer"
-      : "px-3 py-1.5 bg-transparent text-cream border border-cream/25 rounded-full text-[11px] tracking-wider uppercase font-medium cursor-pointer hover:bg-cream/10";
+      ? "px-3.5 py-2 bg-cream text-forest border border-cream rounded-full text-[12px] tracking-wider uppercase font-medium cursor-pointer"
+      : "px-3.5 py-2 bg-transparent text-cream border border-cream/25 rounded-full text-[12px] tracking-wider uppercase font-medium cursor-pointer hover:bg-cream/10 active:bg-cream/20";
 
   return (
     <div className="mb-4">

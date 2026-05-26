@@ -12,7 +12,7 @@ export default function Footer({ onReset }: FooterProps) {
       </div>
       <button
         onClick={onReset}
-        className="bg-transparent border border-cream/20 text-cream px-3 py-1.5 rounded-sm text-[11px] tracking-wider uppercase cursor-pointer flex items-center gap-1.5 hover:bg-cream/5"
+        className="bg-transparent border border-cream/20 text-cream px-4 py-2.5 rounded-sm text-[12px] tracking-wider uppercase cursor-pointer flex items-center gap-1.5 hover:bg-cream/5 active:bg-cream/10"
       >
         <RotateCcw size={11} /> Alles zurücksetzen
       </button>

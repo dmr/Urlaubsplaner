@@ -19,7 +19,7 @@ import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import AddCustomOffer from "@/components/AddCustomOffer";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus, ChevronUp } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus, ChevronUp, X } from "lucide-react";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -52,6 +52,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
+  const [undoAction, setUndoAction] = useState<{ label: string; undo: () => void } | null>(null);
 
   const openModal = useCallback((offer: Offer) => {
     setModalOffer(offer);
@@ -125,17 +126,33 @@ export default function App() {
   }, []);
 
   const removeFromDay = useCallback((offerId: string, date: string) => {
-    setState((s) => {
-      if (!s) return s;
-      return {
-        ...s,
+    setState((prev) => {
+      if (!prev) return prev;
+      const removed = (prev.schedule[date] ?? []).find((e) => e.type === "offer" && e.offerId === offerId);
+      const next = {
+        ...prev,
         schedule: {
-          ...s.schedule,
-          [date]: (s.schedule[date] ?? []).filter(
+          ...prev.schedule,
+          [date]: (prev.schedule[date] ?? []).filter(
             (e) => !(e.type === "offer" && e.offerId === offerId)
           ),
         },
       };
+      if (removed) {
+        const offer = offerById(offerId, prev.customOffers);
+        setUndoAction({
+          label: `${offer?.name ?? "Eintrag"} entfernt`,
+          undo: () => {
+            setState((s) => s ? {
+              ...s,
+              schedule: { ...s.schedule, [date]: [...(s.schedule[date] ?? []), removed] },
+            } : s);
+            setUndoAction(null);
+          },
+        });
+        setTimeout(() => setUndoAction((a) => a?.label === `${offer?.name ?? "Eintrag"} entfernt` ? null : a), 5000);
+      }
+      return next;
     });
   }, []);
 
@@ -328,6 +345,7 @@ export default function App() {
               >
                 {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
               </button>
+              {/* Save indicator */}
               <div className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1">
                 {saveStatus === "saving" && <Loader2 size={10} className="animate-spin" />}
                 {saveStatus === "saved" && <Check size={10} />}
@@ -431,8 +449,14 @@ export default function App() {
 
             <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
               {filteredOffers.length === 0 ? (
-                <div className="col-span-full py-7 text-center text-moss-soft italic text-[13px]">
-                  Nichts gefunden — Filter lockern.
+                <div className="col-span-full py-7 text-center text-moss-soft text-[14px] space-y-2">
+                  <div className="italic">Nichts gefunden.</div>
+                  <button
+                    onClick={() => { setFilter("all"); setMaxDistance(80); setSearchQuery(""); }}
+                    className="text-amber underline text-[13px]"
+                  >
+                    Alle Filter zurücksetzen
+                  </button>
                 </div>
               ) : (
                 filteredOffers.map((o) => (
@@ -484,6 +508,25 @@ export default function App() {
           onAdd={addCustomOffer}
           onClose={() => setShowAddCustom(false)}
         />
+      )}
+
+      {/* Undo toast */}
+      {undoAction && (
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 bg-ink text-cream px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-[13px] max-w-[90vw]">
+          <span>{undoAction.label}</span>
+          <button
+            onClick={undoAction.undo}
+            className="text-amber font-semibold hover:text-cream transition-colors whitespace-nowrap"
+          >
+            Rückgängig
+          </button>
+          <button
+            onClick={() => setUndoAction(null)}
+            className="text-cream/50 hover:text-cream ml-1"
+          >
+            <X size={14} />
+          </button>
+        </div>
       )}
 
       <ScrollToTop />
