@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
-import { loadState, saveState, clearState } from "@/lib/storage";
+import { loadState, saveState, clearState, decodeStateFromUrl } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
 import { OFFERS } from "@/data/offers";
@@ -10,7 +10,7 @@ import { TRIP_DAYS } from "@/data/tripDays";
 const ALL_OFFERS = [...OFFERS, ...hikingRoutesAsOffers()];
 import TopoBackground from "@/components/TopoBackground";
 import Header from "@/components/Header";
-import HochschwarzwaldHint from "@/components/HochschwarzwaldHint";
+import HomeBase from "@/components/HomeBase";
 import DayStrip from "@/components/DayStrip";
 import DayDetail from "@/components/DayDetail";
 import BottomSheet from "@/components/BottomSheet";
@@ -114,7 +114,27 @@ export default function App() {
   }, [theme]);
 
   useEffect(() => {
-    setState(loadState());
+    const loaded = loadState();
+    const urlParams = new URLSearchParams(window.location.search);
+    const planParam = urlParams.get("plan");
+    if (planParam) {
+      const decoded = decodeStateFromUrl(planParam);
+      if (decoded) {
+        for (const [date, offerIds] of Object.entries(decoded.schedule)) {
+          const existing = loaded.schedule[date] ?? [];
+          const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
+          for (const offerId of offerIds) {
+            if (!existingSet.has(offerId)) {
+              existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer", offerId });
+            }
+          }
+          loaded.schedule[date] = existing;
+        }
+        if (decoded.homeBaseName) loaded.homeBase = { ...loaded.homeBase, name: decoded.homeBaseName };
+        window.history.replaceState(null, "", window.location.pathname + window.location.hash);
+      }
+    }
+    setState(loaded);
   }, []);
 
   useEffect(() => {
@@ -317,7 +337,10 @@ export default function App() {
 
       <div className="max-w-[1100px] mx-auto relative z-10">
         <Header />
-        <HochschwarzwaldHint />
+        <HomeBase
+          name={state.homeBase.name}
+          onChangeName={(name) => setState((s) => s ? { ...s, homeBase: { ...s.homeBase, name } } : s)}
+        />
 
         {/* Sticky navigation bar */}
         <nav ref={navRef} className="sticky top-0 z-30 border-b border-cream/8" style={{ backgroundColor: "var(--c-forest-deep)" }}>

@@ -64,6 +64,7 @@ export interface Offer {
   availableDays?: string[];
   images?: string[];
   hikeDetails?: HikeDetails;
+  source?: string;
 }
 
 export interface TripDay {
@@ -91,6 +92,7 @@ export interface AppState {
   notes: Record<string, string>;
   customOffers: Offer[];
   dismissed: string[];
+  homeBase: { name: string; lat: number; lng: number };
 }
 
 export const DEFAULT_STATE: AppState = {
@@ -98,4 +100,5 @@ export const DEFAULT_STATE: AppState = {
   notes: {},
   customOffers: [],
   dismissed: [],
+  homeBase: { name: "Löffingen", lat: 47.884, lng: 8.343 },
 };

@@ -2,12 +2,14 @@ import { useState, useRef } from "react";
 import { AppState, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { offerById } from "@/lib/helpers";
-import { exportState, importState } from "@/lib/storage";
+import { exportState, importState, encodeStateToUrl } from "@/lib/storage";
 import {
   Download,
   Upload,
   X,
   ArrowRightLeft,
+  Link,
+  Copy,
   Check,
   AlertTriangle,
 } from "lucide-react";
@@ -84,7 +86,7 @@ function mergeStates(mine: AppState, theirs: AppState, selections: Record<string
   const customSet = new Set(mine.customOffers.map((o) => o.id));
   const mergedCustom = [...mine.customOffers, ...theirs.customOffers.filter((o) => !customSet.has(o.id))];
 
-  return { schedule, notes, customOffers: mergedCustom, dismissed: mine.dismissed };
+  return { schedule, notes, customOffers: mergedCustom, dismissed: mine.dismissed, homeBase: mine.homeBase };
 }
 
 function offerName(id: string, state: AppState): string {
@@ -141,6 +143,17 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
     if (confirm("Aktuellen Plan komplett ersetzen?")) onApply(importedState);
   };
 
+  const [copied, setCopied] = useState(false);
+
+  const handleCopyLink = () => {
+    const encoded = encodeStateToUrl(state);
+    const url = `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
+    navigator.clipboard.writeText(url).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+
   const hasDifferences = diff?.some((d) => d.onlyMine.length > 0 || d.onlyTheirs.length > 0 || d.notesDiff);
 
   return (
@@ -162,6 +175,14 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
           <p className="text-[13px] text-stone mb-5">
             Plan exportieren oder einen anderen Plan importieren und zusammenführen.
           </p>
+
+          {/* Share Link */}
+          <button
+            onClick={handleCopyLink}
+            className="w-full py-3 bg-moss text-cream rounded-lg text-[13px] font-medium flex items-center justify-center gap-2 hover:bg-moss/80 mb-3"
+          >
+            {copied ? <><Copy size={16} /> Link kopiert!</> : <><Link size={16} /> Plan als Link kopieren</>}
+          </button>
 
           {/* Export */}
           <button

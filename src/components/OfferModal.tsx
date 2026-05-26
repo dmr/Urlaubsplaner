@@ -316,6 +316,21 @@ export default function OfferModal({
             )}
           </div>
 
+          {/* Source */}
+          {(offer.source || offer.url) && (
+            <div className="mt-3 text-[10px] text-stone/60">
+              Quelle:{" "}
+              <a
+                href={offer.source || offer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="underline hover:text-stone"
+              >
+                {(offer.source || offer.url || "").replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+              </a>
+            </div>
+          )}
+
           {/* Hike Details */}
           {offer.hikeDetails && (
             <div className="mt-4 pt-4 border-t border-stone/20 space-y-3">

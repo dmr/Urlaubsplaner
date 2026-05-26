@@ -54,6 +54,7 @@ export function loadState(): AppState {
         notes: old.notes ?? {},
         customOffers: old.customOffers ?? [],
         dismissed: old.dismissed ?? [],
+        homeBase: old.homeBase ?? DEFAULT_STATE.homeBase,
       };
       saveState(migrated);
       return migrated;
@@ -85,6 +86,26 @@ export function exportState(state: AppState): string {
   return JSON.stringify(state, null, 2);
 }
 
+export function encodeStateToUrl(state: AppState): string {
+  const compact: Record<string, string[]> = {};
+  for (const [date, entries] of Object.entries(state.schedule)) {
+    const ids = entries.filter((e) => e.type === "offer" && e.offerId).map((e) => e.offerId!);
+    if (ids.length > 0) compact[date] = ids;
+  }
+  const payload = JSON.stringify({ s: compact, h: state.homeBase.name });
+  return btoa(unescape(encodeURIComponent(payload)));
+}
+
+export function decodeStateFromUrl(encoded: string): { schedule: Record<string, string[]>; homeBaseName: string } | null {
+  try {
+    const json = decodeURIComponent(escape(atob(encoded)));
+    const data = JSON.parse(json);
+    return { schedule: data.s ?? {}, homeBaseName: data.h ?? "Löffingen" };
+  } catch {
+    return null;
+  }
+}
+
 export function importState(json: string): AppState | null {
   try {
     const parsed = JSON.parse(json);
@@ -102,7 +123,7 @@ export function importState(json: string): AppState | null {
         }
         schedule[date] = existing;
       }
-      return { schedule, notes: parsed.notes ?? {}, customOffers: parsed.customOffers ?? [], dismissed: parsed.dismissed ?? [] };
+      return { schedule, notes: parsed.notes ?? {}, customOffers: parsed.customOffers ?? [], dismissed: parsed.dismissed ?? [], homeBase: parsed.homeBase ?? DEFAULT_STATE.homeBase };
     }
     return null;
   } catch {
