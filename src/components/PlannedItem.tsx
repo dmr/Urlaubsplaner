@@ -43,7 +43,7 @@ export default function PlannedItem({
         <div className="font-serif text-lg font-medium text-ink leading-tight">
           {offer.hikeDetails ? "🥾 " : ""}{offer.name}
         </div>
-        <div className="text-[13px] text-ink/70 mt-1 flex flex-wrap gap-3">
+        <div className="text-[13px] text-stone mt-1 flex flex-wrap gap-3">
           <span>
             <MapPin size={11} className="inline mr-0.5" />
             {offer.location}

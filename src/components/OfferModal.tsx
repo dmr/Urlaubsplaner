@@ -189,7 +189,7 @@ export default function OfferModal({
           </div>
 
           {/* Meta */}
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] text-ink/80">
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] text-ink">
             <div className="flex items-center gap-1.5">
               <MapPin size={13} className="shrink-0" /> {offer.location}
             </div>
@@ -243,13 +243,13 @@ export default function OfferModal({
           {(offer.pro || offer.con) && (
             <div className="mt-4 pt-4 border-t border-stone/20 space-y-2 text-[13px]">
               {offer.pro && (
-                <div className="text-ink/80">
+                <div className="text-ink">
                   <strong className="text-moss">+ Pro: </strong>
                   {offer.pro}
                 </div>
               )}
               {offer.con && (
-                <div className="text-ink/80">
+                <div className="text-ink">
                   <strong className="text-rust">− Contra: </strong>
                   {offer.con}
                 </div>
@@ -283,7 +283,7 @@ export default function OfferModal({
                       {Math.round(f.score)}
                     </div>
                   </div>
-                  <div className="text-[10px] text-ink/70 mt-1 font-medium">{f.label}</div>
+                  <div className="text-[10px] text-stone mt-1 font-medium">{f.label}</div>
                 </div>
               ))}
             </div>
@@ -318,7 +318,7 @@ export default function OfferModal({
 
           {/* Source */}
           {(offer.source || offer.url) && (
-            <div className="mt-3 text-[10px] text-stone/60">
+            <div className="mt-3 text-[10px] text-stone">
               Quelle:{" "}
               <a
                 href={offer.source || offer.url}
@@ -337,10 +337,10 @@ export default function OfferModal({
               <h3 className="text-[14px] font-medium text-ink">Wanderung Details</h3>
 
               <div className="grid grid-cols-2 gap-2 text-[12px]">
-                <div className="text-ink/70"><strong>Schwierigkeit:</strong> {offer.hikeDetails.difficulty}</div>
-                <div className="text-ink/70"><strong>Höhe:</strong> {offer.hikeDetails.elevation}</div>
-                <div className="text-ink/70"><strong>Untergrund:</strong> {offer.hikeDetails.surface}</div>
-                <div className="text-ink/70">{offer.hikeDetails.strollerFriendly ? "✓ Buggy-tauglich" : "✗ Kein Buggy"}</div>
+                <div className="text-stone"><strong>Schwierigkeit:</strong> {offer.hikeDetails.difficulty}</div>
+                <div className="text-stone"><strong>Höhe:</strong> {offer.hikeDetails.elevation}</div>
+                <div className="text-stone"><strong>Untergrund:</strong> {offer.hikeDetails.surface}</div>
+                <div className="text-stone">{offer.hikeDetails.strollerFriendly ? "✓ Buggy-tauglich" : "✗ Kein Buggy"}</div>
               </div>
 
               {offer.hikeDetails.elevationProfile && (
@@ -374,13 +374,13 @@ export default function OfferModal({
               )}
 
               {offer.hikeDetails.bestTime && (
-                <div className="text-[12px] text-ink/80"><strong className="text-stone">Beste Zeit:</strong> {offer.hikeDetails.bestTime}</div>
+                <div className="text-[12px] text-ink"><strong className="text-stone">Beste Zeit:</strong> {offer.hikeDetails.bestTime}</div>
               )}
               {offer.hikeDetails.waterSources && (
-                <div className="text-[12px] text-ink/80"><strong className="text-stone">Verpflegung:</strong> {offer.hikeDetails.waterSources}</div>
+                <div className="text-[12px] text-ink"><strong className="text-stone">Verpflegung:</strong> {offer.hikeDetails.waterSources}</div>
               )}
               {offer.hikeDetails.shorterVariant && (
-                <div className="text-[12px] text-ink/80"><strong className="text-stone">Kürzere Variante:</strong> {offer.hikeDetails.shorterVariant}</div>
+                <div className="text-[12px] text-ink"><strong className="text-stone">Kürzere Variante:</strong> {offer.hikeDetails.shorterVariant}</div>
               )}
               {offer.hikeDetails.emergencyInfo && (
                 <div className="text-[12px] text-rust"><strong>Notfall:</strong> {offer.hikeDetails.emergencyInfo}</div>
@@ -393,7 +393,7 @@ export default function OfferModal({
                     {offer.hikeDetails.photoSpots.map((spot, i) => (
                       <div key={i}>
                         {spot.image && <img src={spot.image} alt={spot.description} loading="lazy" className="w-full h-[140px] object-cover rounded mb-1" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
-                        <div className="text-[11px] text-ink/70">📸 {spot.description}</div>
+                        <div className="text-[11px] text-stone">📸 {spot.description}</div>
                       </div>
                     ))}
                   </div>
@@ -422,7 +422,7 @@ export default function OfferModal({
                       disabled={already}
                       className={`py-2 rounded-sm text-[11px] font-semibold ${
                         already
-                          ? "bg-stone/20 text-stone/50 cursor-not-allowed"
+                          ? "bg-stone/20 text-stone/70 cursor-not-allowed"
                           : d.date === activeDay
                           ? "bg-amber text-cream cursor-pointer hover:bg-amber-deep"
                           : "bg-forest text-cream cursor-pointer hover:bg-forest-deep"

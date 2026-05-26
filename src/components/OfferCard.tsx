@@ -140,7 +140,7 @@ export default function OfferCard({
           </div>
         )}
 
-        <div className="mt-3 pt-2 border-t border-stone/30 text-[11px] text-ink/60 text-center">
+        <div className="mt-3 pt-2 border-t border-stone/30 text-[11px] text-stone text-center">
           Tippen für Details
         </div>
       </div>
