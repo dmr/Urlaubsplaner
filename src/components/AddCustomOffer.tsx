@@ -88,12 +88,14 @@ export default function AddCustomOffer({ onAdd, onClose }: AddCustomOfferProps) 
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div className="bg-parchment rounded-lg w-full max-w-[500px] my-4 relative">
-        <button
-          onClick={onClose}
-          className="absolute top-3 right-3 bg-ink/60 text-cream w-8 h-8 rounded-full flex items-center justify-center hover:bg-ink/80"
-        >
-          <X size={16} />
-        </button>
+        <div className="sticky top-0 z-20 flex justify-end p-2 pointer-events-none">
+          <button
+            onClick={onClose}
+            className="pointer-events-auto bg-ink/70 text-cream w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink shadow-lg"
+          >
+            <X size={20} />
+          </button>
+        </div>
 
         <div className="p-5 sm:p-6">
           <h2 className="font-serif font-medium text-[24px] text-ink mb-1">
