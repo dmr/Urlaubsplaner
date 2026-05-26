@@ -105,7 +105,7 @@ export const HIKING_ROUTES: HikingRoute[] = [
     photoSpots: [
       { description: "Amalienruhe — Aussichtspunkt mit Seepanorama", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Schluchsee_%28lake%29_IMG_2911.jpg/960px-Schluchsee_%28lake%29_IMG_2911.jpg" },
       { description: "Unterkrummenhof — Panoramablick über den ganzen See" },
-      { description: "Staumauer — Gesamtansicht", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Schluchsee_%28lake%29_IMG_2917.jpg/960px-Schluchsee_%28lake%29_IMG_2917.jpg" },
+      { description: "Staumauer — Gesamtansicht", image: "https://upload.wikimedia.org/wikipedia/commons/3/37/Schluchsee_Staumauer_7842.jpg" },
       { description: "Spiegelungen im See vom Westufer (morgens, windstill)" },
     ],
     strollerFriendly: true,
@@ -161,7 +161,7 @@ export const HIKING_ROUTES: HikingRoute[] = [
       { description: "Feldbergturm — 360°-Panorama bis zu den Alpen (bei klarer Sicht)", image: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Feldberg_jm53958.jpg" },
       { description: "Wichtel-Figuren mit Kindern" },
       { description: "Seilbahn-Kabine mit Bergpanorama", image: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Feldbergbahn_%2824103584636%29.jpg" },
-      { description: "Feldsee-Blick vom oberen Weg (kleine Abzweigung)" },
+      { description: "Feldsee-Blick vom oberen Weg (kleine Abzweigung)", image: "https://upload.wikimedia.org/wikipedia/commons/3/3c/Feldsee_from_the_Seebuck.JPG" },
     ],
     strollerFriendly: false,
     warning: "Wetter kippt oben schnell — warme Jacke auch im Juni!",
@@ -214,7 +214,7 @@ export const HIKING_ROUTES: HikingRoute[] = [
     ],
     photoSpots: [
       { description: "Hexenbrunnen — markantes Wahrzeichen" },
-      { description: "Mailänder Tor — historisches Stadttor" },
+      { description: "Mailänder Tor — historisches Stadttor", image: "https://upload.wikimedia.org/wikipedia/commons/0/0b/Geschichtstafel_8_in_L%C3%B6ffingen_Mail%C3%A4nder_Tor.jpg" },
       { description: "Fachwerkhäuser in der Altstadt", image: "https://upload.wikimedia.org/wikipedia/commons/6/65/Schwarzwald_bei_L%C3%B6ffingen.jpg" },
     ],
     strollerFriendly: true,
@@ -264,10 +264,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Keine Einkehr zwischen Start und Wutachmühle (5 km)",
     ],
     photoSpots: [
-      { description: "Wutach-Canyon — tiefe Schlucht mit türkisem Wasser", image: "https://upload.wikimedia.org/wikipedia/commons/a/a7/Naturschutzgebiet_Wutachschlucht_IMG_2882.jpg" },
-      { description: "Leitern-Passagen — dramatische Tiefblicke", image: "https://upload.wikimedia.org/wikipedia/commons/1/11/Naturschutzgebiet_Wutachschlucht_IMG_2898.jpg" },
-      { description: "Wutachflühen — markante Felsformationen" },
-      { description: "Schattenmühle — historische Mühle am Wasser" },
+      { description: "Wutach-Canyon — tiefe Schlucht mit türkisem Wasser", image: "https://upload.wikimedia.org/wikipedia/commons/f/f7/Wutachschlucht.jpg" },
+      { description: "Leitern-Passagen — dramatische Tiefblicke", image: "https://upload.wikimedia.org/wikipedia/commons/0/07/Kanadiersteg_-_Wutach_gorge_02.jpg" },
+      { description: "Wutachflühen — Felsengalerie", image: "https://upload.wikimedia.org/wikipedia/commons/f/f0/Wutachschlucht_Ausblick_Felsengalerie.jpg" },
+      { description: "Schattenmühle — historische Mühle am Wasser", image: "https://upload.wikimedia.org/wikipedia/commons/2/24/Bauernhof-schamue.jpg" },
     ],
     strollerFriendly: false,
     parking: {
@@ -371,9 +371,9 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Keine Einrichtungen in der Klamm selbst",
     ],
     photoSpots: [
-      { description: "Lotenbachfall — kleiner Wasserfall in moosiger Klamm" },
-      { description: "Enge Felspassage — dramatische Perspektiven" },
-      { description: "Holzstege über dem Bach — Kinder auf der Brücke" },
+      { description: "Lotenbachfall — kleiner Wasserfall in moosiger Klamm", image: "https://upload.wikimedia.org/wikipedia/commons/7/71/Lotenbach-Wasserf%C3%A4lle_%28Lotenbachklamm%29_-_Bonndorf_im_Schwarzwald_Bild_1.jpg" },
+      { description: "Enge Felspassage — dramatische Perspektiven", image: "https://upload.wikimedia.org/wikipedia/commons/c/c7/Lotenbachklamm_IMG_2872.jpg" },
+      { description: "Holzstege über dem Bach — Kinder auf der Brücke", image: "https://upload.wikimedia.org/wikipedia/commons/f/fd/Lotenbachklamm_2020-07a.jpg" },
     ],
     strollerFriendly: false,
     parking: {
