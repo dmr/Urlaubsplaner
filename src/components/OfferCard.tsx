@@ -67,7 +67,7 @@ export default function OfferCard({
       <div className="p-4 flex-1 flex flex-col">
         <div className="flex justify-between items-start gap-2">
           <div className="flex-1 min-w-0">
-            <div className="text-[10px] tracking-[0.15em] uppercase text-stone/70">
+            <div className="text-[10px] tracking-[0.15em] uppercase text-stone">
               {offer.sub}
             </div>
             <h3 className="font-serif font-medium text-[20px] leading-tight text-ink mt-1 -tracking-[0.01em]">
@@ -91,7 +91,7 @@ export default function OfferCard({
           </div>
         </div>
 
-        <div className="mt-2 flex gap-3 flex-wrap text-xs text-stone">
+        <div className="mt-2 flex gap-3 flex-wrap text-xs text-ink/70">
           <span>
             <MapPin size={11} className="inline mr-0.5" />
             {offer.distance} km
@@ -125,7 +125,7 @@ export default function OfferCard({
           )}
         </div>
 
-        <p className="text-[12px] text-ink/80 leading-relaxed mt-2 mb-0 line-clamp-2 flex-1">
+        <p className="text-[12px] text-ink leading-relaxed mt-2 mb-0 line-clamp-2 flex-1">
           {offer.description}
         </p>
 
@@ -140,7 +140,7 @@ export default function OfferCard({
           </div>
         )}
 
-        <div className="mt-3 pt-2 border-t border-stone/10 text-[10px] text-stone/60 text-center">
+        <div className="mt-3 pt-2 border-t border-stone/20 text-[10px] text-stone text-center">
           Tippen für Details
         </div>
       </div>

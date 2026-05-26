@@ -6,34 +6,34 @@
 :root {
   --c-forest: #162820;
   --c-forest-deep: #0c1812;
-  --c-moss: #5a7f4b;
-  --c-moss-soft: #8aa57a;
+  --c-moss: #6a9458;
+  --c-moss-soft: #a0bf90;
   --c-cream: #f3ead7;
   --c-cream-soft: #e8dec7;
   --c-parchment: #fbf5e6;
-  --c-amber: #c98a3a;
-  --c-amber-deep: #9c6420;
-  --c-stone: #3a3d38;
+  --c-amber: #d49540;
+  --c-amber-deep: #b07a28;
+  --c-stone: #6b6e68;
   --c-ink: #1a1f1c;
-  --c-rust: #a14a2a;
-  --c-blood: #7d1f1f;
+  --c-rust: #c05a3a;
+  --c-blood: #a03030;
 }
 
 /* Light theme */
 .light {
   --c-forest: #e8e2d4;
   --c-forest-deep: #f5f0e4;
-  --c-moss: #3a6830;
-  --c-moss-soft: #5a8a4a;
-  --c-cream: #1a2e1f;
-  --c-cream-soft: #2a3e2f;
+  --c-moss: #2a5820;
+  --c-moss-soft: #4a7a3a;
+  --c-cream: #1a2a1c;
+  --c-cream-soft: #2a3a2c;
   --c-parchment: #ffffff;
-  --c-amber: #b07a2a;
-  --c-amber-deep: #8a5a10;
-  --c-stone: #9a9d98;
+  --c-amber: #a06a18;
+  --c-amber-deep: #7a4a08;
+  --c-stone: #5a5d58;
   --c-ink: #1a1f1c;
-  --c-rust: #c05a3a;
-  --c-blood: #a03030;
+  --c-rust: #b04a2a;
+  --c-blood: #8a2020;
 }
 
 @layer base {

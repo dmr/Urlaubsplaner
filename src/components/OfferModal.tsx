@@ -141,7 +141,7 @@ export default function OfferModal({
 
         <div className="p-5 sm:p-6">
           {/* Header */}
-          <div className="text-[10px] tracking-[0.15em] uppercase text-stone/70">
+          <div className="text-[11px] tracking-[0.15em] uppercase text-stone font-medium">
             {offer.sub}
           </div>
           <h2 className="font-serif font-medium text-[28px] leading-tight text-ink mt-1 -tracking-[0.01em]">
@@ -168,7 +168,7 @@ export default function OfferModal({
           </div>
 
           {/* Meta */}
-          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] text-stone">
+          <div className="mt-4 grid grid-cols-2 gap-x-4 gap-y-2 text-[13px] text-ink/80">
             <div className="flex items-center gap-1.5">
               <MapPin size={13} className="shrink-0" /> {offer.location}
             </div>
@@ -220,15 +220,15 @@ export default function OfferModal({
 
           {/* Pro / Con */}
           {(offer.pro || offer.con) && (
-            <div className="mt-4 pt-4 border-t border-stone/15 space-y-2 text-[13px]">
+            <div className="mt-4 pt-4 border-t border-stone/20 space-y-2 text-[13px]">
               {offer.pro && (
-                <div className="text-stone">
+                <div className="text-ink/80">
                   <strong className="text-moss">+ Pro: </strong>
                   {offer.pro}
                 </div>
               )}
               {offer.con && (
-                <div className="text-stone">
+                <div className="text-ink/80">
                   <strong className="text-rust">− Contra: </strong>
                   {offer.con}
                 </div>
@@ -244,7 +244,7 @@ export default function OfferModal({
                 Empfehlung: {ranking.total}/100
               </span>
             </div>
-            <div className="grid grid-cols-5 gap-1 mb-2">
+            <div className="grid grid-cols-5 gap-1.5 mb-2">
               {[
                 { label: "Nähe", score: ranking.distanceScore, max: 25 },
                 { label: "Card", score: ranking.cardScore, max: 20 },
@@ -253,18 +253,20 @@ export default function OfferModal({
                 { label: "Vielfalt", score: ranking.varietyScore, max: 15 },
               ].map((f) => (
                 <div key={f.label} className="text-center">
-                  <div className="h-8 bg-stone/10 rounded-sm relative overflow-hidden">
+                  <div className="h-10 bg-ink/8 border border-stone/20 rounded-sm relative overflow-hidden">
                     <div
-                      className="absolute bottom-0 left-0 right-0 bg-moss/40 rounded-sm"
-                      style={{ height: `${(f.score / f.max) * 100}%` }}
+                      className="absolute bottom-0 left-0 right-0 bg-moss rounded-sm"
+                      style={{ height: `${(f.score / f.max) * 100}%`, opacity: 0.6 }}
                     />
+                    <div className="absolute inset-0 flex items-center justify-center text-[11px] font-bold text-ink">
+                      {Math.round(f.score)}
+                    </div>
                   </div>
-                  <div className="text-[9px] text-stone mt-0.5">{f.label}</div>
-                  <div className="text-[10px] text-ink font-medium">{Math.round(f.score)}</div>
+                  <div className="text-[10px] text-ink/70 mt-1 font-medium">{f.label}</div>
                 </div>
               ))}
             </div>
-            <div className="text-[11px] text-stone/70">
+            <div className="text-[12px] text-stone">
               {explanation.join(" · ")}
             </div>
           </div>
