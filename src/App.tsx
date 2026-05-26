@@ -74,12 +74,14 @@ export default function App() {
 
   const openModal = useCallback((offer: Offer) => {
     setModalOffer(offer);
-    window.history.replaceState(null, "", `#${offer.id}`);
+    window.history.pushState({ modal: offer.id }, "", `#${offer.id}`);
   }, []);
 
   const closeModal = useCallback(() => {
     setModalOffer(null);
-    window.history.replaceState(null, "", window.location.pathname);
+    if (window.location.hash) {
+      window.history.back();
+    }
   }, []);
 
   useEffect(() => {
@@ -88,17 +90,18 @@ export default function App() {
       const found = ALL_OFFERS.find((o) => o.id === hash) || state?.customOffers.find((o) => o.id === hash);
       if (found) setModalOffer(found);
     }
-    const onHashChange = () => {
+
+    const onPopState = () => {
       const h = window.location.hash.slice(1);
       if (h) {
         const f = ALL_OFFERS.find((o) => o.id === h) || state?.customOffers.find((o) => o.id === h);
-        if (f) setModalOffer(f);
+        setModalOffer(f ?? null);
       } else {
         setModalOffer(null);
       }
     };
-    window.addEventListener("hashchange", onHashChange);
-    return () => window.removeEventListener("hashchange", onHashChange);
+    window.addEventListener("popstate", onPopState);
+    return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   const [theme, setTheme] = useState<Theme>(() => {
