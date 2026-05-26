@@ -506,7 +506,9 @@ export default function App() {
         open={showDaySheet}
         onClose={() => setShowDaySheet(false)}
         title={`${activeDay.full}, ${activeDay.day}. Mai`}
-        badge={scheduleEntries.length > 0 ? `${scheduleEntries.length} Einträge` : undefined}
+        subtitle={`Tag ${activeDay.day} von 7 — Tagesplan bearbeiten`}
+        badge={scheduleEntries.length > 0 ? `${scheduleEntries.length} Einträge` : "leer"}
+        accent="#6a9458"
       >
         <DayDetail
           day={activeDay}

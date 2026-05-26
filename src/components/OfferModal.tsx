@@ -9,6 +9,7 @@ import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
 import { computeRanking, getRankingExplanation } from "@/lib/ranking";
 import {
   X,
+  ChevronLeft,
   MapPin,
   Clock,
   Ticket,
@@ -18,7 +19,6 @@ import {
   Navigation,
   ThumbsDown,
   CheckCircle,
-  ChevronLeft,
   ChevronRight,
   Star,
 } from "lucide-react";
@@ -81,16 +81,22 @@ export default function OfferModal({
     <div
       ref={overlayRef}
       onClick={(e) => e.target === overlayRef.current && onClose()}
-      className="fixed inset-0 z-50 bg-ink/80 backdrop-blur-sm flex items-start justify-center overflow-y-auto p-4 sm:p-8"
+      className="fixed inset-0 z-50 bg-ink/70 flex items-start justify-center overflow-y-auto p-3 sm:p-6"
     >
-      <div className="bg-parchment rounded-lg w-full max-w-[640px] relative my-4">
-        {/* Close — sticky inside scrollable modal */}
-        <div className="sticky top-0 z-20 flex justify-end p-2 pointer-events-none">
+      <div className="bg-parchment rounded-xl w-full max-w-[640px] relative my-3 shadow-2xl border border-cream-soft">
+        {/* Close — sticky, prominent */}
+        <div className="sticky top-0 z-20 flex justify-between items-center px-4 py-2 pointer-events-none">
           <button
             onClick={onClose}
-            className="pointer-events-auto bg-ink/70 text-cream w-10 h-10 rounded-full flex items-center justify-center hover:bg-ink shadow-lg"
+            className="pointer-events-auto flex items-center gap-1 bg-ink/60 text-cream px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-ink shadow-lg"
           >
-            <X size={20} />
+            <ChevronLeft size={14} /> Zurück
+          </button>
+          <button
+            onClick={onClose}
+            className="pointer-events-auto bg-ink/60 text-cream w-9 h-9 rounded-full flex items-center justify-center hover:bg-ink shadow-lg"
+          >
+            <X size={18} />
           </button>
         </div>
 
