@@ -65,6 +65,14 @@ export const OFFER_COORDS: Record<string, [number, number]> = {
   "hike-triberg-wasserfaelle": [48.126, 8.228],
   "hike-lotenbachklamm": [47.836, 8.309],
   "hike-ravennaschlucht-runde": [47.919, 8.081],
+  "hike-kuckys-vogelwelt": [47.8718, 8.2048],
+  "hike-schluhuewanapark": [47.7358, 8.1770],
+  "hike-evernius-hinterzarten": [47.9061, 8.1052],
+  "hike-ameisenpfad": [47.8850, 8.1650],
+  "hike-panoramaweg-bonndorf": [47.8195, 8.3420],
+  "hike-zauberweg-hasenhorn": [47.8290, 7.9450],
+  "hike-wolfspfad": [47.7112, 8.2022],
+  "hike-titisee-seerundweg": [47.9009, 8.1505],
 };
 
 export function googleMapsUrl(lat: number, lng: number, name?: string): string {
