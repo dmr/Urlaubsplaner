@@ -1,8 +1,8 @@
-const CACHE_NAME = "urlaubsplaner-v3";
+const CACHE_NAME = "urlaubsplaner-v4";
 const APP_SHELL = [
   "/Urlaubsplaner/",
   "/Urlaubsplaner/index.html",
-  "/Urlaubsplaner/logo.jpg",
+  "/Urlaubsplaner/logo-sm.jpg",
   "/Urlaubsplaner/icon-192.png",
   "/Urlaubsplaner/icon-512.png",
 ];
