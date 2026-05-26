@@ -17,8 +17,9 @@ import WeekOverview from "@/components/WeekOverview";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
+import AddCustomOffer from "@/components/AddCustomOffer";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus } from "lucide-react";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -50,6 +51,7 @@ export default function App() {
   const [hideDismissed, setHideDismissed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
+  const [showAddCustom, setShowAddCustom] = useState(false);
 
   const openModal = useCallback((offer: Offer) => {
     setModalOffer(offer);
@@ -64,13 +66,13 @@ export default function App() {
   useEffect(() => {
     const hash = window.location.hash.slice(1);
     if (hash) {
-      const found = ALL_OFFERS.find((o) => o.id === hash);
+      const found = ALL_OFFERS.find((o) => o.id === hash) || state?.customOffers.find((o) => o.id === hash);
       if (found) setModalOffer(found);
     }
     const onHashChange = () => {
       const h = window.location.hash.slice(1);
       if (h) {
-        const f = ALL_OFFERS.find((o) => o.id === h);
+        const f = ALL_OFFERS.find((o) => o.id === h) || state?.customOffers.find((o) => o.id === h);
         if (f) setModalOffer(f);
       } else {
         setModalOffer(null);
@@ -195,6 +197,14 @@ export default function App() {
     });
   }, []);
 
+  const addCustomOffer = useCallback((offer: Offer) => {
+    setState((s) => {
+      if (!s) return s;
+      return { ...s, customOffers: [...s.customOffers, offer] };
+    });
+    setShowAddCustom(false);
+  }, []);
+
   const undismissOffer = useCallback((offerId: string) => {
     setState((s) => {
       if (!s) return s;
@@ -222,6 +232,8 @@ export default function App() {
     );
   }
 
+  const allOffers = [...ALL_OFFERS, ...state.customOffers];
+
   const activeDay = TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
   const scheduleEntries = state.schedule[activeDate] ?? [];
   const plannedIds = getPlannedOfferIds(scheduleEntries);
@@ -240,7 +252,7 @@ export default function App() {
   const q = searchQuery.toLowerCase().trim();
 
   const filteredOffers = sortOffers(
-    ALL_OFFERS.filter((o) => {
+    allOffers.filter((o) => {
       if (o.distance > maxDistance) return false;
       if (hideDismissed && dismissedSet.has(o.id)) return false;
       if (hidePlanned && allPlannedSet.has(o.id)) return false;
@@ -394,6 +406,12 @@ export default function App() {
                 Angebote
               </h2>
               <div className="flex items-center gap-3">
+                <button
+                  onClick={() => setShowAddCustom(true)}
+                  className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase text-amber hover:text-cream bg-amber/15 hover:bg-amber/25 border border-amber/30 transition-colors"
+                >
+                  <Plus size={10} /> Eigener Ort
+                </button>
                 {dismissedCount > 0 && (
                   <label className="flex items-center gap-1.5 text-[10px] text-moss-soft cursor-pointer">
                     <input
@@ -480,6 +498,13 @@ export default function App() {
           onAdd={(date) => addToDay(modalOffer.id, date)}
           onDismiss={() => dismissOffer(modalOffer.id)}
           onUndismiss={() => undismissOffer(modalOffer.id)}
+        />
+      )}
+
+      {showAddCustom && (
+        <AddCustomOffer
+          onAdd={addCustomOffer}
+          onClose={() => setShowAddCustom(false)}
         />
       )}
     </div>
