@@ -13,6 +13,7 @@ import Header from "@/components/Header";
 import HochschwarzwaldHint from "@/components/HochschwarzwaldHint";
 import DayStrip from "@/components/DayStrip";
 import DayDetail from "@/components/DayDetail";
+import BottomSheet from "@/components/BottomSheet";
 import WeekOverview from "@/components/WeekOverview";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
@@ -47,6 +48,7 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
+  const [showDaySheet, setShowDaySheet] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
   const [hidePlanned, setHidePlanned] = useState(false);
   const [hideDismissed, setHideDismissed] = useState(true);
@@ -361,40 +363,27 @@ export default function App() {
               days={TRIP_DAYS}
               activeDate={activeDate}
               counts={counts}
-              onSelect={setActiveDate}
+              onSelect={(date) => {
+                setActiveDate(date);
+                setShowDaySheet(true);
+              }}
             />
           </div>
         </nav>
 
         {showWeek && (
-          <section className="px-5 pb-5">
+          <section className="px-5 py-4">
             <WeekOverview
               schedule={state.schedule}
               customOffers={state.customOffers}
               onDayClick={(date) => {
                 setActiveDate(date);
                 setShowWeek(false);
+                setShowDaySheet(true);
               }}
             />
           </section>
         )}
-
-        <section className="px-5 pb-7">
-          <DayDetail
-            day={activeDay}
-            plannedOffers={plannedOffers}
-            note={state.notes[activeDate] ?? ""}
-            scheduleEntries={scheduleEntries}
-            customOffers={state.customOffers}
-            onRemove={(id) => removeFromDay(id, activeDate)}
-            onNoteChange={(text) => setNote(activeDate, text)}
-            onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
-            onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}
-            onUpdateEntryTime={(entryId, start, end) =>
-              updateEntryTime(activeDate, entryId, start, end)
-            }
-          />
-        </section>
 
         {/* Catalog or Map */}
         {viewMode === "list" ? (
@@ -512,6 +501,29 @@ export default function App() {
         />
       )}
 
+      {/* Day Detail Bottom Sheet */}
+      <BottomSheet
+        open={showDaySheet}
+        onClose={() => setShowDaySheet(false)}
+        title={`${activeDay.full}, ${activeDay.day}. Mai`}
+        badge={scheduleEntries.length > 0 ? `${scheduleEntries.length} Einträge` : undefined}
+      >
+        <DayDetail
+          day={activeDay}
+          plannedOffers={plannedOffers}
+          note={state.notes[activeDate] ?? ""}
+          scheduleEntries={scheduleEntries}
+          customOffers={state.customOffers}
+          onRemove={(id) => removeFromDay(id, activeDate)}
+          onNoteChange={(text) => setNote(activeDate, text)}
+          onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
+          onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}
+          onUpdateEntryTime={(entryId, start, end) =>
+            updateEntryTime(activeDate, entryId, start, end)
+          }
+        />
+      </BottomSheet>
+
       {showPlanManager && (
         <PlanManager
           state={state}
@@ -526,7 +538,7 @@ export default function App() {
 
       {/* Undo toast */}
       {undoAction && (
-        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-50 bg-ink text-cream px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-[13px] max-w-[90vw]">
+        <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[60] bg-ink text-cream px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-[13px] max-w-[90vw]">
           <span>{undoAction.label}</span>
           <button
             onClick={undoAction.undo}

@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Offer, TripDay, ScheduleEntry, BreakType } from "@/lib/types";
-import { formatDayMonth } from "@/lib/helpers";
 import {
   AlertTriangle,
   StickyNote,
@@ -73,25 +72,15 @@ export default function DayDetail({
   const hasAnyTimes = scheduleEntries.some((e) => e.startTime && e.endTime);
 
   return (
-    <div className="bg-cream/[0.04] border border-cream/15 rounded-sm p-5">
-      <div className="flex justify-between items-baseline flex-wrap gap-2">
-        <div>
-          <div className="text-[10px] tracking-[0.2em] uppercase text-moss-soft">
-            Tag {day.day} von 7
-          </div>
-          <h3 className="font-serif font-light italic text-[30px] mt-1 mb-0 text-cream tracking-tight">
-            {day.full}, {formatDayMonth(day.date)}
-          </h3>
+    <div>
+      {day.holiday && (
+        <div className="px-2.5 py-1.5 mb-3 bg-rust/25 border border-rust/40 rounded-sm text-[11px] text-cream flex items-center gap-1.5">
+          <AlertTriangle size={12} /> {day.holiday}
         </div>
-        {day.holiday && (
-          <div className="px-2.5 py-1.5 bg-rust/25 border border-rust/40 rounded-sm text-[11px] text-cream flex items-center gap-1.5">
-            <AlertTriangle size={12} /> {day.holiday}
-          </div>
-        )}
-      </div>
+      )}
 
       {/* View toggle + Add break */}
-      <div className="mt-4 flex items-center justify-between flex-wrap gap-2">
+      <div className="flex items-center justify-between flex-wrap gap-2 mb-3">
         <div className="flex items-center gap-1.5">
           <button
             onClick={() => setDayView("list")}
