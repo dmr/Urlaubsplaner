@@ -38,7 +38,7 @@ export const OFFER_COORDS: Record<string, [number, number]> = {
   "mundenhof-freiburg": [47.979, 7.800],
   "spasspark-schluchsee": [47.820, 8.180],
   "abenteuer-golfpark": [47.852, 8.172],
-  "alpaka-wanderung": [47.920, 8.070],
+  "alpaka-wanderung": [47.8985, 8.1215],
   schwarzwaldzoo: [48.093, 7.960],
   "action-forest": [47.905, 8.148],
   "rothaus-express": [47.820, 8.290],
