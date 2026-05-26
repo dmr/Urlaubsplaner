@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, lazy, Suspense } from "react";
 import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
 import { loadState, saveState, clearState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
@@ -14,9 +14,10 @@ import WeekOverview from "@/components/WeekOverview";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
-import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
 import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon } from "lucide-react";
+
+const MapView = lazy(() => import("@/components/MapView"));
 
 type SaveStatus = "idle" | "saving" | "saved";
 type ViewMode = "list" | "map";
@@ -435,13 +436,15 @@ export default function App() {
           </section>
         ) : (
           <section className="px-5 pb-10">
-            <MapView
-              plannedOfferIds={allPlannedIds}
-              activeDayOfferIds={plannedIds}
-              activeDay={activeDate}
-              schedule={state.schedule}
-              onAddHike={(hikeId, date) => addHikeToDay(hikeId, date)}
-            />
+            <Suspense fallback={<div className="py-20 text-center text-moss-soft"><Loader2 size={20} className="animate-spin inline mr-2" />Karte lädt …</div>}>
+              <MapView
+                plannedOfferIds={allPlannedIds}
+                activeDayOfferIds={plannedIds}
+                activeDay={activeDate}
+                schedule={state.schedule}
+                onAddHike={(hikeId, date) => addHikeToDay(hikeId, date)}
+              />
+            </Suspense>
           </section>
         )}
 

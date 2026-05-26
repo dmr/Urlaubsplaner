@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useMemo } from "react";
 import { Offer, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
@@ -44,8 +44,8 @@ export default function OfferModal({
 }: OfferModalProps) {
   const overlayRef = useRef<HTMLDivElement>(null);
   const [imageIdx, setImageIdx] = useState(0);
-  const ranking = computeRanking(offer, schedule, activeDay);
-  const explanation = getRankingExplanation(ranking);
+  const ranking = useMemo(() => computeRanking(offer, schedule, activeDay), [offer.id, schedule, activeDay]);
+  const explanation = useMemo(() => getRankingExplanation(ranking), [ranking]);
   const warn = ageWarning(offer);
   const images = offer.images ?? [];
 
@@ -96,6 +96,7 @@ export default function OfferModal({
             <img
               src={images[imageIdx]}
               alt={offer.name}
+              loading="lazy"
               className="w-full h-full object-cover"
               onError={(e) => {
                 (e.target as HTMLImageElement).style.display = "none";
