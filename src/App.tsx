@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
 import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
 import { loadState, saveState, clearState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
@@ -49,6 +49,19 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
   const [showDaySheet, setShowDaySheet] = useState(false);
+  const navRef = useRef<HTMLElement>(null);
+
+  const openDaySheet = useCallback((date?: string) => {
+    if (date) setActiveDate(date);
+    const nav = navRef.current;
+    if (nav) {
+      const navTop = nav.offsetTop;
+      if (window.scrollY < navTop) {
+        window.scrollTo({ top: navTop, behavior: "smooth" });
+      }
+    }
+    setShowDaySheet(true);
+  }, []);
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
   const [hidePlanned, setHidePlanned] = useState(false);
   const [hideDismissed, setHideDismissed] = useState(true);
@@ -306,7 +319,7 @@ export default function App() {
         <HochschwarzwaldHint />
 
         {/* Sticky navigation bar */}
-        <nav className="sticky top-0 z-30 border-b border-cream/8" style={{ backgroundColor: "var(--c-forest-deep)" }}>
+        <nav ref={navRef} className="sticky top-0 z-30 border-b border-cream/8" style={{ backgroundColor: "var(--c-forest-deep)" }}>
           {/* Row 1: Controls */}
           <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
             <div className="flex items-center gap-3">
@@ -363,10 +376,7 @@ export default function App() {
               days={TRIP_DAYS}
               activeDate={activeDate}
               counts={counts}
-              onSelect={(date) => {
-                setActiveDate(date);
-                setShowDaySheet(true);
-              }}
+              onSelect={(date) => openDaySheet(date)}
             />
           </div>
         </nav>
@@ -377,9 +387,8 @@ export default function App() {
               schedule={state.schedule}
               customOffers={state.customOffers}
               onDayClick={(date) => {
-                setActiveDate(date);
                 setShowWeek(false);
-                setShowDaySheet(true);
+                openDaySheet(date);
               }}
             />
           </section>
