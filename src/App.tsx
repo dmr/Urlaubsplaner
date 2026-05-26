@@ -37,6 +37,7 @@ export default function App() {
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
   const [hidePlanned, setHidePlanned] = useState(false);
   const [hideDismissed, setHideDismissed] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
 
   useEffect(() => {
@@ -199,11 +200,17 @@ export default function App() {
   const allPlannedSet = new Set(allPlannedIds);
   const dismissedSet = new Set(state.dismissed);
 
+  const q = searchQuery.toLowerCase().trim();
+
   const filteredOffers = sortOffers(
     OFFERS.filter((o) => {
       if (o.distance > maxDistance) return false;
       if (hideDismissed && dismissedSet.has(o.id)) return false;
       if (hidePlanned && allPlannedSet.has(o.id)) return false;
+      if (q) {
+        const haystack = `${o.name} ${o.sub} ${o.location} ${o.description} ${o.tags.join(" ")}`.toLowerCase();
+        if (!haystack.includes(q)) return false;
+      }
       if (filter === "all") return true;
       if (filter === "card") return o.cardIncluded;
       return o.tags.includes(filter);
@@ -370,9 +377,11 @@ export default function App() {
               filter={filter}
               maxDistance={maxDistance}
               sortKey={sortKey}
+              searchQuery={searchQuery}
               onFilterChange={setFilter}
               onDistanceChange={setMaxDistance}
               onSortChange={setSortKey}
+              onSearchChange={setSearchQuery}
             />
 
             <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">

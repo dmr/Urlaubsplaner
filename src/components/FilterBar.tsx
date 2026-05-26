@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { ChevronDown, ArrowUpDown } from "lucide-react";
+import { ChevronDown, ArrowUpDown, Search, X } from "lucide-react";
 import type { SortKey } from "@/lib/ranking";
 
 export type FilterKey =
@@ -45,18 +45,22 @@ interface FilterBarProps {
   filter: FilterKey;
   maxDistance: number;
   sortKey: SortKey;
+  searchQuery: string;
   onFilterChange: (f: FilterKey) => void;
   onDistanceChange: (km: number) => void;
   onSortChange: (s: SortKey) => void;
+  onSearchChange: (q: string) => void;
 }
 
 export default function FilterBar({
   filter,
   maxDistance,
   sortKey,
+  searchQuery,
   onFilterChange,
   onDistanceChange,
   onSortChange,
+  onSearchChange,
 }: FilterBarProps) {
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
@@ -81,6 +85,26 @@ export default function FilterBar({
 
   return (
     <div className="mb-4">
+      {/* Search */}
+      <div className="relative mb-3">
+        <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-moss-soft pointer-events-none" />
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => onSearchChange(e.target.value)}
+          placeholder="Suche … z.B. Wasserfall, Schluchsee, Kinder"
+          className="w-full bg-cream/[0.06] border border-cream/15 rounded-lg pl-9 pr-8 py-2.5 text-[13px] text-cream placeholder:text-moss-soft/50 outline-none focus:border-amber/40 focus:bg-cream/[0.08]"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => onSearchChange("")}
+            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-moss-soft hover:text-cream"
+          >
+            <X size={14} />
+          </button>
+        )}
+      </div>
+
       <div className="flex gap-1.5 flex-wrap mb-3">
         {PRIMARY_FILTERS.map((f) => (
           <button
