@@ -2,6 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Dark theme (default) */
+:root {
+  --c-forest: #162820;
+  --c-forest-deep: #0c1812;
+  --c-moss: #5a7f4b;
+  --c-moss-soft: #8aa57a;
+  --c-cream: #f3ead7;
+  --c-cream-soft: #e8dec7;
+  --c-parchment: #fbf5e6;
+  --c-amber: #c98a3a;
+  --c-amber-deep: #9c6420;
+  --c-stone: #3a3d38;
+  --c-ink: #1a1f1c;
+  --c-rust: #a14a2a;
+  --c-blood: #7d1f1f;
+}
+
+/* Light theme */
+.light {
+  --c-forest: #e8e2d4;
+  --c-forest-deep: #f5f0e4;
+  --c-moss: #3a6830;
+  --c-moss-soft: #5a8a4a;
+  --c-cream: #1a2e1f;
+  --c-cream-soft: #2a3e2f;
+  --c-parchment: #ffffff;
+  --c-amber: #b07a2a;
+  --c-amber-deep: #8a5a10;
+  --c-stone: #9a9d98;
+  --c-ink: #1a1f1c;
+  --c-rust: #c05a3a;
+  --c-blood: #a03030;
+}
+
 @layer base {
   * {
     box-sizing: border-box;
@@ -11,8 +45,8 @@
   #root {
     margin: 0;
     min-height: 100%;
-    background-color: theme("colors.forest-deep");
-    color: theme("colors.cream");
+    background-color: var(--c-forest-deep);
+    color: var(--c-cream);
     font-family: theme("fontFamily.sans");
     -webkit-font-smoothing: antialiased;
   }
@@ -38,7 +72,15 @@
 .bg-forest-gradient {
   background-image: radial-gradient(
     circle at 20% 10%,
-    theme("colors.forest") 0%,
-    theme("colors.forest-deep") 60%
+    var(--c-forest) 0%,
+    var(--c-forest-deep) 60%
+  );
+}
+
+.light .bg-forest-gradient {
+  background-image: radial-gradient(
+    circle at 20% 10%,
+    #f0ebe0 0%,
+    #f5f0e4 60%
   );
 }

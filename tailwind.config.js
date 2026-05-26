@@ -1,24 +1,25 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
+  darkMode: "class",
   theme: {
     extend: {
       colors: {
-        forest: "#162820",
-        "forest-deep": "#0c1812",
-        moss: "#5a7f4b",
-        "moss-soft": "#8aa57a",
-        cream: "#f3ead7",
-        "cream-soft": "#e8dec7",
-        parchment: "#fbf5e6",
+        forest: "var(--c-forest)",
+        "forest-deep": "var(--c-forest-deep)",
+        moss: "var(--c-moss)",
+        "moss-soft": "var(--c-moss-soft)",
+        cream: "var(--c-cream)",
+        "cream-soft": "var(--c-cream-soft)",
+        parchment: "var(--c-parchment)",
         amber: {
-          DEFAULT: "#c98a3a",
-          deep: "#9c6420",
+          DEFAULT: "var(--c-amber)",
+          deep: "var(--c-amber-deep)",
         },
-        stone: "#3a3d38",
-        ink: "#1a1f1c",
-        rust: "#a14a2a",
-        blood: "#7d1f1f",
+        stone: "var(--c-stone)",
+        ink: "var(--c-ink)",
+        rust: "var(--c-rust)",
+        blood: "var(--c-blood)",
       },
       fontFamily: {
         serif: ["Fraunces", "Cormorant Garamond", "Georgia", "serif"],

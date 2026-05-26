@@ -16,10 +16,11 @@ import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map, Calendar } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon } from "lucide-react";
 
 type SaveStatus = "idle" | "saving" | "saved";
 type ViewMode = "list" | "map";
+type Theme = "dark" | "light";
 
 let entryCounter = 0;
 function nextEntryId(): string {
@@ -39,6 +40,17 @@ export default function App() {
   const [hideDismissed, setHideDismissed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window !== "undefined") {
+      return (localStorage.getItem("theme") as Theme) || "dark";
+    }
+    return "dark";
+  });
+
+  useEffect(() => {
+    document.documentElement.classList.toggle("light", theme === "light");
+    localStorage.setItem("theme", theme);
+  }, [theme]);
 
   useEffect(() => {
     setState(loadState());
@@ -241,7 +253,14 @@ export default function App() {
             <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
               Die Tage
             </h2>
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent text-moss-soft hover:text-cream border border-cream/15 transition-colors"
+                title={theme === "dark" ? "Helles Theme" : "Dunkles Theme"}
+              >
+                {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
+              </button>
               <button
                 onClick={() => setShowWeek(!showWeek)}
                 className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors ${
