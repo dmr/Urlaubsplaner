@@ -43,6 +43,7 @@ export function loadState(): AppState {
         schedule,
         notes: old.notes ?? {},
         customOffers: old.customOffers ?? [],
+        dismissed: old.dismissed ?? [],
       };
       saveState(migrated);
       return migrated;
@@ -91,7 +92,7 @@ export function importState(json: string): AppState | null {
         }
         schedule[date] = existing;
       }
-      return { schedule, notes: parsed.notes ?? {}, customOffers: parsed.customOffers ?? [] };
+      return { schedule, notes: parsed.notes ?? {}, customOffers: parsed.customOffers ?? [], dismissed: parsed.dismissed ?? [] };
     }
     return null;
   } catch {

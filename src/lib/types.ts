@@ -38,6 +38,8 @@ export interface Offer {
   url?: string;
   /** If set, offer is only available on these weekdays (Mo, Di, Mi, Do, Fr, Sa, So) */
   availableDays?: string[];
+  /** Image URLs (Wikimedia Commons or official) */
+  images?: string[];
 }
 
 export interface TripDay {
@@ -72,10 +74,13 @@ export interface AppState {
   notes: Record<string, string>;
   /** User-defined offers (UI not yet implemented) */
   customOffers: Offer[];
+  /** Offer IDs the user marked as "not interesting" */
+  dismissed: string[];
 }
 
 export const DEFAULT_STATE: AppState = {
   schedule: {},
   notes: {},
   customOffers: [],
+  dismissed: [],
 };

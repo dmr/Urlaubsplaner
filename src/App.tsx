@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { AppState, DEFAULT_STATE, BreakType } from "@/lib/types";
+import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
 import { loadState, saveState, clearState, exportState, importState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
@@ -13,6 +13,7 @@ import DayDetail from "@/components/DayDetail";
 import WeekOverview from "@/components/WeekOverview";
 import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
+import OfferModal from "@/components/OfferModal";
 import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
 import { Loader2, Save, Check, List, Map, Calendar, Download, Upload } from "lucide-react";
@@ -34,6 +35,9 @@ export default function App() {
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
+  const [hidePlanned, setHidePlanned] = useState(false);
+  const [hideDismissed, setHideDismissed] = useState(true);
+  const [modalOffer, setModalOffer] = useState<Offer | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -131,6 +135,21 @@ export default function App() {
     []
   );
 
+  const dismissOffer = useCallback((offerId: string) => {
+    setState((s) => {
+      if (!s) return s;
+      if (s.dismissed.includes(offerId)) return s;
+      return { ...s, dismissed: [...s.dismissed, offerId] };
+    });
+  }, []);
+
+  const undismissOffer = useCallback((offerId: string) => {
+    setState((s) => {
+      if (!s) return s;
+      return { ...s, dismissed: s.dismissed.filter((id) => id !== offerId) };
+    });
+  }, []);
+
   const setNote = useCallback((date: string, text: string) => {
     setState((s) => (s ? { ...s, notes: { ...s.notes, [date]: text } } : s));
   }, []);
@@ -186,9 +205,19 @@ export default function App() {
     .map((id) => offerById(id, state.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
 
+  const allPlannedIds = Object.values(state.schedule)
+    .flat()
+    .filter((e) => e.type === "offer" && e.offerId)
+    .map((e) => e.offerId!);
+
+  const allPlannedSet = new Set(allPlannedIds);
+  const dismissedSet = new Set(state.dismissed);
+
   const filteredOffers = sortOffers(
     OFFERS.filter((o) => {
       if (o.distance > maxDistance) return false;
+      if (hideDismissed && dismissedSet.has(o.id)) return false;
+      if (hidePlanned && allPlannedSet.has(o.id)) return false;
       if (filter === "all") return true;
       if (filter === "card") return o.cardIncluded;
       return o.tags.includes(filter);
@@ -198,14 +227,12 @@ export default function App() {
     activeDate
   );
 
+  const dismissedCount = state.dismissed.length;
+  const plannedCount = allPlannedSet.size;
+
   const counts = Object.fromEntries(
     TRIP_DAYS.map((d) => [d.date, (state.schedule[d.date] ?? []).length])
   );
-
-  const allPlannedIds = Object.values(state.schedule)
-    .flat()
-    .filter((e) => e.type === "offer" && e.offerId)
-    .map((e) => e.offerId!);
 
   return (
     <div className="min-h-screen bg-forest-gradient text-cream relative">
@@ -259,7 +286,6 @@ export default function App() {
           />
         </section>
 
-        {/* Week Overview */}
         {showWeek && (
           <section className="px-5 pb-5">
             <WeekOverview
@@ -273,7 +299,6 @@ export default function App() {
           </section>
         )}
 
-        {/* Day Detail */}
         <section className="px-5 pb-7">
           <DayDetail
             day={activeDay}
@@ -343,9 +368,35 @@ export default function App() {
         {/* Catalog or Map */}
         {viewMode === "list" ? (
           <section className="px-5 pb-10">
-            <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
-              Angebote
-            </h2>
+            <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
+              <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
+                Angebote
+              </h2>
+              <div className="flex items-center gap-3">
+                {dismissedCount > 0 && (
+                  <label className="flex items-center gap-1.5 text-[10px] text-moss-soft cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hideDismissed}
+                      onChange={(e) => setHideDismissed(e.target.checked)}
+                      className="accent-amber w-3 h-3"
+                    />
+                    {dismissedCount} ausgeblendet
+                  </label>
+                )}
+                {plannedCount > 0 && (
+                  <label className="flex items-center gap-1.5 text-[10px] text-moss-soft cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={hidePlanned}
+                      onChange={(e) => setHidePlanned(e.target.checked)}
+                      className="accent-amber w-3 h-3"
+                    />
+                    Geplante ausblenden
+                  </label>
+                )}
+              </div>
+            </div>
             <div className="text-[11px] text-moss-soft mb-4">
               {filteredOffers.length} Vorschläge — kuratiert rund um Löffingen
             </div>
@@ -359,7 +410,7 @@ export default function App() {
               onSortChange={setSortKey}
             />
 
-            <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
+            <div className="grid gap-4 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
               {filteredOffers.length === 0 ? (
                 <div className="col-span-full py-7 text-center text-moss-soft italic text-[13px]">
                   Nichts gefunden — Filter lockern.
@@ -371,7 +422,8 @@ export default function App() {
                     offer={o}
                     activeDay={activeDate}
                     schedule={state.schedule}
-                    onAdd={(date) => addToDay(o.id, date)}
+                    isDismissed={dismissedSet.has(o.id)}
+                    onOpenDetail={() => setModalOffer(o)}
                   />
                 ))
               )}
@@ -388,6 +440,20 @@ export default function App() {
 
         <Footer onReset={resetAll} />
       </div>
+
+      {/* Detail Modal */}
+      {modalOffer && (
+        <OfferModal
+          offer={modalOffer}
+          activeDay={activeDate}
+          schedule={state.schedule}
+          isDismissed={dismissedSet.has(modalOffer.id)}
+          onClose={() => setModalOffer(null)}
+          onAdd={(date) => addToDay(modalOffer.id, date)}
+          onDismiss={() => dismissOffer(modalOffer.id)}
+          onUndismiss={() => undismissOffer(modalOffer.id)}
+        />
+      )}
     </div>
   );
 }

@@ -81,6 +81,9 @@ export const OFFERS: Offer[] = [
   {
     id: "sauschwaenzle",
     name: "Sauschwänzlebahn",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sauschw%C3%A4nzlebahn_Biesenbach-Viadukt.jpg/800px-Sauschw%C3%A4nzlebahn_Biesenbach-Viadukt.jpg",
+    ],
     sub: "Historische Museumsbahn",
     location: "Blumberg-Zollhaus (20 km)",
     distance: 20,
@@ -99,6 +102,9 @@ export const OFFERS: Offer[] = [
   {
     id: "schluchsee",
     name: "Schluchsee Rundweg + Schiff",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Schluchsee_-_panoramio_%281%29.jpg/800px-Schluchsee_-_panoramio_%281%29.jpg",
+    ],
     sub: "See, baden, Bootsfahrt",
     location: "Schluchsee (18 km)",
     distance: 18,
@@ -115,6 +121,9 @@ export const OFFERS: Offer[] = [
   {
     id: "titisee",
     name: "Titisee Promenade",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Titisee_Panorama.jpg/800px-Titisee_Panorama.jpg",
+    ],
     sub: "See, Bummeln, Kuckucksuhren",
     location: "Titisee (22 km)",
     distance: 22,
@@ -149,6 +158,10 @@ export const OFFERS: Offer[] = [
   {
     id: "feldberg",
     name: "Feldberg + Seilbahn + Wichtelpfad",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Feldberg_Gipfel.jpg/800px-Feldberg_Gipfel.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Feldbergsee.jpg/800px-Feldbergsee.jpg",
+    ],
     sub: "Höchster Berg im Schwarzwald",
     location: "Feldberg (28 km)",
     distance: 28,
@@ -233,6 +246,9 @@ export const OFFERS: Offer[] = [
   {
     id: "triberg",
     name: "Triberger Wasserfälle",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Triberger_Wasserf%C3%A4lle%2C_2014_%2801%29.jpg/800px-Triberger_Wasserf%C3%A4lle%2C_2014_%2801%29.jpg",
+    ],
     sub: "Höchste Wasserfälle Deutschlands",
     location: "Triberg (45 km)",
     distance: 45,
@@ -364,6 +380,9 @@ export const OFFERS: Offer[] = [
   {
     id: "donaueschingen-quelle",
     name: "Donauquelle & Fürstenberg",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Donaueschingen_Donauquelle_2012.jpg/800px-Donaueschingen_Donauquelle_2012.jpg",
+    ],
     sub: "Wo die Donau entspringt",
     location: "Donaueschingen (15 km)",
     distance: 15,
@@ -492,6 +511,9 @@ export const OFFERS: Offer[] = [
   {
     id: "vogtsbauernhof",
     name: "Schwarzwälder Freilichtmuseum",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Vogtsbauernhof_2012.jpg/800px-Vogtsbauernhof_2012.jpg",
+    ],
     sub: "Vogtsbauernhof — Leben wie früher",
     location: "Gutach (55 km)",
     distance: 55,
@@ -574,6 +596,9 @@ export const OFFERS: Offer[] = [
   {
     id: "Dom-st-blasien",
     name: "Dom St. Blasien",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/St_Blasien_Schwarzwald_Dom.jpg/800px-St_Blasien_Schwarzwald_Dom.jpg",
+    ],
     sub: "Drittgrößte Kirchenkuppel Europas",
     location: "St. Blasien (25 km)",
     distance: 25,
@@ -839,6 +864,10 @@ export const OFFERS: Offer[] = [
   {
     id: "rheinfall-schaffhausen",
     name: "Rheinfall Schaffhausen",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Rheinfall_bei_Schaffhausen_01.JPG/800px-Rheinfall_bei_Schaffhausen_01.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Rheinfall.jpg/800px-Rheinfall.jpg",
+    ],
     sub: "Größter Wasserfall Europas",
     location: "Neuhausen/Schweiz (55 km)",
     distance: 55,
@@ -877,6 +906,9 @@ export const OFFERS: Offer[] = [
   {
     id: "todtnauer-wasserfaelle",
     name: "Todtnauer Wasserfälle",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Todtnauer_Wasserfall_2012.jpg/800px-Todtnauer_Wasserfall_2012.jpg",
+    ],
     sub: "Naturwasserfall unter Denkmalschutz",
     location: "Todtnau/Aftersteg (50 km)",
     distance: 50,
@@ -894,6 +926,9 @@ export const OFFERS: Offer[] = [
   {
     id: "ravennaschlucht",
     name: "Ravennaschlucht",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Ravennaviadukt_2015.jpg/800px-Ravennaviadukt_2015.jpg",
+    ],
     sub: "Schlucht mit 37-m-Eisenbahnviadukt",
     location: "Breitnau (30 km)",
     distance: 30,
