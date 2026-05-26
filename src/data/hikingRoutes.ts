@@ -28,6 +28,12 @@ export interface HikingRoute {
   facilities: string[];
   photoSpots: { description: string; image?: string }[];
   strollerFriendly: boolean;
+  whatToPack?: string[];
+  bestTime?: string;
+  waterSources?: string;
+  emergencyInfo?: string;
+  shorterVariant?: string;
+  weatherNotes?: string;
 }
 
 export const HIKING_ROUTES: HikingRoute[] = [
@@ -80,6 +86,12 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.8680, 8.3120], [47.8700, 8.3200], [47.8720, 8.3300],
       [47.8732, 8.3385],
     ],
+    whatToPack: ["Feste Wanderschuhe (Pflicht!)", "Regen-/Windjacke", "Wasser (mind. 1L/Person)", "Brotzeit", "Babytrage für 3-Jährigen", "Ersatzkleidung (nass vom Bachspielen)"],
+    bestTime: "Vormittags starten (9–10 Uhr). Nachmittags Schatten in der Schlucht, aber Licht ist morgens schöner für Fotos.",
+    waterSources: "Kein Trinkwasser unterwegs. Gauchach-Bach nicht trinkbar. Wasser am Parkplatz auffüllen, Einkehr an Burgmühle.",
+    emergencyInfo: "Mobilfunk in der Schlucht eingeschränkt! Bei Notfall: Rettungspunkt 'Burgmühle' ansteuern. Bergwacht Schwarzwald: 07651-1222.",
+    shorterVariant: "Nur bis zur Gumpe und zurück: ca. 3 km, 1,5 h. Schönste Stelle der Tour.",
+    weatherNotes: "Bei Regen/Gewitter NICHT in die Schlucht — Hochwassergefahr! Felsgalerien rutschig bei Nässe. Frühestens 2 Tage nach Starkregen.",
   },
   {
     id: "schluchsee-ufer",
@@ -137,6 +149,11 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.8075, 8.1500], [47.8080, 8.1440], [47.8100, 8.1400],
       [47.8130, 8.1380], [47.8160, 8.1400],
     ],
+    whatToPack: ["Buggy/Sportbuggy (Weg tauglich)", "Sonnenschutz", "Badesachen (Strandbad!)", "Picknick oder Geld für Unterkrummenhof", "KONUS-Karte für Rückfahrt per Bahn/Schiff"],
+    bestTime: "Morgens starten, mittags am Unterkrummenhof einkehren, mit Schiff MS Schluchsee zurück (Card-inkl!).",
+    waterSources: "WC + Kiosk am Strandbad Aqua Fun, Restaurant Unterkrummenhof, Biergarten Staumauer.",
+    shorterVariant: "Nur Ort → Strandbad Aqua Fun: 1,5 km, flach, 30 Min. Dort baden + Spielplatz.",
+    weatherNotes: "Bei Regen: Weg machbar (befestigt), aber wenig Spaß. Bergseewasser im Mai noch kühl (~15°C).",
   },
   {
     id: "feldberg-wichtelpfad",
@@ -192,6 +209,12 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.8545, 7.9945], [47.8555, 7.9950], [47.8565, 7.9970],
       [47.8575, 7.9990], [47.8580, 8.0020], [47.8580, 8.0050],
     ],
+    whatToPack: ["Babytrage (im Haus der Natur ausleihbar!)", "WARME Jacke + Mütze (auch im Sommer, 1450 m!)", "Regen-/Windjacke", "Wasser + Snacks", "Feste Schuhe (wurzelige Pfade)"],
+    bestTime: "Erste Seilbahn 9:00 nehmen. Oben klare Sicht eher morgens. Nachmittags oft Wolken/Gewitter.",
+    waterSources: "Haus der Natur (WC + Imbiss), Feldberg Bistro Bergstation, Menzenschwander Hütte in der Nähe.",
+    emergencyInfo: "Auf 1450 m: Wetter kann in Minuten kippen! Bei Gewitter sofort ins Haus der Natur. Bergwacht: 07651-1222.",
+    shorterVariant: "Nur Seilbahn + Feldbergturm (ohne Wichtelpfad): 30 Min., Panorama trotzdem genießen.",
+    weatherNotes: "NUR bei trockenem Wetter lohnenswert — Panorama bei Wolken null Sicht. Saison: Mitte Mai – Mitte Oktober.",
   },
   {
     id: "loeffingen-orts",
@@ -243,6 +266,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.8820, 8.3420], [47.8815, 8.3445], [47.8820, 8.3470],
       [47.8830, 8.3480], [47.8840, 8.3460], [47.8840, 8.3430],
     ],
+    whatToPack: ["Buggy geht!", "Kamera (Fachwerk-Motive)", "Eis-Geld (Eisdiele in der Altstadt)"],
+    bestTime: "Jederzeit, auch als Lückenfüller am Nachmittag.",
+    waterSources: "Mehrere Cafés, Bäckereien, Eisdiele in der Altstadt.",
+    weatherNotes: "Bei jedem Wetter machbar (gepflastert). Bei Regen in die Cafés.",
   },
   {
     id: "wutachschlucht-klassik",
@@ -299,6 +326,12 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.8380, 8.2700], [47.8360, 8.2640], [47.8340, 8.2580],
       [47.8320, 8.2520], [47.8300, 8.2460],
     ],
+    whatToPack: ["Feste Wanderstiefel (Leitern!)", "Stöcke empfohlen", "Wasser 1,5 L/Person", "Brotzeit (5 km ohne Einkehr)", "Erste-Hilfe-Set", "KEIN Kinderwagen, KEIN 3-Jähriger"],
+    bestTime: "Früh starten (8:30 Uhr), unter der Woche. Am Wochenende überlaufen. Parkplatz ab 9 Uhr voll.",
+    waterSources: "Gasthof Schattenmühle (Start/Ende). KEINE Einkehr zwischen Start und Wutachmühle (5 km)! Wasser mitnehmen.",
+    emergencyInfo: "Mobilfunk in der Schlucht NICHT zuverlässig! Rettungspunkte markiert. Bergwacht: 07651-1222. Bei Hochwasser sofort umkehren.",
+    shorterVariant: "Nur Lotenbachklamm nebenan: 3 km, 1 h, familienfreundlicher. Selber Parkplatz.",
+    weatherNotes: "NICHT bei Regen/Gewitter — Schlucht wird zur Todesfalle bei Hochwasser. Leitern und Fels extrem rutschig.",
   },
   {
     id: "triberg-wasserfaelle",
@@ -352,6 +385,11 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [48.1290, 8.2260], [48.1282, 8.2250], [48.1275, 8.2240],
       [48.1268, 8.2230], [48.1260, 8.2225], [48.1252, 8.2220],
     ],
+    whatToPack: ["Nüsse für Eichhörnchen!", "Regenjacke (Gischt am Wasserfall)", "Buggy (Kaskadenweg machbar)", "Kamera (Langzeitbelichtung für Wasserfall!)"],
+    bestTime: "Morgens (weniger Touristen). Unter der Woche ideal. Abendbeleuchtung bis 22 Uhr auch schön.",
+    waterSources: "Restaurants am Haupteingang, Bergseestüble (mit Spielplatz!), Tourist-Info.",
+    shorterVariant: "Nur Kaskadenweg (unterer Eingang Scheffelstr.): 1 km, 30 Min., buggy-tauglich, Hauptfall sehen.",
+    weatherNotes: "Auch bei leichtem Regen stimmungsvoll! Naturpfad bei Nässe rutschig. Kaskadenweg (asphaltiert) immer ok.",
   },
   {
     id: "lotenbachklamm",
@@ -401,6 +439,11 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.824, 8.332], [47.823, 8.330], [47.824, 8.328],
       [47.826, 8.330], [47.828, 8.335], [47.830, 8.340],
     ],
+    whatToPack: ["Feste Schuhe", "Wasser", "Kinder an der Hand (steile Stufen)", "Trage für 3-Jährigen"],
+    bestTime: "Nachmittags, wenn die Sonne in die Klamm scheint.",
+    waterSources: "Gasthof Schattenmühle (Einkehr). Keine Quellen in der Klamm.",
+    shorterVariant: "Nur bis zum Lotenbachfall und zurück: 1 km, 30 Min.",
+    weatherNotes: "Holzstege bei Regen glatt! Feste Schuhe Pflicht.",
   },
   {
     id: "ravennaschlucht-runde",
@@ -455,5 +498,11 @@ export const HIKING_ROUTES: HikingRoute[] = [
       [47.886, 8.062], [47.888, 8.064], [47.890, 8.068],
       [47.892, 8.072], [47.894, 8.074],
     ],
+    whatToPack: ["Feste Schuhe", "Regenjacke (Gischt am Wasserfall)", "Kamera (Viadukt-Foto!)", "Babytrage für Klamm-Abschnitte"],
+    bestTime: "Morgens (bestes Licht für Viadukt-Fotos). Tipp: Zugfahrplan checken — Zug auf dem Viadukt = DAS Schwarzwald-Foto!",
+    waterSources: "Hofgut Sternen (Restaurant am Start, berühmt). Rauchhüsli (Schwarzwälder Schinken). Kein Wasser in der Schlucht.",
+    emergencyInfo: "Bei Hochwasser/Gewitter Schlucht verlassen! Handy funktioniert am Hofgut Sternen.",
+    shorterVariant: "Nur bis zum großen Wasserfall und zurück: 2 km, 1 h. Viadukt von unten sehen + 1. Wasserfall.",
+    weatherNotes: "Holzstege extrem rutschig bei Nässe! Bei Regen nur bis zum Viadukt (von unten einsehbar). Trocken = wunderschön.",
   },
 ];

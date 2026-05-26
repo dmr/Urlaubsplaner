@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Offer, TripDay, ScheduleEntry, BreakType } from "@/lib/types";
 import { formatDayMonth, hikeById } from "@/lib/helpers";
 import {
@@ -9,10 +9,13 @@ import {
   Plus,
   Coffee,
   Mountain,
+  Loader2,
 } from "lucide-react";
 import PlannedItem from "./PlannedItem";
 import DayTimeline from "./DayTimeline";
 import { BREAK_META } from "@/lib/constants";
+
+const DayMap = lazy(() => import("./DayMap"));
 
 type DayViewMode = "list" | "timeline";
 
@@ -289,6 +292,13 @@ export default function DayDetail({
           className="mt-1.5 w-full bg-parchment border-none rounded-sm px-3 py-2.5 text-[13px] text-ink resize-y outline-none focus:ring-2 focus:ring-amber/40"
         />
       </div>
+
+      {/* Day Map */}
+      {scheduleEntries.some((e) => e.type === "offer" || e.type === "hike") && (
+        <Suspense fallback={<div className="mt-4 py-4 text-center text-moss-soft text-[11px]"><Loader2 size={14} className="animate-spin inline mr-1" />Karte …</div>}>
+          <DayMap entries={scheduleEntries} customOffers={customOffers} />
+        </Suspense>
+      )}
     </div>
   );
 }

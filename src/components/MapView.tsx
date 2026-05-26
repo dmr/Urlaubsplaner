@@ -379,6 +379,53 @@ function RouteCard({
             </div>
           )}
 
+          {/* Extended Details */}
+          {route.whatToPack && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Einpacken</div>
+              <div className="flex flex-wrap gap-1">
+                {route.whatToPack.map((item, i) => (
+                  <span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-amber/10 text-amber-deep">{item}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {route.bestTime && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Beste Zeit</div>
+              <div className="text-[11px] text-cream/80">{route.bestTime}</div>
+            </div>
+          )}
+
+          {route.waterSources && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Verpflegung</div>
+              <div className="text-[11px] text-cream/80">{route.waterSources}</div>
+            </div>
+          )}
+
+          {route.shorterVariant && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Kürzere Variante</div>
+              <div className="text-[11px] text-cream/80">{route.shorterVariant}</div>
+            </div>
+          )}
+
+          {route.weatherNotes && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Wetter-Hinweis</div>
+              <div className="text-[11px] text-amber/80">{route.weatherNotes}</div>
+            </div>
+          )}
+
+          {route.emergencyInfo && (
+            <div>
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Notfall</div>
+              <div className="text-[11px] text-rust/80">{route.emergencyInfo}</div>
+            </div>
+          )}
+
           {/* Add to day */}
           {onAddHike && schedule && (
             <div className="pt-2 border-t border-moss/20">
