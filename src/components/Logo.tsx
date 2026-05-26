@@ -8,84 +8,97 @@ export default function Logo({ size = 64 }: { size?: number }) {
       xmlns="http://www.w3.org/2000/svg"
       className="shrink-0"
     >
-      {/* Background circle */}
       <circle cx="50" cy="50" r="48" fill="#162820" stroke="#c98a3a" strokeWidth="2" />
 
-      {/* Tiger/cat body - child's sketch style, rotated 90° left so it stands upright */}
-      <g strokeLinecap="round" strokeLinejoin="round">
-        {/* Body (was horizontal, now vertical — chunky rectangle) */}
+      {/* Child's drawing, rotated 90° CCW so the tiger stands upright */}
+      <g transform="rotate(-90, 50, 50)" strokeLinecap="round" strokeLinejoin="round">
+
+        {/* Body — wobbly trapezoid, exactly like the drawing */}
         <path
-          d="M38 42 C36 38 37 32 42 30 L58 30 C63 32 64 38 62 42 L62 58 C63 62 62 66 58 68 L42 68 C38 66 37 62 38 58 Z"
+          d="M28 35 L28 52 C29 53 30 54 32 54 L55 54 C57 54 58 53 58 51 L58 32 C58 30 56 29 54 29 L32 30 C30 30 28 32 28 35 Z"
+          stroke="#f3ead7"
+          strokeWidth="2.2"
+          fill="none"
+        />
+
+        {/* Legs — 6 wobbly sticks going up from the body, just like the kid drew */}
+        <path d="M32 29 L30 18 L31 17" stroke="#f3ead7" strokeWidth="2" fill="none" />
+        <path d="M37 29 L36 16" stroke="#f3ead7" strokeWidth="2" fill="none" />
+        <path d="M42 29 L41 17 L42 16" stroke="#f3ead7" strokeWidth="2" fill="none" />
+        <path d="M47 29 L46 18" stroke="#f3ead7" strokeWidth="2" fill="none" />
+        <path d="M51 29 L51 17 L52 16" stroke="#f3ead7" strokeWidth="2" fill="none" />
+        <path d="M55 30 L56 19" stroke="#f3ead7" strokeWidth="2" fill="none" />
+
+        {/* Little bump/loop on the back — the oval on top of body */}
+        <ellipse cx="45" cy="29" rx="4" ry="3" stroke="#f3ead7" strokeWidth="1.5" fill="none" />
+
+        {/* Neck — two long wobbly lines from right side of body going right-down to head */}
+        <path
+          d="M58 40 L66 46 L72 54 L76 60"
+          stroke="#f3ead7"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        <path
+          d="M58 48 L64 52 L70 58 L76 62"
           stroke="#f3ead7"
           strokeWidth="2"
           fill="none"
         />
 
-        {/* Legs - 4 stubby legs at bottom, childlike */}
-        <line x1="42" y1="68" x2="40" y2="80" stroke="#f3ead7" strokeWidth="2.5" />
-        <line x1="48" y1="68" x2="47" y2="80" stroke="#f3ead7" strokeWidth="2.5" />
-        <line x1="53" y1="68" x2="54" y2="80" stroke="#f3ead7" strokeWidth="2.5" />
-        <line x1="58" y1="68" x2="61" y2="80" stroke="#f3ead7" strokeWidth="2.5" />
-
-        {/* Neck going up */}
-        <line x1="50" y1="30" x2="50" y2="22" stroke="#f3ead7" strokeWidth="2.5" />
-
-        {/* Head - round, childlike */}
-        <circle cx="50" cy="17" r="8" stroke="#f3ead7" strokeWidth="2" fill="none" />
-
-        {/* Ears - two triangles poking up */}
-        <line x1="44" y1="12" x2="41" y2="5" stroke="#f3ead7" strokeWidth="2" />
-        <line x1="41" y1="5" x2="46" y2="10" stroke="#f3ead7" strokeWidth="1.5" />
-        <line x1="56" y1="12" x2="59" y2="5" stroke="#f3ead7" strokeWidth="2" />
-        <line x1="59" y1="5" x2="54" y2="10" stroke="#f3ead7" strokeWidth="1.5" />
-
-        {/* Eyes - two dots */}
-        <circle cx="46" cy="16" r="1.5" fill="#f3ead7" />
-        <circle cx="54" cy="16" r="1.5" fill="#f3ead7" />
-
-        {/* Nose */}
-        <circle cx="50" cy="19" r="1" fill="#c98a3a" />
-
-        {/* Whiskers */}
-        <line x1="44" y1="19" x2="36" y2="18" stroke="#f3ead7" strokeWidth="1" />
-        <line x1="44" y1="20" x2="36" y2="21" stroke="#f3ead7" strokeWidth="1" />
-        <line x1="56" y1="19" x2="64" y2="18" stroke="#f3ead7" strokeWidth="1" />
-        <line x1="56" y1="20" x2="64" y2="21" stroke="#f3ead7" strokeWidth="1" />
-
-        {/* Tail - curvy, sticking out to the right */}
+        {/* Head — angular, with pointy ears, like the kid drew it */}
         <path
-          d="M62 42 C68 40 72 36 70 30 C69 26 72 24 76 26"
+          d="M76 58 L84 56 L86 60 L84 66 L78 68 L74 65 L76 58"
           stroke="#f3ead7"
-          strokeWidth="2"
+          strokeWidth="2.2"
           fill="none"
         />
 
-        {/* Stripes on body (tiger!) */}
-        <line x1="42" y1="38" x2="48" y2="38" stroke="#c98a3a" strokeWidth="1.5" />
-        <line x1="52" y1="42" x2="58" y2="42" stroke="#c98a3a" strokeWidth="1.5" />
-        <line x1="42" y1="48" x2="48" y2="48" stroke="#c98a3a" strokeWidth="1.5" />
-        <line x1="52" y1="52" x2="58" y2="52" stroke="#c98a3a" strokeWidth="1.5" />
-        <line x1="42" y1="58" x2="48" y2="58" stroke="#c98a3a" strokeWidth="1.5" />
+        {/* Ears — two pointy triangles sticking up from head */}
+        <path d="M80 56 L78 50 L82 54" stroke="#f3ead7" strokeWidth="1.8" fill="none" />
+        <path d="M84 55 L85 49 L87 54" stroke="#f3ead7" strokeWidth="1.8" fill="none" />
 
-        {/* Ball next to tiger (from the child's drawing - spotted circle) */}
-        <circle cx="26" cy="60" r="10" stroke="#f3ead7" strokeWidth="2" fill="none" />
-        <circle cx="23" cy="56" r="3" stroke="#c98a3a" strokeWidth="1.2" fill="none" />
-        <circle cx="29" cy="63" r="2.5" stroke="#c98a3a" strokeWidth="1.2" fill="none" />
-        <circle cx="24" cy="64" r="1.5" stroke="#c98a3a" strokeWidth="1" fill="none" />
+        {/* Eyes — two bold dots, like the drawing */}
+        <circle cx="80" cy="60" r="1.8" fill="#f3ead7" />
+        <circle cx="84" cy="61" r="1.5" fill="#f3ead7" />
+
+        {/* Mouth/teeth — angular open jaw to the right with little teeth */}
+        <path d="M85 64 L90 63 L91 65" stroke="#f3ead7" strokeWidth="1.5" fill="none" />
+        <path d="M85 66 L90 67 L91 65" stroke="#f3ead7" strokeWidth="1.5" fill="none" />
+
+        {/* Dino Egg — large wobbly circle below/beside the head, with spots inside */}
+        <path
+          d="M68 68 C65 64 63 68 62 72 C61 76 62 82 66 84 C70 86 76 85 78 82 C80 78 80 72 77 68 C75 66 71 65 68 68 Z"
+          stroke="#f3ead7"
+          strokeWidth="2.2"
+          fill="none"
+        />
+        {/* Spots on the dino egg — irregular circles like the kid drew */}
+        <path
+          d="M66 72 C64 71 64 74 66 75 C68 76 69 73 67 72"
+          stroke="#f3ead7"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path
+          d="M72 76 C70 75 69 78 71 80 C73 81 75 79 74 77 C73 76 72 76 72 76"
+          stroke="#f3ead7"
+          strokeWidth="1.5"
+          fill="none"
+        />
+        <path
+          d="M67 79 C66 78 65 80 67 81 C68 81 68 79 67 79"
+          stroke="#f3ead7"
+          strokeWidth="1.3"
+          fill="none"
+        />
+        <path
+          d="M74 71 C73 70 72 72 73 73 C74 74 75 72 74 71"
+          stroke="#f3ead7"
+          strokeWidth="1.3"
+          fill="none"
+        />
       </g>
-
-      {/* Small text arc at bottom */}
-      <text
-        x="50"
-        y="95"
-        textAnchor="middle"
-        fill="#8aa57a"
-        fontSize="6"
-        fontFamily="DM Sans, sans-serif"
-        letterSpacing="0.15em"
-      >
-        SCHWARZWALD
-      </text>
     </svg>
   );
 }
