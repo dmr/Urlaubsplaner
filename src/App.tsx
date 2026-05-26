@@ -19,7 +19,7 @@ import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import AddCustomOffer from "@/components/AddCustomOffer";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus, ChevronUp } from "lucide-react";
 
 const MapView = lazy(() => import("@/components/MapView"));
 
@@ -284,61 +284,67 @@ export default function App() {
         <Header />
         <HochschwarzwaldHint />
 
-        {/* Day Strip — sticky */}
-        <section className="sticky top-0 z-30 px-5 pb-3 pt-3 bg-forest-deep/95 backdrop-blur-sm border-b border-cream/5">
-          <div className="flex justify-between items-center mb-2">
-            <div className="flex items-center gap-2">
-              <h2 className="font-serif font-light italic text-[18px] text-cream m-0 -tracking-[0.01em]">
-                Die Tage
-              </h2>
+        {/* Sticky navigation bar */}
+        <nav className="sticky top-0 z-30 bg-forest-deep/95 backdrop-blur-sm border-b border-cream/8">
+          {/* Row 1: Controls */}
+          <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
+            <div className="flex items-center gap-3">
+              <span className="font-serif italic text-[15px] text-cream">
+                {activeDay.full}, {activeDay.day}. Mai
+              </span>
               <span className="text-[10px] text-moss-soft">
-                {Object.values(counts).reduce((a, b) => a + b, 0)} Aktivitäten geplant
+                {Object.values(counts).reduce((a, b) => a + b, 0)} geplant
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="flex items-center justify-center w-7 h-7 rounded-full bg-transparent text-moss-soft hover:text-cream border border-cream/15 transition-colors"
-                title={theme === "dark" ? "Helles Theme" : "Dunkles Theme"}
-              >
-                {theme === "dark" ? <Sun size={13} /> : <Moon size={13} />}
-              </button>
-              <button
-                onClick={() => setShowWeek(!showWeek)}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase transition-colors ${
-                  showWeek
-                    ? "bg-moss/80 text-cream"
-                    : "bg-transparent text-moss-soft hover:text-cream border border-cream/15"
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${
+                  viewMode === "list" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"
                 }`}
               >
-                <Calendar size={10} /> Woche
+                <List size={11} /> Liste
               </button>
-              <div className="text-[10px] text-moss-soft tracking-wider uppercase flex items-center gap-1">
-                {saveStatus === "saving" && (
-                  <>
-                    <Loader2 size={11} className="animate-spin" /> Speichert
-                  </>
-                )}
-                {saveStatus === "saved" && (
-                  <>
-                    <Check size={11} /> Gespeichert
-                  </>
-                )}
-                {saveStatus === "idle" && (
-                  <>
-                    <Save size={11} /> Auto-Save
-                  </>
-                )}
+              <button
+                onClick={() => setViewMode("map")}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${
+                  viewMode === "map" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"
+                }`}
+              >
+                <Map size={11} /> Karte
+              </button>
+              <span className="w-px h-4 bg-cream/10 mx-0.5" />
+              <button
+                onClick={() => setShowWeek(!showWeek)}
+                className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
+                  showWeek ? "bg-moss/80 text-cream" : "text-moss-soft hover:text-cream"
+                }`}
+              >
+                <Calendar size={10} />
+              </button>
+              <button
+                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                className="flex items-center justify-center w-6 h-6 rounded-full text-moss-soft hover:text-cream transition-colors"
+              >
+                {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
+              </button>
+              <div className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1">
+                {saveStatus === "saving" && <Loader2 size={10} className="animate-spin" />}
+                {saveStatus === "saved" && <Check size={10} />}
+                {saveStatus === "idle" && <Save size={10} />}
               </div>
             </div>
           </div>
-          <DayStrip
-            days={TRIP_DAYS}
-            activeDate={activeDate}
-            counts={counts}
-            onSelect={setActiveDate}
-          />
-        </section>
+          {/* Row 2: Day Strip */}
+          <div className="px-5 pb-2.5">
+            <DayStrip
+              days={TRIP_DAYS}
+              activeDate={activeDate}
+              counts={counts}
+              onSelect={setActiveDate}
+            />
+          </div>
+        </nav>
 
         {showWeek && (
           <section className="px-5 pb-5">
@@ -368,34 +374,6 @@ export default function App() {
               updateEntryTime(activeDate, entryId, start, end)
             }
           />
-        </section>
-
-        {/* View Toggle + Export/Import */}
-        <section className="px-5 pb-4">
-          <div className="flex items-center justify-between flex-wrap gap-2">
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                  viewMode === "list"
-                    ? "bg-moss text-cream"
-                    : "bg-stone/40 text-moss-soft hover:text-cream"
-                }`}
-              >
-                <List size={15} /> Angebote
-              </button>
-              <button
-                onClick={() => setViewMode("map")}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-lg text-[13px] font-medium transition-colors ${
-                  viewMode === "map"
-                    ? "bg-moss text-cream"
-                    : "bg-stone/40 text-moss-soft hover:text-cream"
-                }`}
-              >
-                <Map size={15} /> Karte & Routen
-              </button>
-            </div>
-          </div>
         </section>
 
         {/* Catalog or Map */}
@@ -507,6 +485,27 @@ export default function App() {
           onClose={() => setShowAddCustom(false)}
         />
       )}
+
+      <ScrollToTop />
     </div>
+  );
+}
+
+function ScrollToTop() {
+  const [show, setShow] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setShow(window.scrollY > 400);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+  if (!show) return null;
+  return (
+    <button
+      onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+      className="fixed bottom-6 right-6 z-40 w-10 h-10 rounded-full bg-moss text-cream shadow-lg flex items-center justify-center hover:bg-moss/80 transition-colors"
+      aria-label="Nach oben"
+    >
+      <ChevronUp size={20} />
+    </button>
   );
 }
