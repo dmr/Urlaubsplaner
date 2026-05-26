@@ -129,6 +129,13 @@ export default function OfferCard({
           {offer.description}
         </p>
 
+        {/* Source link */}
+        {(offer.url || offer.source) && (
+          <div className="mt-1.5 text-[10px] text-stone truncate">
+            🔗 {((offer.source || offer.url)!).replace(/^https?:\/\/(www\.)?/, "").split("/")[0]}
+          </div>
+        )}
+
         {notAvailableToday && (
           <div className="mt-2 text-[10px] text-amber-deep flex items-center gap-1">
             <CalendarX size={10} /> Nur {offer.availableDays!.join(", ")}
