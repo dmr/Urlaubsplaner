@@ -116,6 +116,8 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
+  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string } | null>(null);
+
   useEffect(() => {
     const loaded = loadState();
     const urlParams = new URLSearchParams(window.location.search);
@@ -123,17 +125,7 @@ export default function App() {
     if (planParam) {
       const decoded = decodeStateFromUrl(planParam);
       if (decoded) {
-        for (const [date, offerIds] of Object.entries(decoded.schedule)) {
-          const existing = loaded.schedule[date] ?? [];
-          const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
-          for (const offerId of offerIds) {
-            if (!existingSet.has(offerId)) {
-              existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer", offerId });
-            }
-          }
-          loaded.schedule[date] = existing;
-        }
-        if (decoded.homeBaseName) loaded.homeBase = { ...loaded.homeBase, name: decoded.homeBaseName };
+        setUrlImportData(decoded);
         window.history.replaceState(null, "", window.location.pathname + window.location.hash);
       }
     }
@@ -580,6 +572,70 @@ export default function App() {
           }}
           onClose={() => setShowPlanManager(false)}
         />
+      )}
+
+      {/* URL Import Dialog */}
+      {urlImportData && state && (
+        <div className="fixed inset-0 z-50 bg-ink/70 flex items-center justify-center p-4" onClick={() => setUrlImportData(null)}>
+          <div className="bg-parchment rounded-xl w-full max-w-[440px] p-5" onClick={(e) => e.stopPropagation()}>
+            <h2 className="font-serif font-medium text-[22px] text-ink mb-2">Plan empfangen</h2>
+            <p className="text-[13px] text-stone mb-4">
+              Jemand hat dir einen Plan geschickt. Diese Aktivitäten sind enthalten:
+            </p>
+            <div className="space-y-2 mb-4 max-h-[40vh] overflow-y-auto">
+              {TRIP_DAYS.map((day) => {
+                const ids = urlImportData.schedule[day.date];
+                if (!ids || ids.length === 0) return null;
+                const existingIds = new Set(getPlannedOfferIds(state.schedule[day.date] ?? []));
+                return (
+                  <div key={day.date} className="bg-ink/5 rounded-lg p-3">
+                    <div className="text-[12px] font-medium text-ink mb-1">{day.weekday} {new Date(day.date).getDate()}. Mai</div>
+                    {ids.map((id) => {
+                      const offer = allOffers.find((o) => o.id === id);
+                      const alreadyHave = existingIds.has(id);
+                      return (
+                        <div key={id} className={`text-[12px] ${alreadyHave ? "text-stone line-through" : "text-ink"}`}>
+                          {alreadyHave ? "✓ " : "+ "}{offer?.name ?? id}
+                        </div>
+                      );
+                    })}
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={() => {
+                  setState((s) => {
+                    if (!s) return s;
+                    const schedule = { ...s.schedule };
+                    for (const [date, offerIds] of Object.entries(urlImportData.schedule)) {
+                      const existing = [...(schedule[date] ?? [])];
+                      const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
+                      for (const offerId of offerIds) {
+                        if (!existingSet.has(offerId)) {
+                          existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer" as const, offerId });
+                        }
+                      }
+                      schedule[date] = existing;
+                    }
+                    return { ...s, schedule };
+                  });
+                  setUrlImportData(null);
+                }}
+                className="flex-1 py-3 bg-moss text-cream rounded-lg text-[13px] font-medium hover:bg-moss/80"
+              >
+                Übernehmen
+              </button>
+              <button
+                onClick={() => setUrlImportData(null)}
+                className="py-3 px-5 bg-stone/15 text-ink rounded-lg text-[13px] font-medium hover:bg-stone/25"
+              >
+                Verwerfen
+              </button>
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Undo toast */}
