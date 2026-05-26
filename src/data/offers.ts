@@ -65,7 +65,8 @@ export const OFFERS: Offer[] = [
       "41 m Wasserrutsche, Nichtschwimmerbereich, Kinderplanschbecken mit Fontäne. Beheizt.",
     pro: "Card-frei. Perfekter Sommertag-Reset.",
     con: "Bei <18 °C wenig Spaß — Wetter checken.",
-  },
+
+    url: "https://www.loeffingen.de/index.php?id=124",  },
   {
     id: "hallenbad-dittis",
     name: "Hallenbad Dittishausen",
@@ -80,7 +81,8 @@ export const OFFERS: Offer[] = [
     description: "Hallenbad mit Sauna. Klein, aber Plan B bei Regen.",
     pro: "Nah, Card-inkl.",
     con: "Eher klein.",
-  },
+
+    url: "https://www.loeffingen.de/index.php?id=124",  },
   {
     id: "sauschwaenzle",
     name: "Sauschwänzlebahn",
@@ -122,7 +124,8 @@ export const OFFERS: Offer[] = [
       "Uferweg ist kinderwagentauglich. Rundfahrt mit dem Dampfer 'Sankt Nikolaus'. Bootsverleih (Tret-/Ruderboote). Mehrere Spielplätze.",
     pro: "Alle Altersklassen happy. Schifffahrt ist Card-inkl.",
     con: "Komplette Umrundung (~18 km) zu weit für die Kleinen — nur Teilstrecke.",
-  },
+
+    url: "https://www.seerundfahrten.de",  },
   {
     id: "titisee",
     name: "Titisee Promenade",
@@ -142,7 +145,8 @@ export const OFFERS: Offer[] = [
       "Tret-/Elektroboote, Schifffahrt, Promenade mit Riesenrad, Souvenir-Tourismus pur.",
     pro: "Niedrige Schwelle, mehrere Mini-Attraktionen für Kinder.",
     con: "Touri-Hotspot, an Feiertagen unangenehm voll.",
-  },
+
+    url: "https://www.hochschwarzwald.de/erleben/ausflugsziele/sehenswuerdigkeiten-und-ausflugsziele-am-titisee",  },
   {
     id: "badeparadies",
     name: "Badeparadies Schwarzwald",
@@ -160,7 +164,8 @@ export const OFFERS: Offer[] = [
     pro: "Schlechtwetter-Königin. Card-Rabatt 30 %.",
     con:
       "Teuer. Galaxy-Rutschen meist erst ab 1,20 m — die Kleinen können nicht alles.",
-  },
+
+    url: "https://www.badeparadies-schwarzwald.de",  },
   {
     id: "feldberg",
     name: "Feldberg + Seilbahn + Wichtelpfad",
@@ -180,7 +185,8 @@ export const OFFERS: Offer[] = [
       "Seilbahn hoch, Wichtelpfad mit Stationen für Kinder, leichte Wege oben. 3-Jähriger geht in der Trage gut.",
     pro: "Seilbahn = Highlight. Card-inkl.",
     con: "Wetter oben kippt schnell — warme Jacke einpacken, auch im Juni.",
-  },
+
+    url: "https://www.feldberg-erlebnis.de",  },
   {
     id: "gauchach",
     name: "Gauchachschlucht (statt Wutach)",
@@ -200,7 +206,8 @@ export const OFFERS: Offer[] = [
       "Start Drei-Schluchten-Halle Bachheim. Wutach + Gauchach kombiniert. Holzbrücken, Felsengalerien — Abenteuer ohne Hochrisiko der Wutachschlucht.",
     pro: "Nah, schön, kein Kinderwagen aber 3-Jähriger in Trage machbar.",
     con: "Bei Nässe rutschig. Geeignete Schuhe Pflicht.",
-  },
+
+    url: "https://www.hochschwarzwald.de/Attraktionen/Gauchachschlucht",  },
   {
     id: "wutachschlucht",
     name: "Wutachschlucht (Schluchtensteig)",
@@ -223,7 +230,8 @@ export const OFFERS: Offer[] = [
     pro: "Naturhighlight.",
     con:
       "Mit dem 3-Jährigen unpassend — euer 6-/7-Jähriger könnte mit einem Erwachsenen splitten, während die anderen woanders hin.",
-  },
+
+    url: "https://www.wutachschlucht.de",  },
   {
     id: "steinwasen",
     name: "Steinwasen-Park",
@@ -243,7 +251,8 @@ export const OFFERS: Offer[] = [
       "Lange Hängebrücke, Sommerrodelbahn, Tiergehege (Murmeltiere, Steinböcke). Inkl. Luxis Kinderland Indoor.",
     pro: "Card-inkl.! Großes Komplett-Erlebnis, mischt alles. Spart ~21 €/Person.",
     con: "Lange Fahrt (1 h).",
-  },
+
+    url: "https://www.steinwasen-park.de",  },
   {
     id: "hasenhorn",
     name: "Hasenhorn-Coaster",
@@ -264,7 +273,8 @@ export const OFFERS: Offer[] = [
       "2,9 km Allwetter-Rodelbahn. 3-Jähriger nur in Begleitung eines Erwachsenen (min. 95 cm). 'Spektakulärste Rodelbahn Deutschlands'.",
     pro: "Adrenalin pur. Auch bei leichtem Regen ok. Card-Rabatt ~20 %.",
     con: "Fahrt 1 h einfach. Wartezeiten an heißen Tagen.",
-  },
+
+    url: "https://www.hasenhorn-rodelbahn.de",  },
   {
     id: "triberg",
     name: "Triberger Wasserfälle",
@@ -300,7 +310,8 @@ export const OFFERS: Offer[] = [
       "Neue Hängebrücke an den Todtnauer Wasserfällen. Hochschwarzwald Card seit 2025/26 inklusive.",
     pro: "Nervenkitzel + Wasserfall in einem.",
     con: "Lange Anfahrt. 3-Jähriger braucht starke Hand.",
-  },
+
+    url: "https://blackforestline.de",  },
   {
     id: "ortsrallye",
     name: "Ortsrallye Löffingen",
@@ -319,23 +330,8 @@ export const OFFERS: Offer[] = [
       "Hexenbrunnen, Mailänder Tor, Stadtrundgang. Sportbuggy-tauglich. PDF zum Download bei Hochschwarzwald-Tourismus.",
     pro: "Null Kosten, null Anfahrt. Bei kurzem Aufenthalt der Kinder.",
     con: "Eher Lückenfüller als Tageshighlight.",
-  },
-  {
-    id: "house-of-senses",
-    name: "Black Forest House of Senses",
-    sub: "Mitmach-Museum",
-    location: "Waldkirch (60 km)",
-    distance: 60,
-    duration: "Halbtags",
-    minAge: 5,
-    tags: ["indoor", "badWeather"],
-    price: "€€",
-    cardIncluded: true,
-    description: "Interaktive Stationen, Sinnes-Experimente. Card-inkl.",
-    pro: "Top für Regentag mit den älteren Kindern.",
-    con: "Weit weg, der 3-Jährige hat wenig davon.",
-  },
 
+    url: "https://www.hochschwarzwald.de/Kuckys-Ortsrallyes",  },
   // ── Neue Sehenswürdigkeiten & Attraktionen ──
 
   {
@@ -353,7 +349,8 @@ export const OFFERS: Offer[] = [
       "Naturnah gestaltetes Freibad mit Riesenrutsche und Kinderbereich. Eingebettet in den Wald mit Blick auf die Schwarzwald-Berge.",
     pro: "Card-inkl. Schöne Lage am Waldrand.",
     con: "Weite Anfahrt (60 km). Nur bei warmem Wetter.",
-  },
+
+    url: "https://www.schwimmbad-waldkirch.de",  },
   {
     id: "fundorena",
     name: "Fundorena Feldberg",
@@ -369,7 +366,8 @@ export const OFFERS: Offer[] = [
       "Indoor-Erlebniszentrum direkt am Feldberg: Kletterwand, Trampolinanlage, Tubingbahn. Perfekter Regentag-Plan.",
     pro: "Card-inkl. Bei jedem Wetter. 3-Jähriger kann Trampoline nutzen.",
     con: "Kann an Regentagen voll werden.",
-  },
+
+    url: "https://fundorena.de",  },
   {
     id: "kletterwald-feldberg",
     name: "Kletterwald Feldberg",
@@ -386,7 +384,8 @@ export const OFFERS: Offer[] = [
     pro: "Card-inkl. Kinderparcours ideal für 6- und 7-Jährigen.",
     con: "3-Jähriger zu klein für die meisten Parcours.",
     warning: "Mindestalter 4 Jahre, Mindestgröße beachten.",
-  },
+
+    url: "https://www.kletterwald-feldberg.com",  },
   {
     id: "heimatmuseum-huefingen",
     name: "Römerbad & Stadtmuseum Hüfingen",
@@ -402,7 +401,8 @@ export const OFFERS: Offer[] = [
       "Reste eines römischen Badehauses aus dem 1. Jh. n. Chr. Kleines, feines Museum mit Funden aus der Region. Dazu Stadtmuseum im Schloss.",
     pro: "Card-inkl. Nah. Interessant für kulturell neugierige Kinder.",
     con: "Eher kurzer Besuch, für 3-Jährigen wenig spannend.",
-  },
+
+    url: "https://www.badruine-huefingen.de",  },
   {
     id: "donaueschingen-quelle",
     name: "Donauquelle & Fürstenberg",
@@ -422,7 +422,8 @@ export const OFFERS: Offer[] = [
       "Die eingefasste Donauquelle im Schlosspark ist frei zugänglich. Dazu Schlosspark zum Spielen, Fürstenberg-Brauerei und hübsche Altstadt.",
     pro: "Gratis. Schlosspark perfekt zum Toben. Kurze Anfahrt.",
     con: "Die Quelle selbst ist schnell gesehen — mit Stadtbummel kombinieren.",
-  },
+
+    url: "https://www.donaueschingen.de/donauquelle",  },
   {
     id: "fuerstenberg-brauerei",
     name: "Fürstenberg Brauereimuseum",
@@ -438,7 +439,8 @@ export const OFFERS: Offer[] = [
       "Interaktives Museum zur Braugeschichte. Für Erwachsene interessant, Kinder mögen die alten Maschinen und die Flaschenabfüllung.",
     pro: "Regentag-Option. Kombination mit Donauquelle möglich.",
     con: "Für Kinder nur bedingt spannend. Verkostung nur für Erwachsene.",
-  },
+
+    url: "https://www.fuerstenberg.de",  },
   {
     id: "welde-schokolade",
     name: "Confiserie Welde",
@@ -486,7 +488,8 @@ export const OFFERS: Offer[] = [
       "Kleiner, ruhiger Moorsee mit Liegewiese und flachem Einstieg. Deutlich weniger überlaufen als Schluchsee oder Titisee.",
     pro: "Gratis. Flacher Einstieg perfekt für Kleine. Ruhig.",
     con: "Moorwasser ist kühl und dunkel — gewöhnungsbedürftig.",
-  },
+
+    url: "http://www.strandbad-windgfaellweiher.de",  },
   {
     id: "hochfirst-turm",
     name: "Hochfirstturm",
@@ -502,7 +505,8 @@ export const OFFERS: Offer[] = [
       "Aussichtsturm auf 1190 m mit Rundblick über Schwarzwald bis zu den Alpen. Leichte Wanderung (30 Min.) vom Parkplatz Saig.",
     pro: "Card-inkl. Atemberaubende Aussicht. Kurze Wanderung.",
     con: "Turm-Treppen steil — 3-Jährigen tragen. Nur bei klarer Sicht lohnend.",
-  },
+
+    url: "https://schwarzwaldverein-neustadt.de/hochfirstturm/",  },
   {
     id: "naturerlebnispfad-hinterzarten",
     name: "Naturerlebnispfad Hinterzarten",
@@ -521,7 +525,8 @@ export const OFFERS: Offer[] = [
       "Barfußpfad, Moor-Steg, Waldstationen zum Tasten und Riechen. Kinderwagen-tauglicher Abschnitt vorhanden.",
     pro: "Gratis. Kindgerecht, interaktiv. Auch mit Buggy machbar.",
     con: "Bei Regen matschig.",
-  },
+
+    url: "https://www.hochschwarzwald.de/touren/evernius-naturerlebnispfad-hinterzarten",  },
   {
     id: "adler-skistadion",
     name: "Adler-Skistadion Hinterzarten",
@@ -537,7 +542,8 @@ export const OFFERS: Offer[] = [
       "Die berühmte Skisprungschanze von Hinterzarten frei besichtigen. Im Sommer Mattenschanzen-Training — mit Glück sieht man Springer.",
     pro: "Gratis. Beeindruckend für Kinder. Picknick auf der Wiese.",
     con: "Kurzer Stopp, kein Ganztagsprogramm.",
-  },
+
+    url: "https://skiclub-hinterzarten.de",  },
   {
     id: "vogtsbauernhof",
     name: "Schwarzwälder Freilichtmuseum",
@@ -574,7 +580,8 @@ export const OFFERS: Offer[] = [
       "8000 Uhren aus aller Welt, die größte Kuckucksuhren-Sammlung. Interaktive Stationen für Kinder.",
     pro: "Card-inkl. Kinder staunen über die Kuckucksuhren. Perfekt bei Regen.",
     con: "Aktuell geschlossen (Umbau bis 2027). Museum — 3-Jähriger hat begrenzte Ausdauer.",
-  },
+
+    url: "https://www.deutsches-uhrenmuseum.de",  },
   {
     id: "lotenbachklamm",
     name: "Lotenbachklamm",
@@ -590,7 +597,8 @@ export const OFFERS: Offer[] = [
       "Kurze, aber eindrucksvolle Klammwanderung als Seitenarm der Wutachschlucht. Weniger anspruchsvoll als die Hauptschlucht.",
     pro: "Gratis. Kurz genug für Kinder. Dramatische Felsen und Wasser.",
     con: "Rutschig bei Nässe. Nicht kinderwagentauglich.",
-  },
+
+    url: "https://www.wutachschlucht.de",  },
   {
     id: "radon-revital-bad",
     name: "Radon Revital Bad",
@@ -606,7 +614,8 @@ export const OFFERS: Offer[] = [
       "Thermalbad mit Kinderbecken, Rutsche und Außenbecken. Wärmeres Wasser als See — auch bei kühlem Wetter gut.",
     pro: "Card-inkl. Warm, familienfreundlich.",
     con: "30 km. Kein riesiges Spaßbad wie Badeparadies.",
-  },
+
+    url: "https://www.radonrevitalbad.de",  },
   {
     id: "menzenschwander-wasserfaelle",
     name: "Menzenschwander Wasserfälle",
@@ -626,7 +635,8 @@ export const OFFERS: Offer[] = [
       "Oberer und unterer Wasserfall, verbunden durch einen leichten Waldweg. Weniger touristisch als Triberg.",
     pro: "Gratis. Ruhiger als Triberg. Unterer Wasserfall kinderwagentauglich.",
     con: "Oberer Wasserfall mit Stufen — Trage für den 3-Jährigen.",
-  },
+
+    url: "https://www.hochschwarzwald.de/Attraktionen/Menzenschwander-Wasserfaelle",  },
   {
     id: "Dom-st-blasien",
     name: "Dom St. Blasien",
@@ -646,7 +656,8 @@ export const OFFERS: Offer[] = [
       "Beeindruckender klassizistischer Dom mit riesiger Kuppel (36 m Durchmesser). Freier Eintritt. Kurzer Besuch mit Wow-Effekt.",
     pro: "Gratis. Architektonisch beeindruckend — auch Kinder staunen über die Kuppel.",
     con: "Kurzer Stopp. Am besten mit St. Blasien-Bummel kombinieren.",
-  },
+
+    url: "https://www.dom-st-blasien.de",  },
   {
     id: "badkrozingen-vita-classica",
     name: "Vita Classica Therme",
@@ -663,7 +674,8 @@ export const OFFERS: Offer[] = [
       "Großzügige Therme mit Familienbereich, Kinderrutschen und Außenbecken. Angenehm warmes Thermalwasser.",
     pro: "Große Anlage. Familienbereich gut ausgestattet.",
     con: "65 km Anfahrt. Teurer als kleine Bäder.",
-  },
+
+    url: "https://www.bad-krozingen.info/Vita-Classica",  },
   {
     id: "schwarzwaldhaus-natur",
     name: "Haus der Natur am Feldberg",
@@ -679,7 +691,8 @@ export const OFFERS: Offer[] = [
       "Ausstellung über Flora, Fauna und Geologie des Schwarzwalds. Virtueller Heißluftballon, 3D-Show, Junior-Ranger-Programm. 5 €/Erw., 3 €/Kind, 13 € Familie.",
     pro: "Ideal kombinierbar mit Feldberg-Seilbahn. Interaktiv für Kinder.",
     con: "Klein — eher Ergänzung als Hauptattraktion.",
-  },
+
+    url: "https://www.haus-der-natur-feldberg.de",  },
   {
     id: "mundenhof-freiburg",
     name: "Mundenhof Freiburg",
@@ -695,7 +708,8 @@ export const OFFERS: Offer[] = [
       "Größtes Tiergehege in Baden-Württemberg, Eintritt frei. Affen, Erdmännchen, Lamas, Streichelzoo. Großer Spielplatz.",
     pro: "Gratis Eintritt. Riesiger Streichelzoo. Kinder lieben es.",
     con: "65 km. Nur Parkgebühr (5 €). Ganztags einplanen.",
-  },
+
+    url: "https://www.mundenhof.de",  },
 
   // ── Card-Highlights aus Recherche ──
 
@@ -714,7 +728,8 @@ export const OFFERS: Offer[] = [
       "Erste 3 h Card-gratis: Tube-/Rodelbahn und 15 Min. Segway-Tour. Im Sommer perfekter Aktionstag am Schluchsee.",
     pro: "Card-inkl. (3 h). Kombination mit Schluchsee-Ufer ideal.",
     con: "Segway erst ab gewissem Gewicht. 3-Jähriger braucht Begleitung bei Tube-Bahn.",
-  },
+
+    url: "https://spass-park-hochschwarzwald.de",  },
   {
     id: "abenteuer-golfpark",
     name: "Abenteuer-Golfpark",
@@ -730,7 +745,8 @@ export const OFFERS: Offer[] = [
       "Spektakulärer Abenteuer-Minigolf mit 18 Themenbahnen auf über 10.000 m². Deutlich mehr als klassisches Minigolf.",
     pro: "Card-inkl. Nah. Alle Alter spielen mit. Wenig Aufwand.",
     con: "Bei starkem Regen kein Spaß.",
-  },
+
+    url: "https://abenteuergolfpark.de",  },
   {
     id: "alpaka-wanderung",
     name: "Alpaka-Wanderung",
@@ -764,7 +780,8 @@ export const OFFERS: Offer[] = [
       "Überschaubarer Zoo mit heimischen und exotischen Tieren. Streichelgehege, Spielplatz. Ruhiger als Tatzmania.",
     pro: "Card-inkl. Gute Größe für kleine Kinder — nicht überfordernd.",
     con: "60 km Anfahrt. Kleiner als Tatzmania.",
-  },
+
+    url: "https://www.schwarzwaldzoo.de",  },
   {
     id: "action-forest",
     name: "Action Forest Kletterwald",
@@ -798,7 +815,8 @@ export const OFFERS: Offer[] = [
       "Gemütliche Fahrt mit dem Ausflugszug von Grafenhausen nach Schluchsee. Card-inkl. Kinder lieben Züge!",
     pro: "Card-inkl. Perfekt kombinierbar mit Schluchsee-Tag.",
     con: "Fahrplan beachten — fährt nicht stündlich.",
-  },
+
+    url: "https://www.rothausexpress.de",  },
   {
     id: "schwarzwaldhaus-sinne",
     name: "Schwarzwaldhaus der Sinne",
@@ -814,7 +832,8 @@ export const OFFERS: Offer[] = [
       "Erlebnismuseum: Tasten, Riechen, Hören, Sehen, Schmecken. Alles interaktiv — Kinder dürfen anfassen und ausprobieren.",
     pro: "Card-inkl. Super für Regentag. Alle Altersgruppen.",
     con: "Eher kleines Museum — 1,5 h reichen.",
-  },
+
+    url: "https://schwarzwaldhausdersinne.de",  },
   {
     id: "skimuseum-vr",
     name: "Skimuseum + VR-Skispringen",
@@ -830,7 +849,8 @@ export const OFFERS: Offer[] = [
       "Schwarzwälder Skimuseum mit VR-Skispringen: 3 Min., 2 Sprünge auf der virtuellen Schanze. Card-inkl.",
     pro: "Card-inkl. VR-Skispringen begeistert 6- und 7-Jährige!",
     con: "VR evtl. erst ab 5–6 sinnvoll. 3-Jähriger eher nicht.",
-  },
+
+    url: "https://www.schwarzwaelder-skimuseum.de",  },
   {
     id: "bootstour-titisee",
     name: "Bootsrundfahrt Titisee",
@@ -846,7 +866,8 @@ export const OFFERS: Offer[] = [
       "Rundfahrt auf dem Titisee mit Card gratis. Mehrere Anbieter (Schweizer, Bootsvermietung). Kombination mit Promenade perfekt.",
     pro: "Card-inkl. Kinder lieben Bootsfahrten. Entspannt.",
     con: "Kurzes Erlebnis — als Teil eines Titisee-Tages planen.",
-  },
+
+    url: "https://www.bootsbetrieb-schweizer-titisee.de",  },
   {
     id: "tretboot-schluchsee",
     name: "Tretboot Schluchsee (Staumauer)",
@@ -862,7 +883,8 @@ export const OFFERS: Offer[] = [
       "30 Minuten Tretboot an der Staumauer, Card-inkl. Kinder strampeln gern mit.",
     pro: "Card-inkl. Aktiver Spaß auf dem Wasser.",
     con: "Nur 30 Min. — eher Bonus im Schluchsee-Tag.",
-  },
+
+    url: "http://www.bootsvermietung-schluchsee.de",  },
   {
     id: "minigolf-schluchsee",
     name: "Minigolf Schluchsee",
@@ -878,7 +900,8 @@ export const OFFERS: Offer[] = [
       "Minigolfanlage direkt am Schluchsee. Card-inkl. Ideal als Nachmittagsaktivität.",
     pro: "Card-inkl. Alle Altersgruppen. Einfach und entspannt.",
     con: "Klassisch — kein Wow-Faktor, aber solides Familienprogramm.",
-  },
+
+    url: "https://www.hochschwarzwald.de/Attraktionen/Minigolf-Schluchsee",  },
   {
     id: "konus-nahverkehr",
     name: "KONUS-Gästekarte (ÖPNV)",
@@ -894,7 +917,8 @@ export const OFFERS: Offer[] = [
       "Mit der Hochschwarzwald Card inklusive: kostenloser ÖPNV (Busse + Regionalbahnen, 2. Klasse) im gesamten Schwarzwald. Von Pforzheim bis Basel.",
     pro: "Enorm wertvoll! Auto stehen lassen, Zug fahren. Kinder lieben Zugfahren.",
     con: "Fahrpläne im ländlichen Bereich ausgedünnt — vorher checken.",
-  },
+
+    url: "https://www.schwarzwald-tourismus.info/planen-buchen/konus-gaestekarte",  },
 
   {
     id: "rheinfall-schaffhausen",
@@ -978,7 +1002,8 @@ export const OFFERS: Offer[] = [
       "Spektakuläre Schlucht im Höllental mit dem berühmten 37 m hohen Eisenbahnviadukt, zwei Wasserfällen, Stegen und Brücken. Ca. 4 km.",
     pro: "Gratis. Abwechslungsreich — Kinder lieben die Stege und Leitern.",
     con: "Nicht buggytauglich. 3-Jähriger braucht Trage bei Leitern.",
-  },
+
+    url: "https://www.hochschwarzwald.de/erleben/ausflugsziele/ausflugsziele-schwarzwald/ravennaschlucht",  },
   {
     id: "wildgehege-stblasien",
     name: "Wildgehege St. Blasien",
@@ -994,7 +1019,8 @@ export const OFFERS: Offer[] = [
       "Frei zugänglicher Wildpark mit 40+ Tieren: Rehe, Wildschweine, zahme Tiere zum Füttern. Fütterung tägl. 10:30. Großer Spielplatz mit Seilbahn.",
     pro: "Komplett gratis! Kinder dürfen Tiere füttern. Toller Spielplatz. Kombinierbar mit Dom St. Blasien.",
     con: "Eher kurzer Besuch — kein Ganztagsprogramm.",
-  },
+
+    url: "https://www.wildgehege-stblasien.de",  },
   {
     id: "kirnbergsee",
     name: "Kirnbergsee",
@@ -1010,7 +1036,8 @@ export const OFFERS: Offer[] = [
       "Kleiner Stausee auf 785 m in Naturschutzgebiet. Baden, Wandern, Angeln. Deutlich ruhiger und unberührter als Schluchsee oder Titisee.",
     pro: "Gratis. Sehr nah. Kaum Touristen. Natur pur.",
     con: "Keine Infrastruktur (kein Restaurant, keine Boote). Kaltes Bergwasser.",
-  },
+
+    url: "https://braeunlingen.de/kirnbergsee",  },
   {
     id: "erdmannshoehle",
     name: "Erdmannshöhle Hasel",
@@ -1030,7 +1057,8 @@ export const OFFERS: Offer[] = [
       "Eine der ältesten Tropfsteinhöhlen Deutschlands. 40-Min-Führung durch 360 m Höhle, wenige Stufen. Sage der Erdmännchen. Angenehm kühl im Sommer.",
     pro: "Faszinierend für alle Alter. Leicht begehbar. Kühl bei Hitze.",
     con: "55 km Anfahrt. Kurzer Besuch — mit weiterem Stopp kombinieren.",
-  },
+
+    url: "https://www.gemeinde-hasel.de/startseite/freizeit+_+tourismus/erdmannshoehle.html",  },
   {
     id: "baumkronenweg-waldkirch",
     name: "Baumkronenweg Waldkirch",
@@ -1063,5 +1091,6 @@ export const OFFERS: Offer[] = [
       "450 m² Ausstellung mit 1.000 m Gleis, 150 Loks, interaktive Knöpfe zum Züge steuern. Vier Schauanlagen aus verschiedenen Epochen.",
     pro: "Kinder drücken Knöpfe und steuern Züge. Perfekt bei Regen. Neben Adventure-Minigolf.",
     con: "Klein — 1 h reicht. Vor allem für zugbegeisterte Kinder.",
-  },
+
+    url: "https://maerklin-world.de",  },
 ];

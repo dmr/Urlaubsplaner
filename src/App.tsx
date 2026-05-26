@@ -64,8 +64,8 @@ export default function App() {
     setShowDaySheet(true);
   }, []);
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
-  const [hidePlanned, setHidePlanned] = useState(false);
-  const [hideDismissed, setHideDismissed] = useState(true);
+  const [hidePlanned, setHidePlanned] = useState(() => localStorage.getItem("hidePlanned") === "true");
+  const [hideDismissed, setHideDismissed] = useState(() => localStorage.getItem("hideDismissed") !== "false");
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
@@ -436,7 +436,7 @@ export default function App() {
                     <input
                       type="checkbox"
                       checked={hideDismissed}
-                      onChange={(e) => setHideDismissed(e.target.checked)}
+                      onChange={(e) => { setHideDismissed(e.target.checked); localStorage.setItem("hideDismissed", String(e.target.checked)); }}
                       className="accent-amber w-3 h-3"
                     />
                     {dismissedCount} ausgeblendet
@@ -447,7 +447,7 @@ export default function App() {
                     <input
                       type="checkbox"
                       checked={hidePlanned}
-                      onChange={(e) => setHidePlanned(e.target.checked)}
+                      onChange={(e) => { setHidePlanned(e.target.checked); localStorage.setItem("hidePlanned", String(e.target.checked)); }}
                       className="accent-amber w-3 h-3"
                     />
                     Geplante ausblenden

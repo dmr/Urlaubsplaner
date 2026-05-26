@@ -14,7 +14,6 @@ export const OFFER_COORDS: Record<string, [number, number]> = {
   triberg: [48.126, 8.228],
   blackforestline: [47.844, 7.937],
   ortsrallye: [47.884, 8.343],
-  "house-of-senses": [48.094, 7.962],
   "aqwa-waldbad-waldkirch": [48.092, 7.963],
   fundorena: [47.861, 8.037],
   "kletterwald-feldberg": [47.860, 8.010],

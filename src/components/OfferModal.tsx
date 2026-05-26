@@ -85,16 +85,16 @@ export default function OfferModal({
     >
       <div className="bg-parchment rounded-xl w-full max-w-[640px] relative my-3 shadow-2xl border border-cream-soft">
         {/* Close — sticky, prominent */}
-        <div className="sticky top-0 z-20 flex justify-between items-center px-4 py-2 pointer-events-none">
+        <div className="sticky top-0 z-20 flex justify-between items-center px-3 py-2 pointer-events-none">
           <button
             onClick={onClose}
-            className="pointer-events-auto flex items-center gap-1 bg-ink/60 text-cream px-3 py-1.5 rounded-full text-[11px] font-medium hover:bg-ink shadow-lg"
+            className="pointer-events-auto flex items-center gap-1 bg-forest text-cream px-3.5 py-2 rounded-full text-[12px] font-medium hover:bg-forest-deep shadow-lg border border-cream/20"
           >
             <ChevronLeft size={14} /> Zurück
           </button>
           <button
             onClick={onClose}
-            className="pointer-events-auto bg-ink/60 text-cream w-9 h-9 rounded-full flex items-center justify-center hover:bg-ink shadow-lg"
+            className="pointer-events-auto bg-forest text-cream w-10 h-10 rounded-full flex items-center justify-center hover:bg-forest-deep shadow-lg border border-cream/20"
           >
             <X size={18} />
           </button>
