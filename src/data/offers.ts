@@ -32,6 +32,9 @@ export const OFFERS: Offer[] = [
   {
     id: "tatzmania",
     name: "Tatzmania Löffingen",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/f/f1/Luchs-01.08.2007%28Freizeitpark-L%C3%B6ffingen%29_028.jpg",
+    ],
     sub: "Zoo + Freizeitpark",
     location: "Löffingen (0 km)",
     distance: 0,
@@ -82,7 +85,8 @@ export const OFFERS: Offer[] = [
     id: "sauschwaenzle",
     name: "Sauschwänzlebahn",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Sauschw%C3%A4nzlebahn_Biesenbach-Viadukt.jpg/800px-Sauschw%C3%A4nzlebahn_Biesenbach-Viadukt.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/c/c7/Sauschw%C3%A4nzlebahn_2025.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/02/Wutachtalbahn_bei_Epfenhofen.JPG",
     ],
     sub: "Historische Museumsbahn",
     location: "Blumberg-Zollhaus (20 km)",
@@ -103,7 +107,8 @@ export const OFFERS: Offer[] = [
     id: "schluchsee",
     name: "Schluchsee Rundweg + Schiff",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/Schluchsee_-_panoramio_%281%29.jpg/800px-Schluchsee_-_panoramio_%281%29.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Schluchsee_%28lake%29_IMG_2911.jpg/960px-Schluchsee_%28lake%29_IMG_2911.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Schluchsee_%28lake%29_IMG_2917.jpg/960px-Schluchsee_%28lake%29_IMG_2917.jpg",
     ],
     sub: "See, baden, Bootsfahrt",
     location: "Schluchsee (18 km)",
@@ -122,7 +127,8 @@ export const OFFERS: Offer[] = [
     id: "titisee",
     name: "Titisee Promenade",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6f/Titisee_Panorama.jpg/800px-Titisee_Panorama.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/0/0d/Titisee-blick_von_hochfirst.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/b/ba/Titisee_Ruderboote.JPG",
     ],
     sub: "See, Bummeln, Kuckucksuhren",
     location: "Titisee (22 km)",
@@ -159,8 +165,8 @@ export const OFFERS: Offer[] = [
     id: "feldberg",
     name: "Feldberg + Seilbahn + Wichtelpfad",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Feldberg_Gipfel.jpg/800px-Feldberg_Gipfel.jpg",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/0/06/Feldbergsee.jpg/800px-Feldbergsee.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/c/ca/Feldberg_jm53958.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/f/f6/Feldbergbahn_%2824103584636%29.jpg",
     ],
     sub: "Höchster Berg im Schwarzwald",
     location: "Feldberg (28 km)",
@@ -178,6 +184,10 @@ export const OFFERS: Offer[] = [
   {
     id: "gauchach",
     name: "Gauchachschlucht (statt Wutach)",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/9/97/Gauchachschlucht_2022-4.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/8/8d/Footbridge_-_Gauchachschlucht_01.jpg",
+    ],
     sub: "Familiengeeignete Schlucht-Wanderung",
     location: "Bachheim (8 km)",
     distance: 8,
@@ -194,6 +204,10 @@ export const OFFERS: Offer[] = [
   {
     id: "wutachschlucht",
     name: "Wutachschlucht (Schluchtensteig)",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/a/a7/Naturschutzgebiet_Wutachschlucht_IMG_2882.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/1/11/Naturschutzgebiet_Wutachschlucht_IMG_2898.jpg",
+    ],
     sub: "Anspruchsvolle Schlucht",
     location: "Lenzkirch/Rötenbach (15 km)",
     distance: 15,
@@ -213,6 +227,10 @@ export const OFFERS: Offer[] = [
   {
     id: "steinwasen",
     name: "Steinwasen-Park",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/b/bd/Pont_de_Steinwasen_Park.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/c/c5/River_Splash_%C3%A0_Steinwasen_Park.JPG",
+    ],
     sub: "Freizeit + Tiere + Hängebrücke",
     location: "Oberried (52 km)",
     distance: 52,
@@ -229,6 +247,10 @@ export const OFFERS: Offer[] = [
   {
     id: "hasenhorn",
     name: "Hasenhorn-Coaster",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/c/cf/Todtnau_Rodelbahn.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/a/a0/Hasenhorn.jpg",
+    ],
     sub: "Sommerrodelbahn",
     location: "Todtnau (55 km)",
     distance: 55,
@@ -247,7 +269,8 @@ export const OFFERS: Offer[] = [
     id: "triberg",
     name: "Triberger Wasserfälle",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Triberger_Wasserf%C3%A4lle%2C_2014_%2801%29.jpg/800px-Triberger_Wasserf%C3%A4lle%2C_2014_%2801%29.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Triberger_Wasserf%C3%A4lle_20180806_03.jpg/960px-Triberger_Wasserf%C3%A4lle_20180806_03.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/3/3e/Triberger_Wasserf%C3%A4lle_20180806_05.jpg",
     ],
     sub: "Höchste Wasserfälle Deutschlands",
     location: "Triberg (45 km)",
@@ -281,6 +304,9 @@ export const OFFERS: Offer[] = [
   {
     id: "ortsrallye",
     name: "Ortsrallye Löffingen",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/6/65/Schwarzwald_bei_L%C3%B6ffingen.jpg",
+    ],
     sub: "Kostenlose Schnitzeljagd",
     location: "Löffingen (0 km)",
     distance: 0,
@@ -381,7 +407,8 @@ export const OFFERS: Offer[] = [
     id: "donaueschingen-quelle",
     name: "Donauquelle & Fürstenberg",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Donaueschingen_Donauquelle_2012.jpg/800px-Donaueschingen_Donauquelle_2012.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Donaueschingen_-_Donauquelle_02.jpg/960px-Donaueschingen_-_Donauquelle_02.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/d/df/Donaueschingen_-_Donauquelle_01.jpg",
     ],
     sub: "Wo die Donau entspringt",
     location: "Donaueschingen (15 km)",
@@ -479,6 +506,9 @@ export const OFFERS: Offer[] = [
   {
     id: "naturerlebnispfad-hinterzarten",
     name: "Naturerlebnispfad Hinterzarten",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/e/ef/Schwarzwald_Hinterzarten_01.jpg",
+    ],
     sub: "Lehrpfad durch Moor & Wald",
     location: "Hinterzarten (22 km)",
     distance: 22,
@@ -512,7 +542,7 @@ export const OFFERS: Offer[] = [
     id: "vogtsbauernhof",
     name: "Schwarzwälder Freilichtmuseum",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/4/41/Vogtsbauernhof_2012.jpg/800px-Vogtsbauernhof_2012.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/1/10/Vogtsbauernhof_Gutach.jpg/960px-Vogtsbauernhof_Gutach.jpg",
     ],
     sub: "Vogtsbauernhof — Leben wie früher",
     location: "Gutach (55 km)",
@@ -580,6 +610,10 @@ export const OFFERS: Offer[] = [
   {
     id: "menzenschwander-wasserfaelle",
     name: "Menzenschwander Wasserfälle",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/7/79/Menzenschwander_Wasserf%C3%A4lle_2019_-_3.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/4/40/Menzenschwander_Wasserfall_im_Naturpark_S%C3%BCdschwarzwald.jpg",
+    ],
     sub: "Zwei Wasserfälle, ein Rundweg",
     location: "Menzenschwand (32 km)",
     distance: 32,
@@ -597,7 +631,8 @@ export const OFFERS: Offer[] = [
     id: "Dom-st-blasien",
     name: "Dom St. Blasien",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/St_Blasien_Schwarzwald_Dom.jpg/800px-St_Blasien_Schwarzwald_Dom.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/StBlasienDom.jpg/960px-StBlasienDom.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/5/53/Dominicaner_Domchurch_at_Sankt_Blasien_Schwarzwald_-_panoramio.jpg",
     ],
     sub: "Drittgrößte Kirchenkuppel Europas",
     location: "St. Blasien (25 km)",
@@ -865,8 +900,8 @@ export const OFFERS: Offer[] = [
     id: "rheinfall-schaffhausen",
     name: "Rheinfall Schaffhausen",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Rheinfall_bei_Schaffhausen_01.JPG/800px-Rheinfall_bei_Schaffhausen_01.JPG",
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/5/58/Rheinfall.jpg/800px-Rheinfall.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/9/90/Rheinfall_Panorama_revised.jpg/960px-Rheinfall_Panorama_revised.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/c/cf/Neuhausen_Rhine_Falls_panorama_3.jpg",
     ],
     sub: "Größter Wasserfall Europas",
     location: "Neuhausen/Schweiz (55 km)",
@@ -907,7 +942,8 @@ export const OFFERS: Offer[] = [
     id: "todtnauer-wasserfaelle",
     name: "Todtnauer Wasserfälle",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/d/dd/Todtnauer_Wasserfall_2012.jpg/800px-Todtnauer_Wasserfall_2012.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/00_0838_Todtnauer_Wasserfall.jpg/960px-00_0838_Todtnauer_Wasserfall.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/6/68/00_0841_Todtnauer_Wasserfall_-_Schwarzwald.jpg",
     ],
     sub: "Naturwasserfall unter Denkmalschutz",
     location: "Todtnau/Aftersteg (50 km)",
@@ -927,7 +963,8 @@ export const OFFERS: Offer[] = [
     id: "ravennaschlucht",
     name: "Ravennaschlucht",
     images: [
-      "https://upload.wikimedia.org/wikipedia/commons/thumb/8/85/Ravennaviadukt_2015.jpg/800px-Ravennaviadukt_2015.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Viadukt_Ravennaschlucht_jm12612.jpg/960px-Viadukt_Ravennaschlucht_jm12612.jpg",
+      "https://upload.wikimedia.org/wikipedia/commons/a/ad/Viadukt_Ravennaschlucht_Anfang_November_2021.jpg",
     ],
     sub: "Schlucht mit 37-m-Eisenbahnviadukt",
     location: "Breitnau (30 km)",
@@ -977,6 +1014,10 @@ export const OFFERS: Offer[] = [
   {
     id: "erdmannshoehle",
     name: "Erdmannshöhle Hasel",
+    images: [
+      "https://upload.wikimedia.org/wikipedia/commons/8/80/Erdmannshoehle_002.JPG",
+      "https://upload.wikimedia.org/wikipedia/commons/5/51/Erdmannsh%C3%B6hle_Tropfsteine_8.JPG",
+    ],
     sub: "Tropfsteinhöhle, Millionen Jahre alt",
     location: "Hasel (55 km)",
     distance: 55,
