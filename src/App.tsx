@@ -18,6 +18,7 @@ import FilterBar, { FilterKey } from "@/components/FilterBar";
 import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import AddCustomOffer from "@/components/AddCustomOffer";
+import PlanManager from "@/components/PlanManager";
 import Footer from "@/components/Footer";
 import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus, ChevronUp, X } from "lucide-react";
 
@@ -52,6 +53,7 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
+  const [showPlanManager, setShowPlanManager] = useState(false);
   const [undoAction, setUndoAction] = useState<{ label: string; undo: () => void } | null>(null);
 
   const openModal = useCallback((offer: Offer) => {
@@ -486,7 +488,7 @@ export default function App() {
           </section>
         )}
 
-        <Footer onReset={resetAll} />
+        <Footer onReset={resetAll} onShare={() => setShowPlanManager(true)} />
       </div>
 
       {/* Detail Modal */}
@@ -507,6 +509,18 @@ export default function App() {
         <AddCustomOffer
           onAdd={addCustomOffer}
           onClose={() => setShowAddCustom(false)}
+        />
+      )}
+
+      {showPlanManager && (
+        <PlanManager
+          state={state}
+          onApply={(merged) => {
+            setState(merged);
+            saveState(merged);
+            setShowPlanManager(false);
+          }}
+          onClose={() => setShowPlanManager(false)}
         />
       )}
 
