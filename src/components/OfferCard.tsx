@@ -91,7 +91,7 @@ export default function OfferCard({
           </div>
         </div>
 
-        <div className="mt-2 flex gap-3 flex-wrap text-[13px] text-ink/80">
+        <div className="mt-2 flex gap-3 flex-wrap text-[13px] text-stone">
           <span>
             <MapPin size={11} className="inline mr-0.5" />
             {offer.distance} km
@@ -140,7 +140,7 @@ export default function OfferCard({
           </div>
         )}
 
-        <div className="mt-3 pt-2 border-t border-stone/20 text-[10px] text-stone text-center">
+        <div className="mt-3 pt-2 border-t border-stone/30 text-[11px] text-ink/60 text-center">
           Tippen für Details
         </div>
       </div>
