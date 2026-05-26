@@ -49,9 +49,19 @@ export default function OfferCard({
           : "border-cream hover:border-amber/40"
       }`}
     >
-      {/* Thumbnail */}
+      {/* Thumbnail + Status overlay */}
       {images.length > 0 && (
-        <div className="h-[140px] overflow-hidden bg-forest-deep">
+        <div className="h-[140px] overflow-hidden bg-forest-deep relative">
+          {plannedDates.length > 0 && (
+            <div className="absolute top-2 left-2 px-2 py-1 bg-moss/90 text-cream text-[10px] font-semibold rounded flex items-center gap-1 z-10">
+              <CheckCircle size={10} /> {plannedDates.join(", ")}
+            </div>
+          )}
+          {isDismissed && (
+            <div className="absolute top-2 left-2 px-2 py-1 bg-ink/70 text-cream/70 text-[10px] rounded flex items-center gap-1 z-10">
+              <ThumbsDown size={10} /> Ausgeblendet
+            </div>
+          )}
           <img
             src={images[0]}
             alt={offer.name}
@@ -75,12 +85,14 @@ export default function OfferCard({
             </h3>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {isDismissed && (
-              <ThumbsDown size={12} className="text-stone/40" />
+            {isDismissed && !images.length && (
+              <span className="px-1.5 py-0.5 bg-stone/15 text-stone border border-stone/30 rounded-sm text-[9px] flex items-center gap-0.5">
+                <ThumbsDown size={9} />
+              </span>
             )}
             {plannedDates.length > 0 && (
-              <span className="px-1.5 py-0.5 bg-moss/15 text-moss border border-moss/40 rounded-sm text-[9px] font-semibold flex items-center gap-0.5">
-                <CheckCircle size={9} /> {plannedDates.join(",")}
+              <span className="px-1.5 py-0.5 bg-moss/15 text-moss border border-moss/40 rounded-sm text-[10px] font-semibold flex items-center gap-0.5">
+                <CheckCircle size={10} /> {plannedDates.join(",")}
               </span>
             )}
             {offer.cardIncluded && (

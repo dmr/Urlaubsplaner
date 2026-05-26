@@ -32,6 +32,7 @@ interface DayDetailProps {
   customOffers: Offer[];
   highlightedId: string | null;
   onRemove: (offerId: string) => void;
+  onMoveToNextDay: ((offerId: string) => void) | null;
   onNoteChange: (text: string) => void;
   onAddBreak: (breakType: BreakType, label?: string) => void;
   onRemoveEntry: (entryId: string) => void;
@@ -52,6 +53,7 @@ export default function DayDetail({
   customOffers,
   highlightedId,
   onRemove,
+  onMoveToNextDay,
   onNoteChange,
   onAddBreak,
   onHighlight,
@@ -209,6 +211,7 @@ export default function DayDetail({
                     highlighted={highlightedId === entry.offerId}
                     onTap={() => onHighlight(highlightedId === entry.offerId ? null : entry.offerId!)}
                     onOpenDetail={() => onOpenDetail(entry.offerId!)}
+                    onMoveNext={onMoveToNextDay ? () => onMoveToNextDay(entry.offerId!) : null}
                     onRemove={() => {
                       onRemove(entry.offerId!);
                     }}

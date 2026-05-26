@@ -547,6 +547,15 @@ export default function App() {
           customOffers={state.customOffers}
           highlightedId={highlightedOfferId}
           onRemove={(id) => removeFromDay(id, activeDate)}
+          onMoveToNextDay={(() => {
+            const idx = TRIP_DAYS.findIndex((d) => d.date === activeDate);
+            if (idx < 0 || idx >= TRIP_DAYS.length - 1) return null;
+            const nextDate = TRIP_DAYS[idx + 1].date;
+            return (offerId: string) => {
+              removeFromDay(offerId, activeDate);
+              addToDay(offerId, nextDate);
+            };
+          })()}
           onNoteChange={(text) => setNote(activeDate, text)}
           onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
           onRemoveEntry={(entryId) => removeEntry(activeDate, entryId)}

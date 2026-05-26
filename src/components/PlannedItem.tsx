@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Offer } from "@/lib/types";
 import { ageWarning } from "@/lib/helpers";
-import { MapPin, Clock, Ticket, AlertTriangle, X, Trash2, ExternalLink } from "lucide-react";
+import { MapPin, Clock, Ticket, AlertTriangle, X, Trash2, ExternalLink, ArrowRight } from "lucide-react";
 
 interface PlannedItemProps {
   offer: Offer;
@@ -9,6 +9,7 @@ interface PlannedItemProps {
   endTime?: string;
   highlighted?: boolean;
   onRemove: () => void;
+  onMoveNext: (() => void) | null;
   onTap: () => void;
   onOpenDetail: () => void;
   onUpdateTime?: (startTime: string, endTime: string) => void;
@@ -20,6 +21,7 @@ export default function PlannedItem({
   endTime,
   highlighted,
   onRemove,
+  onMoveNext,
   onTap,
   onOpenDetail,
   onUpdateTime,
@@ -90,6 +92,14 @@ export default function PlannedItem({
           </button>
         ) : (
           <div className="flex flex-col gap-1 shrink-0">
+            {onMoveNext && (
+              <button
+                onClick={() => { setConfirming(false); onMoveNext(); }}
+                className="bg-moss/15 border border-moss/40 text-moss px-2.5 py-1.5 rounded-sm text-[10px] font-medium flex items-center gap-1 hover:bg-moss/25"
+              >
+                <ArrowRight size={11} /> Nächster Tag
+              </button>
+            )}
             <button
               onClick={() => { setConfirming(false); onRemove(); }}
               className="bg-rust/15 border border-rust/40 text-rust px-2.5 py-1.5 rounded-sm text-[10px] font-medium flex items-center gap-1 hover:bg-rust/25"
