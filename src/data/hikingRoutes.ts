@@ -26,7 +26,7 @@ export interface HikingRoute {
   };
   surface: string;
   facilities: string[];
-  photoSpots: string[];
+  photoSpots: { description: string; image?: string }[];
   strollerFriendly: boolean;
 }
 
@@ -45,10 +45,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
     surface: "50 % Naturpfad, 37 % Schotter, 13 % Asphalt. 42 % schmale Singletrails. Eine Stelle mit Drahtseilsicherung.",
     facilities: ["Parkplatz Burgmühlenweg (gratis)", "Gasthof Burgmühle (seit 1705, Tel: 07654-553)", "WC an der Burgmühle"],
     photoSpots: [
-      "Türkise Gumpe (Blautopf-ähnliches Becken) — Wow-Motiv",
-      "Holzbrücken über die Gauchach — Morgenlicht ideal",
-      "Felsengalerien mit Moos und Farnen",
-      "Wasserfälle entlang der Schlucht (werden nach unten höher)",
+      { description: "Türkise Gumpe (Blautopf-ähnliches Becken) — Wow-Motiv", image: "https://upload.wikimedia.org/wikipedia/commons/9/97/Gauchachschlucht_2022-4.jpg" },
+      { description: "Holzbrücken über die Gauchach — Morgenlicht ideal", image: "https://upload.wikimedia.org/wikipedia/commons/8/8d/Footbridge_-_Gauchachschlucht_01.jpg" },
+      { description: "Felsengalerien mit Moos und Farnen" },
+      { description: "Wasserfälle entlang der Schlucht (werden nach unten höher)" },
     ],
     strollerFriendly: false,
     warning: "Bei Starkregen/Hochwasser gesperrt! Rutschig bei Nässe. Feste Wanderschuhe Pflicht.",
@@ -103,10 +103,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Dreiseenbahn (Abkürzung per Zug, KONUS gratis)",
     ],
     photoSpots: [
-      "Amalienruhe — Aussichtspunkt mit Seepanorama",
-      "Unterkrummenhof — Panoramablick über den ganzen See",
-      "Staumauer — Gesamtansicht",
-      "Spiegelungen im See vom Westufer (morgens, windstill)",
+      { description: "Amalienruhe — Aussichtspunkt mit Seepanorama", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e0/Schluchsee_%28lake%29_IMG_2911.jpg/960px-Schluchsee_%28lake%29_IMG_2911.jpg" },
+      { description: "Unterkrummenhof — Panoramablick über den ganzen See" },
+      { description: "Staumauer — Gesamtansicht", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Schluchsee_%28lake%29_IMG_2917.jpg/960px-Schluchsee_%28lake%29_IMG_2917.jpg" },
+      { description: "Spiegelungen im See vom Westufer (morgens, windstill)" },
     ],
     strollerFriendly: true,
     parking: {
@@ -158,10 +158,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Feldberg Bistro an der Bergstation",
     ],
     photoSpots: [
-      "Feldbergturm — 360°-Panorama bis zu den Alpen (bei klarer Sicht)",
-      "Wichtel-Figuren mit Kindern",
-      "Seilbahn-Kabine mit Bergpanorama",
-      "Feldsee-Blick vom oberen Weg (kleine Abzweigung)",
+      { description: "Feldbergturm — 360°-Panorama bis zu den Alpen (bei klarer Sicht)", image: "https://upload.wikimedia.org/wikipedia/commons/c/ca/Feldberg_jm53958.jpg" },
+      { description: "Wichtel-Figuren mit Kindern" },
+      { description: "Seilbahn-Kabine mit Bergpanorama", image: "https://upload.wikimedia.org/wikipedia/commons/f/f6/Feldbergbahn_%2824103584636%29.jpg" },
+      { description: "Feldsee-Blick vom oberen Weg (kleine Abzweigung)" },
     ],
     strollerFriendly: false,
     warning: "Wetter kippt oben schnell — warme Jacke auch im Juni!",
@@ -213,9 +213,9 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Eisdiele in der Altstadt",
     ],
     photoSpots: [
-      "Hexenbrunnen — markantes Wahrzeichen",
-      "Mailänder Tor — historisches Stadttor",
-      "Fachwerkhäuser in der Altstadt",
+      { description: "Hexenbrunnen — markantes Wahrzeichen" },
+      { description: "Mailänder Tor — historisches Stadttor" },
+      { description: "Fachwerkhäuser in der Altstadt", image: "https://upload.wikimedia.org/wikipedia/commons/6/65/Schwarzwald_bei_L%C3%B6ffingen.jpg" },
     ],
     strollerFriendly: true,
     parking: {
@@ -264,10 +264,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Keine Einkehr zwischen Start und Wutachmühle (5 km)",
     ],
     photoSpots: [
-      "Wutach-Canyon — tiefe Schlucht mit türkisem Wasser",
-      "Leitern-Passagen — dramatische Tiefblicke",
-      "Wutachflühen — markante Felsformationen",
-      "Schattenmühle — historische Mühle am Wasser",
+      { description: "Wutach-Canyon — tiefe Schlucht mit türkisem Wasser", image: "https://upload.wikimedia.org/wikipedia/commons/a/a7/Naturschutzgebiet_Wutachschlucht_IMG_2882.jpg" },
+      { description: "Leitern-Passagen — dramatische Tiefblicke", image: "https://upload.wikimedia.org/wikipedia/commons/1/11/Naturschutzgebiet_Wutachschlucht_IMG_2898.jpg" },
+      { description: "Wutachflühen — markante Felsformationen" },
+      { description: "Schattenmühle — historische Mühle am Wasser" },
     ],
     strollerFriendly: false,
     parking: {
@@ -320,10 +320,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Schwarzwaldmuseum oben (separate Attraktion)",
     ],
     photoSpots: [
-      "Hauptfall (1. Kaskade) — beeindruckendste Stelle",
-      "Brücke über den mittleren Fall — Gischtnebel-Effekt",
-      "Eichhörnchen auf der Hand (Nüsse mitbringen!)",
-      "Gesamtansicht vom unteren Eingang bei Sonnenschein",
+      { description: "Hauptfall (1. Kaskade) — beeindruckendste Stelle", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Triberger_Wasserf%C3%A4lle_20180806_03.jpg/960px-Triberger_Wasserf%C3%A4lle_20180806_03.jpg" },
+      { description: "Brücke über den mittleren Fall — Gischtnebel-Effekt", image: "https://upload.wikimedia.org/wikipedia/commons/3/3e/Triberger_Wasserf%C3%A4lle_20180806_05.jpg" },
+      { description: "Eichhörnchen auf der Hand (Nüsse mitbringen!)" },
+      { description: "Gesamtansicht vom unteren Eingang bei Sonnenschein" },
     ],
     strollerFriendly: true,
     parking: {
@@ -371,9 +371,9 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Keine Einrichtungen in der Klamm selbst",
     ],
     photoSpots: [
-      "Lotenbachfall — kleiner Wasserfall in moosiger Klamm",
-      "Enge Felspassage — dramatische Perspektiven",
-      "Holzstege über dem Bach — Kinder auf der Brücke",
+      { description: "Lotenbachfall — kleiner Wasserfall in moosiger Klamm" },
+      { description: "Enge Felspassage — dramatische Perspektiven" },
+      { description: "Holzstege über dem Bach — Kinder auf der Brücke" },
     ],
     strollerFriendly: false,
     parking: {
@@ -422,10 +422,10 @@ export const HIKING_ROUTES: HikingRoute[] = [
       "Laufenbach-Sägemühle + Einstelzer-Hochgangsäge im Löffeltal (restauriert)",
     ],
     photoSpots: [
-      "St. Oswald-Kapelle — BESTER Blickwinkel auf das 37-m-Viadukt (Zug abwarten!)",
-      "Großer Ravenna-Wasserfall (16 m) — Morgen-/Bewölktlicht ideal",
-      "Kleiner Ravenna-Wasserfall — Moos, Farne, mystisch",
-      "Großjockenhofmühle (1883) — historische Mühle im Wald",
+      { description: "St. Oswald-Kapelle — BESTER Blickwinkel auf das 37-m-Viadukt (Zug abwarten!)", image: "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Viadukt_Ravennaschlucht_jm12612.jpg/960px-Viadukt_Ravennaschlucht_jm12612.jpg" },
+      { description: "Großer Ravenna-Wasserfall (16 m) — Morgen-/Bewölktlicht ideal", image: "https://upload.wikimedia.org/wikipedia/commons/a/ad/Viadukt_Ravennaschlucht_Anfang_November_2021.jpg" },
+      { description: "Kleiner Ravenna-Wasserfall — Moos, Farne, mystisch" },
+      { description: "Großjockenhofmühle (1883) — historische Mühle im Wald" },
     ],
     strollerFriendly: false,
     parking: {

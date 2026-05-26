@@ -392,11 +392,24 @@ function RouteCard({
           {/* Photo Spots */}
           {route.photoSpots.length > 0 && (
             <div>
-              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Foto-Spots</div>
-              <div className="space-y-0.5">
+              <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-1.5">Foto-Spots</div>
+              <div className="space-y-2">
                 {route.photoSpots.map((spot, i) => (
-                  <div key={i} className="text-[10px] text-cream/70">
-                    📸 {spot}
+                  <div key={i}>
+                    {spot.image && (
+                      <div className="rounded-md overflow-hidden mb-1 h-[120px]">
+                        <img
+                          src={spot.image}
+                          alt={spot.description}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                          onError={(e) => { (e.target as HTMLImageElement).parentElement!.style.display = "none"; }}
+                        />
+                      </div>
+                    )}
+                    <div className="text-[10px] text-cream/70">
+                      📸 {spot.description}
+                    </div>
                   </div>
                 ))}
               </div>
