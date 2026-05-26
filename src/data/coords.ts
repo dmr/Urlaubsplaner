@@ -63,6 +63,7 @@ export const OFFER_COORDS: Record<string, [number, number]> = {
   "hike-wutachschlucht-klassik": [47.843, 8.319],
   "hike-triberg-wasserfaelle": [48.126, 8.228],
   "hike-lotenbachklamm": [47.836, 8.309],
+  "hike-roetenbachschlucht": [47.8850, 8.1650],
   "hike-ravennaschlucht-runde": [47.919, 8.081],
   "hike-kuckys-vogelwelt": [47.8718, 8.2048],
   "hike-schluhuewanapark": [47.7358, 8.1770],
