@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
-import { loadState, saveState, clearState, exportState, importState } from "@/lib/storage";
+import { loadState, saveState, clearState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
 import { OFFERS } from "@/data/offers";
@@ -16,7 +16,7 @@ import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import MapView from "@/components/MapView";
 import Footer from "@/components/Footer";
-import { Loader2, Save, Check, List, Map, Calendar, Download, Upload } from "lucide-react";
+import { Loader2, Save, Check, List, Map, Calendar } from "lucide-react";
 
 type SaveStatus = "idle" | "saving" | "saved";
 type ViewMode = "list" | "map";
@@ -38,7 +38,6 @@ export default function App() {
   const [hidePlanned, setHidePlanned] = useState(false);
   const [hideDismissed, setHideDismissed] = useState(true);
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setState(loadState());
@@ -176,34 +175,6 @@ export default function App() {
     }
   }, []);
 
-  const handleExport = useCallback(() => {
-    if (!state) return;
-    const json = exportState(state);
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `urlaubsplan-schwarzwald-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [state]);
-
-  const handleImport = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = importState(reader.result as string);
-      if (result) {
-        setState(result);
-        saveState(result);
-      } else {
-        alert("Ungültige Datei — konnte den Plan nicht lesen.");
-      }
-    };
-    reader.readAsText(file);
-    e.target.value = "";
-  }, []);
 
   if (!state) {
     return (
@@ -355,27 +326,6 @@ export default function App() {
               >
                 <Map size={15} /> Karte & Routen
               </button>
-            </div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={handleExport}
-                className="flex items-center gap-1 px-3 py-1.5 rounded text-[11px] tracking-wider uppercase text-moss-soft hover:text-cream border border-cream/15 hover:border-cream/30 transition-colors"
-              >
-                <Download size={12} /> Export
-              </button>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="flex items-center gap-1 px-3 py-1.5 rounded text-[11px] tracking-wider uppercase text-moss-soft hover:text-cream border border-cream/15 hover:border-cream/30 transition-colors"
-              >
-                <Upload size={12} /> Import
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleImport}
-                className="hidden"
-              />
             </div>
           </div>
         </section>

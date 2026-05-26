@@ -3,6 +3,7 @@ import { Offer, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
+import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
 import { computeRanking, getRankingExplanation } from "@/lib/ranking";
 import {
   X,
@@ -12,6 +13,7 @@ import {
   AlertTriangle,
   CalendarX,
   ExternalLink,
+  Navigation,
   ThumbsDown,
   CheckCircle,
   ChevronLeft,
@@ -266,17 +268,29 @@ export default function OfferModal({
             </div>
           </div>
 
-          {/* URL */}
-          {offer.url && (
-            <a
-              href={offer.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-4 inline-flex items-center gap-1.5 text-[13px] text-stone underline hover:text-ink"
-            >
-              <ExternalLink size={13} /> Offizielle Website
-            </a>
-          )}
+          {/* Links */}
+          <div className="mt-4 flex flex-wrap gap-4">
+            {offer.url && (
+              <a
+                href={offer.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[13px] text-stone underline hover:text-ink"
+              >
+                <ExternalLink size={13} /> Website
+              </a>
+            )}
+            {OFFER_COORDS[offer.id] && (
+              <a
+                href={googleMapsDirectionsUrl(OFFER_COORDS[offer.id][0], OFFER_COORDS[offer.id][1])}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-1.5 text-[13px] text-stone underline hover:text-ink"
+              >
+                <Navigation size={13} /> Route in Google Maps
+              </a>
+            )}
+          </div>
 
           {/* Actions */}
           <div className="mt-5 pt-4 border-t border-stone/15 flex flex-wrap gap-2">

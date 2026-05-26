@@ -1,75 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Mountain, AlertTriangle, Route, Plus } from "lucide-react";
+import { MapPin, Mountain, AlertTriangle, Route, Plus, Navigation } from "lucide-react";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { isHikePlannedOnDate } from "@/lib/helpers";
 import { OFFERS } from "@/data/offers";
 import { HIKING_ROUTES, HikingRoute } from "@/data/hikingRoutes";
+import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
 import type { Offer } from "@/lib/types";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 
 const LOEFFINGEN: [number, number] = [47.884, 8.343];
-
-const OFFER_COORDS: Record<string, [number, number]> = {
-  tatzmania: [47.882, 8.340],
-  waldbad: [47.886, 8.345],
-  "hallenbad-dittis": [47.895, 8.330],
-  sauschwaenzle: [47.840, 8.532],
-  schluchsee: [47.819, 8.182],
-  titisee: [47.900, 8.145],
-  badeparadies: [47.897, 8.150],
-  feldberg: [47.858, 8.005],
-  gauchach: [47.873, 8.338],
-  wutachschlucht: [47.850, 8.310],
-  steinwasen: [47.905, 7.915],
-  hasenhorn: [47.834, 7.945],
-  triberg: [48.131, 8.231],
-  blackforestline: [47.835, 7.940],
-  ortsrallye: [47.884, 8.343],
-  "house-of-senses": [48.094, 7.962],
-  "aqwa-waldbad-waldkirch": [48.092, 7.963],
-  fundorena: [47.856, 8.004],
-  "kletterwald-feldberg": [47.860, 8.010],
-  "heimatmuseum-huefingen": [47.927, 8.487],
-  "donaueschingen-quelle": [47.952, 8.505],
-  "fuerstenberg-brauerei": [47.950, 8.503],
-  "welde-schokolade": [47.870, 8.190],
-  "schluchtensteig-lenzkirch": [47.872, 8.198],
-  windgfaellweiher: [47.850, 8.170],
-  "hochfirst-turm": [47.895, 8.150],
-  "naturerlebnispfad-hinterzarten": [47.900, 8.100],
-  "adler-skistadion": [47.901, 8.105],
-  vogtsbauernhof: [48.276, 8.218],
-  "uhrenmuseum-furtwangen": [48.052, 8.207],
-  lotenbachklamm: [47.830, 8.340],
-  "radon-revital-bad": [47.815, 8.030],
-  "menzenschwander-wasserfaelle": [47.810, 8.040],
-  "Dom-st-blasien": [47.763, 8.127],
-  "badkrozingen-vita-classica": [47.919, 7.699],
-  "schwarzwaldhaus-natur": [47.857, 8.003],
-  "mundenhof-freiburg": [47.979, 7.800],
-  "spasspark-schluchsee": [47.820, 8.180],
-  "abenteuer-golfpark": [47.852, 8.172],
-  "alpaka-wanderung": [47.920, 8.070],
-  "schwarzwaldzoo": [48.093, 7.960],
-  "action-forest": [47.905, 8.148],
-  "rothaus-express": [47.820, 8.290],
-  "schwarzwaldhaus-sinne": [47.815, 8.290],
-  "skimuseum-vr": [47.901, 8.103],
-  "bootstour-titisee": [47.898, 8.148],
-  "tretboot-schluchsee": [47.822, 8.185],
-  "minigolf-schluchsee": [47.821, 8.183],
-  "konus-nahverkehr": [47.884, 8.343],
-  "spielscheune-unterkirnach": [47.877, 8.268],
-  "todtnauer-wasserfaelle": [47.836, 7.952],
-  ravennaschlucht: [47.894, 8.074],
-  "wildgehege-stblasien": [47.764, 8.126],
-  kirnbergsee: [47.898, 8.364],
-  erdmannshoehle: [47.654, 7.901],
-  "baumkronenweg-waldkirch": [48.098, 7.968],
-  "maerklin-world": [47.905, 8.149],
-  "rheinfall-schaffhausen": [47.6779, 8.6153],
-};
 
 const DIFFICULTY_COLORS: Record<string, string> = {
   leicht: "#5a7f4b",
@@ -92,6 +32,7 @@ export default function MapView({
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const layerGroup = useRef<L.LayerGroup | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<HikingRoute | null>(null);
   const [showOffers, setShowOffers] = useState(true);
   const [showRoutes, setShowRoutes] = useState(true);
@@ -112,23 +53,22 @@ export default function MapView({
       maxZoom: 17,
     }).addTo(map);
 
+    layerGroup.current = L.layerGroup().addTo(map);
     mapInstance.current = map;
 
     return () => {
       map.remove();
       mapInstance.current = null;
+      layerGroup.current = null;
     };
   }, []);
 
   useEffect(() => {
     const map = mapInstance.current;
-    if (!map) return;
+    const lg = layerGroup.current;
+    if (!map || !lg) return;
 
-    map.eachLayer((layer) => {
-      if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-        map.removeLayer(layer);
-      }
-    });
+    lg.clearLayers();
 
     if (showOffers) {
       OFFERS.forEach((offer) => {
@@ -144,7 +84,7 @@ export default function MapView({
           weight: isActiveDay ? 3 : isPlanned ? 2 : 1.5,
           opacity: 1,
           fillOpacity: isActiveDay ? 1 : 0.85,
-        }).addTo(map);
+        }).addTo(lg);
 
         marker.bindPopup(buildOfferPopup(offer, isPlanned, isActiveDay));
       });
@@ -158,7 +98,7 @@ export default function MapView({
           weight: 3.5,
           opacity: 0.85,
           dashArray: route.difficulty === "schwer" ? "8 5" : undefined,
-        }).addTo(map);
+        }).addTo(lg);
 
         polyline.bindPopup(buildRoutePopup(route));
         polyline.on("click", () => setSelectedRoute(route));
@@ -378,7 +318,7 @@ function RouteCard({
             <div className="text-[11px] text-cream/80">{route.surface}</div>
           </div>
 
-          {/* Parking */}
+          {/* Parking + Google Maps */}
           {route.parking && (
             <div>
               <div className="text-[10px] tracking-wider uppercase text-moss-soft mb-0.5">Parkplatz</div>
@@ -386,6 +326,15 @@ function RouteCard({
                 {route.parking.name} · {route.parking.cost}
                 {route.parking.notes && <span className="text-moss-soft"> · {route.parking.notes}</span>}
               </div>
+              <a
+                href={googleMapsDirectionsUrl(route.parking.coords[0], route.parking.coords[1])}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="inline-flex items-center gap-1 mt-1 text-[10px] text-amber underline hover:text-cream"
+              >
+                <Navigation size={10} /> Route zum Parkplatz
+              </a>
             </div>
           )}
 
