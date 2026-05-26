@@ -97,7 +97,7 @@ export const OFFERS: Offer[] = [
     price: "€€",
     cardIncluded: false,
     description:
-      "25 km durchs Wutachtal — Tunnel, Viadukte, Kreiskehrtunnel. Fährt nächste Woche Sa+So, ab Juni auch Do+Fr.",
+      "25 km durchs Wutachtal — Tunnel, Viadukte, Kreiskehrtunnel. Fährt Sa+So, ab Juni auch Do+Fr.",
     pro: "Eisenbahn-Magie für 3- bis 99-Jährige. Diesel 17,50 €, Dampf 30 €.",
     con:
       "Lange Fahrt, viel Sitzen — kleines Kind könnte unruhig werden. Reservierung empfohlen.",

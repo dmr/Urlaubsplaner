@@ -8,7 +8,7 @@ export default function Header() {
         <Logo size={72} />
         <div className="flex-1 min-w-0">
           <div className="text-[10px] tracking-[0.25em] uppercase text-moss-soft mb-1.5">
-            Schwarzwald · Pfingsten 2026
+            Schwarzwald · Mai 2026
           </div>
 
           <h1
@@ -28,7 +28,7 @@ export default function Header() {
               <Baby size={14} /> Kinder 7 · 6 · 3
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <MapPin size={14} /> 1. – 7. Juni
+              <MapPin size={14} /> 25. – 31. Mai
             </span>
           </div>
         </div>
