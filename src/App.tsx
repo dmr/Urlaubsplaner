@@ -362,12 +362,16 @@ export default function App() {
               >
                 {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
               </button>
-              {/* Save indicator */}
-              <div className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1">
+              {/* Save indicator — tap opens Plan Manager */}
+              <button
+                onClick={() => setShowPlanManager(true)}
+                className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1 hover:text-cream transition-colors"
+                title="Plan teilen / exportieren"
+              >
                 {saveStatus === "saving" && <Loader2 size={10} className="animate-spin" />}
                 {saveStatus === "saved" && <Check size={10} />}
                 {saveStatus === "idle" && <Save size={10} />}
-              </div>
+              </button>
             </div>
           </div>
           {/* Row 2: Day Strip */}
