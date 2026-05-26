@@ -10,7 +10,8 @@ export type OfferTag =
   | "badWeather"
   | "culture"
   | "nature"
-  | "viewpoint";
+  | "viewpoint"
+  | "waterfall";
 
 export type Price = "€" | "€€" | "€€€" | "Gratis";
 

@@ -9,6 +9,7 @@ export interface HikingRoute {
   elevation: string;
   minAge: number;
   description: string;
+  extraTags?: string[];
   highlights: string[];
   warning?: string;
   path: [number, number][];
@@ -343,7 +344,8 @@ export const HIKING_ROUTES: HikingRoute[] = [
     duration: "1,5–2 h",
     elevation: "↑ 160 m ↓ 160 m",
     minAge: 0,
-    description:
+        extraTags: ["waterfall"],
+description:
       "Gut ausgebauter Weg entlang der höchsten Wasserfälle Deutschlands (163 m). Drei Zugänge — unterer Eingang für Kinderwagen geeignet.",
     highlights: ["163 m Fallhöhe", "Zahme Eichhörnchen", "7 Kaskaden", "Waldkulisse"],
     surface: "Hauptweg: breite Treppen und Kies. Unterer Eingang: asphaltiert, buggy-ok bis zur 1. Kaskade.",
@@ -401,7 +403,8 @@ export const HIKING_ROUTES: HikingRoute[] = [
     duration: "1–1,5 h",
     elevation: "↑ 120 m ↓ 120 m",
     minAge: 4,
-    description:
+        extraTags: ["waterfall"],
+description:
       "Kurze, aber eindrucksvolle Klammwanderung als Seitenarm der Wutachschlucht. Weniger anspruchsvoll als die Hauptschlucht, aber trotzdem wild und spannend.",
     highlights: ["Enge Klamm", "Wasserfall", "Moosige Felsen", "Holzstege"],
     surface: "Schmale Pfade, Holzstege, einige Stufen. Feste Schuhe nötig.",
@@ -455,7 +458,8 @@ export const HIKING_ROUTES: HikingRoute[] = [
     duration: "2–2,5 h",
     elevation: "↑ 200 m ↓ 200 m",
     minAge: 4,
-    description:
+        extraTags: ["waterfall"],
+description:
       "Spektakuläre Schlucht im Höllental mit dem berühmten 37 m hohen Eisenbahnviadukt, zwei Wasserfällen, Stegen und Brücken.",
     highlights: ["37-m-Viadukt", "Zwei Wasserfälle", "Stege & Brücken", "Höllental"],
     surface: "Waldweg, steinige Abschnitte, Holzstege, einige Leitern/Stufen. Rutschig bei Regen.",
@@ -515,7 +519,8 @@ export const HIKING_ROUTES: HikingRoute[] = [
     duration: "4 h",
     elevation: "↑ 220 m ↓ 220 m",
     minAge: 6,
-    description:
+        extraTags: ["waterfall"],
+description:
       "Prämierter Genießerpfad durch wilde Schlucht zum Wasserfall! 7 Brücken, enge Pfade, Felsformationen. Der Rötenbach stürzt am Ende als Wasserfall in die Wutach. Nur 8 km von Löffingen!",
     highlights: ["Wasserfall!", "7 Brücken", "Felsformationen", "Krebsgraben", "Wutach-Mündung"],
     surface: "Schmale Pfade, Wurzeln, Fels, 7 Holzbrücken. Alpine Charakteristik! Feste Schuhe Pflicht.",
@@ -961,7 +966,7 @@ export function hikingRoutesAsOffers(): Offer[] {
       distance: distKm,
       duration: r.duration,
       minAge: r.minAge,
-      tags: ["hike", "outdoor"] as Offer["tags"],
+      tags: ["hike", "outdoor", ...(r.extraTags ?? [])] as Offer["tags"],
       price: "Gratis" as const,
       cardIncluded: false,
       description: r.description,

@@ -14,6 +14,7 @@ export type FilterKey =
   | "culture"
   | "nature"
   | "viewpoint"
+  | "waterfall"
   | "badWeather";
 
 const PRIMARY_FILTERS: { id: FilterKey; label: string }[] = [
@@ -31,6 +32,7 @@ const MORE_FILTERS: { id: FilterKey; label: string }[] = [
   { id: "culture", label: "Kultur" },
   { id: "nature", label: "Natur" },
   { id: "viewpoint", label: "Aussicht" },
+  { id: "waterfall", label: "Wasserfall" },
   { id: "badWeather", label: "Schlechtwetter" },
 ];
 

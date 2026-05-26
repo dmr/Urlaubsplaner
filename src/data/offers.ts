@@ -18,6 +18,7 @@ export const TAG_META: Record<OfferTag, { label: string; color: string }> = {
   culture: { label: "Kultur", color: "#6b5b8a" },
   nature: { label: "Natur", color: "#3a6e4a" },
   viewpoint: { label: "Aussicht", color: "#4a7a9a" },
+  waterfall: { label: "Wasserfall", color: "#4a8a9a" },
 };
 
 /**
@@ -287,7 +288,7 @@ export const OFFERS: Offer[] = [
     distance: 45,
     duration: "Halbtags",
     minAge: 0,
-    tags: ["outdoor", "hike"],
+    tags: ["outdoor", "hike", "waterfall"],
     price: "€",
     cardIncluded: false,
     description:
@@ -628,7 +629,7 @@ export const OFFERS: Offer[] = [
     distance: 32,
     duration: "1,5–2 h",
     minAge: 0,
-    tags: ["outdoor", "nature", "hike"],
+    tags: ["outdoor", "nature", "hike", "waterfall"],
     price: "Gratis",
     cardIncluded: false,
     description:
@@ -932,7 +933,7 @@ export const OFFERS: Offer[] = [
     distance: 55,
     duration: "Halbtags (3–4 h)",
     minAge: 0,
-    tags: ["outdoor", "nature", "water"],
+    tags: ["outdoor", "nature", "water", "waterfall"],
     price: "€€",
     cardIncluded: false,
     description:
@@ -974,7 +975,7 @@ export const OFFERS: Offer[] = [
     distance: 50,
     duration: "1,5–2 h",
     minAge: 0,
-    tags: ["outdoor", "nature", "hike"],
+    tags: ["outdoor", "nature", "hike", "waterfall"],
     price: "€",
     cardIncluded: true,
     description:
