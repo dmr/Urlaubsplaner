@@ -19,19 +19,19 @@
   --c-blood: #a03030;
 }
 
-/* Light theme */
+/* Light theme — warm, nicht grell weiß */
 .light {
-  --c-forest: #e8e2d4;
-  --c-forest-deep: #f5f0e4;
+  --c-forest: #ddd8c8;
+  --c-forest-deep: #e8e3d3;
   --c-moss: #2a5820;
   --c-moss-soft: #4a7a3a;
-  --c-cream: #1a2a1c;
-  --c-cream-soft: #2a3a2c;
-  --c-parchment: #ffffff;
-  --c-amber: #a06a18;
+  --c-cream: #2a3028;
+  --c-cream-soft: #3a4238;
+  --c-parchment: #f5f0e4;
+  --c-amber: #9a6010;
   --c-amber-deep: #7a4a08;
-  --c-stone: #5a5d58;
-  --c-ink: #1a1f1c;
+  --c-stone: #6a6d66;
+  --c-ink: #2a302c;
   --c-rust: #b04a2a;
   --c-blood: #8a2020;
 }
@@ -86,7 +86,7 @@
 .light .bg-forest-gradient {
   background-image: radial-gradient(
     circle at 20% 10%,
-    #f0ebe0 0%,
-    #f5f0e4 60%
+    #e0dbd0 0%,
+    #e8e3d3 60%
   );
 }
