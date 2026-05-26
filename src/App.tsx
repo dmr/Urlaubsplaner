@@ -285,7 +285,7 @@ export default function App() {
         <HochschwarzwaldHint />
 
         {/* Sticky navigation bar */}
-        <nav className="sticky top-0 z-30 bg-forest-deep/95 backdrop-blur-sm border-b border-cream/8">
+        <nav className="sticky top-0 z-30 border-b border-cream/8" style={{ backgroundColor: "var(--c-forest-deep)" }}>
           {/* Row 1: Controls */}
           <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
             <div className="flex items-center gap-3">
