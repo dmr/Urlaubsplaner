@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { MapPin, Mountain, AlertTriangle, Route } from "lucide-react";
+import { MapPin, Mountain, AlertTriangle, Route, Plus } from "lucide-react";
+import { TRIP_DAYS } from "@/data/tripDays";
+import { isHikePlannedOnDate } from "@/lib/helpers";
 import { OFFERS } from "@/data/offers";
 import { HIKING_ROUTES, HikingRoute } from "@/data/hikingRoutes";
 import type { Offer } from "@/lib/types";
@@ -78,9 +80,15 @@ const DIFFICULTY_COLORS: Record<string, string> = {
 export default function MapView({
   plannedOfferIds,
   activeDayOfferIds = [],
+  activeDay,
+  schedule,
+  onAddHike,
 }: {
   plannedOfferIds: string[];
   activeDayOfferIds?: string[];
+  activeDay?: string;
+  schedule?: Record<string, import("@/lib/types").ScheduleEntry[]>;
+  onAddHike?: (hikeId: string, date: string) => void;
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
@@ -233,6 +241,9 @@ export default function MapView({
               key={route.id}
               route={route}
               isSelected={selectedRoute?.id === route.id}
+              activeDay={activeDay}
+              schedule={schedule}
+              onAddHike={onAddHike}
               onSelect={() => {
                 setSelectedRoute(route);
                 const map = mapInstance.current;
@@ -252,12 +263,19 @@ export default function MapView({
 function RouteCard({
   route,
   isSelected,
+  activeDay,
+  schedule,
+  onAddHike,
   onSelect,
 }: {
   route: HikingRoute;
   isSelected: boolean;
+  activeDay?: string;
+  schedule?: Record<string, import("@/lib/types").ScheduleEntry[]>;
+  onAddHike?: (hikeId: string, date: string) => void;
   onSelect: () => void;
 }) {
+  const [picking, setPicking] = useState(false);
   const color = DIFFICULTY_COLORS[route.difficulty];
 
   return (
@@ -398,6 +416,61 @@ function RouteCard({
               </div>
             </div>
           )}
+
+          {/* Add to day */}
+          {onAddHike && schedule && (
+            <div className="pt-2 border-t border-moss/20">
+              {!picking ? (
+                <button
+                  onClick={(e) => { e.stopPropagation(); setPicking(true); }}
+                  className="w-full py-2 bg-moss/80 text-cream rounded-md text-[11px] font-medium flex items-center justify-center gap-1.5 hover:bg-moss"
+                >
+                  <Plus size={13} /> An Tag hinzufügen
+                </button>
+              ) : (
+                <div onClick={(e) => e.stopPropagation()}>
+                  <div className="text-[10px] text-moss-soft mb-1">Welcher Tag?</div>
+                  <div className="grid grid-cols-7 gap-1">
+                    {TRIP_DAYS.map((d) => {
+                      const already = isHikePlannedOnDate(schedule, route.id, d.date);
+                      return (
+                        <button
+                          key={d.date}
+                          onClick={() => {
+                            if (!already) onAddHike(route.id, d.date);
+                            setPicking(false);
+                          }}
+                          disabled={already}
+                          className={`py-1.5 rounded text-[10px] font-semibold ${
+                            already
+                              ? "bg-stone/20 text-stone/50 cursor-not-allowed"
+                              : d.date === activeDay
+                              ? "bg-amber text-cream cursor-pointer"
+                              : "bg-forest text-cream cursor-pointer hover:bg-forest-deep"
+                          }`}
+                        >
+                          {already ? "✓" : d.weekday}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <button
+                    onClick={() => setPicking(false)}
+                    className="mt-1 text-[10px] text-moss-soft hover:text-cream"
+                  >
+                    Abbrechen
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Quick add button when not selected */}
+      {!isSelected && onAddHike && (
+        <div className="mt-2 pt-2 border-t border-moss/15 text-[10px] text-moss-soft/60 text-center">
+          Tippen für Details + Einplanen
         </div>
       )}
     </div>

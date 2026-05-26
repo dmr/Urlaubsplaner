@@ -1,0 +1,21 @@
+{
+  "name": "Schwarzwald Urlaubsplaner",
+  "short_name": "Urlaubsplaner",
+  "description": "Familienurlaub im Schwarzwald planen — Löffingen, Pfingsten 2026",
+  "start_url": "/Urlaubsplaner/",
+  "scope": "/Urlaubsplaner/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#0c1812",
+  "theme_color": "#0c1812",
+  "categories": ["travel", "lifestyle"],
+  "lang": "de",
+  "icons": [
+    {
+      "src": "/Urlaubsplaner/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

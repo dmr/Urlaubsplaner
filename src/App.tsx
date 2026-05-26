@@ -70,6 +70,21 @@ export default function App() {
     });
   }, []);
 
+  const addHikeToDay = useCallback((hikeId: string, date: string) => {
+    setState((s) => {
+      if (!s) return s;
+      const entries = s.schedule[date] ?? [];
+      if (entries.some((e) => e.type === "hike" && e.hikeId === hikeId)) return s;
+      return {
+        ...s,
+        schedule: {
+          ...s.schedule,
+          [date]: [...entries, { id: nextEntryId(), type: "hike" as const, hikeId }],
+        },
+      };
+    });
+  }, []);
+
   const removeFromDay = useCallback((offerId: string, date: string) => {
     setState((s) => {
       if (!s) return s;
@@ -434,6 +449,9 @@ export default function App() {
             <MapView
               plannedOfferIds={allPlannedIds}
               activeDayOfferIds={plannedIds}
+              activeDay={activeDate}
+              schedule={state.schedule}
+              onAddHike={(hikeId, date) => addHikeToDay(hikeId, date)}
             />
           </section>
         )}

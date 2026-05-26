@@ -59,8 +59,9 @@ export type BreakType = "breakfast" | "lunch" | "dinner" | "snack" | "pause";
 
 export interface ScheduleEntry {
   id: string;
-  type: "offer" | "break";
+  type: "offer" | "break" | "hike";
   offerId?: string;
+  hikeId?: string;
   breakType?: BreakType;
   label?: string;
   startTime?: string;

@@ -1,5 +1,6 @@
 import { Offer, ScheduleEntry } from "./types";
 import { OFFERS } from "@/data/offers";
+import { HIKING_ROUTES, HikingRoute } from "@/data/hikingRoutes";
 
 export function offerById(
   id: string,
@@ -38,6 +39,20 @@ export function isOfferPlannedOnDate(
 ): boolean {
   return (schedule[date] ?? []).some(
     (e) => e.type === "offer" && e.offerId === offerId
+  );
+}
+
+export function hikeById(id: string): HikingRoute | undefined {
+  return HIKING_ROUTES.find((r) => r.id === id);
+}
+
+export function isHikePlannedOnDate(
+  schedule: Record<string, ScheduleEntry[]>,
+  hikeId: string,
+  date: string
+): boolean {
+  return (schedule[date] ?? []).some(
+    (e) => e.type === "hike" && e.hikeId === hikeId
   );
 }
 
