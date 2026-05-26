@@ -57,6 +57,14 @@ export const OFFER_COORDS: Record<string, [number, number]> = {
   "baumkronenweg-waldkirch": [48.098, 7.968],
   "maerklin-world": [47.901, 8.152],
   "rheinfall-schaffhausen": [47.678, 8.615],
+  "hike-gauchach-runde": [47.8706, 8.4535],
+  "hike-schluchsee-ufer": [47.8198, 8.1777],
+  "hike-feldberg-wichtelpfad": [47.8585, 8.0373],
+  "hike-loeffingen-orts": [47.884, 8.343],
+  "hike-wutachschlucht-klassik": [47.843, 8.319],
+  "hike-triberg-wasserfaelle": [48.126, 8.228],
+  "hike-lotenbachklamm": [47.836, 8.309],
+  "hike-ravennaschlucht-runde": [47.919, 8.081],
 };
 
 export function googleMapsUrl(lat: number, lng: number, name?: string): string {

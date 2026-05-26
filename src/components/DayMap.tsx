@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "react";
 import { ScheduleEntry } from "@/lib/types";
-import { offerById, hikeById } from "@/lib/helpers";
+import { offerById } from "@/lib/helpers";
 import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
 import { HIKING_ROUTES } from "@/data/hikingRoutes";
 import { Navigation } from "lucide-react";
@@ -19,7 +19,7 @@ export default function DayMap({
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
 
-  const items: { name: string; coords: [number, number]; type: "offer" | "hike"; color: string }[] = [];
+  const items: { name: string; coords: [number, number]; isHike: boolean; color: string; offerId: string }[] = [];
 
   for (const entry of entries) {
     if (entry.type === "offer" && entry.offerId) {
@@ -29,19 +29,11 @@ export default function DayMap({
         items.push({
           name: offer.name,
           coords,
-          type: "offer",
-          color: offer.cardIncluded ? "#c98a3a" : "#5a7f4b",
-        });
-      }
-    }
-    if (entry.type === "hike" && entry.hikeId) {
-      const hike = hikeById(entry.hikeId);
-      if (hike && hike.parking) {
-        items.push({
-          name: hike.name,
-          coords: hike.parking.coords,
-          type: "hike",
-          color: hike.difficulty === "leicht" ? "#5a7f4b" : hike.difficulty === "mittel" ? "#c98a3a" : "#7d1f1f",
+          isHike: !!offer.hikeDetails,
+          color: offer.hikeDetails
+            ? (offer.hikeDetails.difficulty === "leicht" ? "#6a9458" : offer.hikeDetails.difficulty === "mittel" ? "#d49540" : "#a03030")
+            : offer.cardIncluded ? "#d49540" : "#6a9458",
+          offerId: entry.offerId,
         });
       }
     }
@@ -49,105 +41,61 @@ export default function DayMap({
 
   useEffect(() => {
     if (!mapRef.current) return;
-
-    if (mapInstance.current) {
-      mapInstance.current.remove();
-      mapInstance.current = null;
-    }
-
+    if (mapInstance.current) { mapInstance.current.remove(); mapInstance.current = null; }
     if (items.length === 0) return;
 
     const map = L.map(mapRef.current, {
-      center: LOEFFINGEN,
-      zoom: 11,
-      zoomControl: false,
-      attributionControl: false,
-      dragging: true,
-      scrollWheelZoom: false,
+      center: LOEFFINGEN, zoom: 11, zoomControl: false, attributionControl: false, scrollWheelZoom: false,
     });
-
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      maxZoom: 15,
-    }).addTo(map);
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 15 }).addTo(map);
 
     const markers: L.LatLng[] = [];
 
-    // Löffingen home marker
-    L.circleMarker(LOEFFINGEN, {
-      radius: 5,
-      fillColor: "#f3ead7",
-      color: "#162820",
-      weight: 1.5,
-      fillOpacity: 0.8,
-    }).addTo(map).bindPopup("<b>Löffingen</b> (Unterkunft)");
+    L.circleMarker(LOEFFINGEN, { radius: 5, fillColor: "#f3ead7", color: "#162820", weight: 1.5, fillOpacity: 0.8 })
+      .addTo(map).bindPopup("<b>Löffingen</b>");
 
     items.forEach((item, i) => {
-      const marker = L.circleMarker(item.coords, {
-        radius: 9,
-        fillColor: item.color,
-        color: "#f3ead7",
-        weight: 2,
-        fillOpacity: 0.9,
-      }).addTo(map);
+      L.circleMarker(item.coords, { radius: 9, fillColor: item.color, color: "#f3ead7", weight: 2, fillOpacity: 0.9 })
+        .addTo(map)
+        .bindPopup(`<b>${i + 1}. ${item.name}</b>${item.isHike ? "<br>🥾 Wanderung" : ""}`);
 
-      marker.bindPopup(`
-        <div style="font-family: 'DM Sans', sans-serif;">
-          <b>${i + 1}. ${item.name}</b>
-          ${item.type === "hike" ? "<br>🥾 Wanderung" : ""}
-        </div>
-      `);
-
-      // Number label
       L.marker(item.coords, {
         icon: L.divIcon({
           className: "",
           html: `<div style="color:#f3ead7;font-size:11px;font-weight:700;text-align:center;line-height:18px;width:18px;height:18px;">${i + 1}</div>`,
-          iconSize: [18, 18],
-          iconAnchor: [9, 9],
+          iconSize: [18, 18], iconAnchor: [9, 9],
         }),
       }).addTo(map);
 
       markers.push(L.latLng(item.coords));
     });
 
-    // Draw route line between activities in order
     if (items.length > 1) {
-      const routeCoords: [number, number][] = [LOEFFINGEN, ...items.map((i) => i.coords)];
-      L.polyline(routeCoords, {
-        color: "#c98a3a",
-        weight: 2,
-        opacity: 0.5,
-        dashArray: "6 4",
+      L.polyline([LOEFFINGEN, ...items.map((i) => i.coords)], {
+        color: "#d49540", weight: 2, opacity: 0.5, dashArray: "6 4",
       }).addTo(map);
     }
 
-    // Add hiking route paths
+    // Draw hiking route paths
     for (const entry of entries) {
-      if (entry.type === "hike" && entry.hikeId) {
-        const route = HIKING_ROUTES.find((r) => r.id === entry.hikeId);
+      if (entry.type === "offer" && entry.offerId?.startsWith("hike-")) {
+        const hikeId = entry.offerId.replace("hike-", "");
+        const route = HIKING_ROUTES.find((r) => r.id === hikeId);
         if (route && route.path.length > 1) {
           L.polyline(route.path, {
-            color: route.difficulty === "leicht" ? "#5a7f4b" : route.difficulty === "mittel" ? "#c98a3a" : "#7d1f1f",
-            weight: 3,
-            opacity: 0.7,
+            color: route.difficulty === "leicht" ? "#6a9458" : route.difficulty === "mittel" ? "#d49540" : "#a03030",
+            weight: 3, opacity: 0.7,
           }).addTo(map);
         }
       }
     }
 
     markers.push(L.latLng(LOEFFINGEN));
-    if (markers.length > 1) {
-      map.fitBounds(L.latLngBounds(markers), { padding: [30, 30] });
-    } else if (markers.length === 1) {
-      map.setView(markers[0], 13);
-    }
+    if (markers.length > 1) map.fitBounds(L.latLngBounds(markers), { padding: [30, 30] });
+    else if (markers.length === 1) map.setView(markers[0], 13);
 
     mapInstance.current = map;
-
-    return () => {
-      map.remove();
-      mapInstance.current = null;
-    };
+    return () => { map.remove(); mapInstance.current = null; };
   }, [entries.map((e) => e.id).join(",")]);
 
   if (items.length === 0) return null;
@@ -157,25 +105,12 @@ export default function DayMap({
       <div className="text-[10px] tracking-[0.18em] uppercase text-moss-soft mb-1.5 flex items-center gap-1">
         <Navigation size={10} /> Tagesroute
       </div>
-      <div
-        ref={mapRef}
-        className="w-full h-[200px] rounded-lg overflow-hidden border border-moss/20"
-      />
+      <div ref={mapRef} className="w-full h-[200px] rounded-lg overflow-hidden border border-moss/20" />
       <div className="flex flex-wrap gap-2 mt-1.5 text-[10px] text-moss-soft">
         {items.map((item, i) => (
-          <a
-            key={i}
-            href={googleMapsDirectionsUrl(item.coords[0], item.coords[1])}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1 hover:text-cream transition-colors"
-          >
-            <span
-              className="w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-cream"
-              style={{ backgroundColor: item.color }}
-            >
-              {i + 1}
-            </span>
+          <a key={i} href={googleMapsDirectionsUrl(item.coords[0], item.coords[1])} target="_blank" rel="noopener noreferrer"
+            className="flex items-center gap-1 hover:text-cream transition-colors">
+            <span className="w-4 h-4 rounded-full text-[9px] font-bold flex items-center justify-center text-cream" style={{ backgroundColor: item.color }}>{i + 1}</span>
             {item.name}
           </a>
         ))}

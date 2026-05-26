@@ -1,5 +1,5 @@
 import { ScheduleEntry } from "@/lib/types";
-import { offerById, hikeById } from "@/lib/helpers";
+import { offerById } from "@/lib/helpers";
 import { BREAK_META } from "@/lib/constants";
 import { X } from "lucide-react";
 
@@ -81,7 +81,6 @@ export default function DayTimeline({
               const width = ((end - start) / totalMinutes) * 100;
 
               const isBreak = entry.type === "break";
-              const isHike = entry.type === "hike";
               const breakMeta = isBreak
                 ? BREAK_META[entry.breakType || "pause"]
                 : null;
@@ -89,19 +88,14 @@ export default function DayTimeline({
                 entry.type === "offer" && entry.offerId
                   ? offerById(entry.offerId, customOffers)
                   : null;
-              const hike = isHike && entry.hikeId ? hikeById(entry.hikeId) : null;
 
               const bgColor = isBreak
                 ? breakMeta!.color + "35"
-                : isHike
-                ? "#5a7f4b30"
                 : offer?.cardIncluded
                 ? "#c98a3a25"
                 : "#5a7f4b25";
               const borderColor = isBreak
                 ? breakMeta!.color
-                : isHike
-                ? "#5a7f4b"
                 : offer?.cardIncluded
                 ? "#c98a3a"
                 : "#5a7f4b";
@@ -123,8 +117,6 @@ export default function DayTimeline({
                   <span className="text-[11px] text-cream truncate flex-1">
                     {isBreak
                       ? entry.label || breakMeta!.label
-                      : isHike
-                      ? `🥾 ${hike?.name || "?"}`
                       : offer?.name || "?"}
                   </span>
                   <span className="text-[9px] text-moss-soft shrink-0 hidden sm:inline">
@@ -152,7 +144,6 @@ export default function DayTimeline({
           </div>
           {untimedEntries.map((entry) => {
             const isBreak = entry.type === "break";
-            const isHike = entry.type === "hike";
             const breakMeta = isBreak
               ? BREAK_META[entry.breakType || "pause"]
               : null;
@@ -160,7 +151,6 @@ export default function DayTimeline({
               entry.type === "offer" && entry.offerId
                 ? offerById(entry.offerId, customOffers)
                 : null;
-            const hike = isHike && entry.hikeId ? hikeById(entry.hikeId) : null;
 
             return (
               <div
@@ -170,8 +160,6 @@ export default function DayTimeline({
                 <span className="text-[12px] text-cream flex-1 truncate">
                   {isBreak
                     ? entry.label || breakMeta!.label
-                    : isHike
-                    ? `🥾 ${hike?.name || "?"}`
                     : offer?.name || "?"}
                 </span>
                 <input

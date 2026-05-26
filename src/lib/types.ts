@@ -14,44 +14,63 @@ export type OfferTag =
 
 export type Price = "€" | "€€" | "€€€" | "Gratis";
 
+export interface HikeDetails {
+  difficulty: "leicht" | "mittel" | "schwer";
+  elevation: string;
+  path: [number, number][];
+  parking?: {
+    name: string;
+    address: string;
+    coords: [number, number];
+    cost: string;
+    notes?: string;
+  };
+  elevationProfile?: {
+    start: number;
+    max: number;
+    totalAscent: number;
+    totalDescent: number;
+    waypoints: { name: string; elevation: number; km: number }[];
+  };
+  surface: string;
+  facilities: string[];
+  photoSpots: { description: string; image?: string }[];
+  strollerFriendly: boolean;
+  whatToPack?: string[];
+  bestTime?: string;
+  waterSources?: string;
+  emergencyInfo?: string;
+  shorterVariant?: string;
+  weatherNotes?: string;
+}
+
 export interface Offer {
   id: string;
   name: string;
   sub: string;
   location: string;
-  /** km from Löffingen (road distance, approximate) */
   distance: number;
   duration: string;
-  /** 0 if no age restriction */
   minAge: number;
   tags: OfferTag[];
   price: Price;
-  /** Hochschwarzwald Card: 1× free included during stay */
   cardIncluded: boolean;
-  /** Optional Card discount text (e.g. "30 % auf 4h-Ticket") */
   cardDiscount?: string;
   description: string;
   pro?: string;
   con?: string;
-  /** Explicit warning rendered prominently */
   warning?: string;
   url?: string;
-  /** If set, offer is only available on these weekdays (Mo, Di, Mi, Do, Fr, Sa, So) */
   availableDays?: string[];
-  /** Image URLs (Wikimedia Commons or official) */
   images?: string[];
+  hikeDetails?: HikeDetails;
 }
 
 export interface TripDay {
-  /** ISO date 'YYYY-MM-DD' */
   date: string;
-  /** Short label 'Mo' */
   weekday: string;
-  /** Long label 'Montag' */
   full: string;
-  /** 1..7 */
   day: number;
-  /** German holiday or special note */
   holiday?: string;
 }
 
@@ -59,9 +78,8 @@ export type BreakType = "breakfast" | "lunch" | "dinner" | "snack" | "pause";
 
 export interface ScheduleEntry {
   id: string;
-  type: "offer" | "break" | "hike";
+  type: "offer" | "break";
   offerId?: string;
-  hikeId?: string;
   breakType?: BreakType;
   label?: string;
   startTime?: string;
@@ -69,13 +87,9 @@ export interface ScheduleEntry {
 }
 
 export interface AppState {
-  /** date -> ordered schedule entries with times */
   schedule: Record<string, ScheduleEntry[]>;
-  /** date -> note */
   notes: Record<string, string>;
-  /** User-defined offers (UI not yet implemented) */
   customOffers: Offer[];
-  /** Offer IDs the user marked as "not interesting" */
   dismissed: string[];
 }
 

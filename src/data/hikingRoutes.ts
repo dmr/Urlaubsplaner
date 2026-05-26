@@ -1,3 +1,5 @@
+import { Offer } from "@/lib/types";
+
 export interface HikingRoute {
   id: string;
   name: string;
@@ -506,3 +508,49 @@ export const HIKING_ROUTES: HikingRoute[] = [
     weatherNotes: "Holzstege extrem rutschig bei Nässe! Bei Regen nur bis zum Viadukt (von unten einsehbar). Trocken = wunderschön.",
   },
 ];
+
+const DIFFICULTY_LABELS = { leicht: "Leichte Wanderung", mittel: "Mittlere Wanderung", schwer: "Anspruchsvolle Wanderung" };
+
+export function hikingRoutesAsOffers(): Offer[] {
+  return HIKING_ROUTES.map((r) => {
+    const coords = r.parking?.coords;
+    const distKm = coords
+      ? Math.round(Math.sqrt(Math.pow((coords[0] - 47.884) * 111, 2) + Math.pow((coords[1] - 8.343) * 73, 2)))
+      : 0;
+
+    return {
+      id: `hike-${r.id}`,
+      name: r.name,
+      sub: DIFFICULTY_LABELS[r.difficulty],
+      location: r.parking?.address?.split(",")[0] ?? "Schwarzwald",
+      distance: distKm,
+      duration: r.duration,
+      minAge: r.minAge,
+      tags: ["hike", "outdoor"] as Offer["tags"],
+      price: "Gratis" as const,
+      cardIncluded: false,
+      description: r.description,
+      pro: r.shorterVariant ? `Kürzere Variante: ${r.shorterVariant}` : undefined,
+      con: r.weatherNotes,
+      warning: r.warning,
+      images: r.photoSpots.filter((s) => s.image).map((s) => s.image!),
+      hikeDetails: {
+        difficulty: r.difficulty,
+        elevation: r.elevation,
+        path: r.path,
+        parking: r.parking,
+        elevationProfile: r.elevationProfile,
+        surface: r.surface,
+        facilities: r.facilities,
+        photoSpots: r.photoSpots,
+        strollerFriendly: r.strollerFriendly,
+        whatToPack: r.whatToPack,
+        bestTime: r.bestTime,
+        waterSources: r.waterSources,
+        emergencyInfo: r.emergencyInfo,
+        shorterVariant: r.shorterVariant,
+        weatherNotes: r.weatherNotes,
+      },
+    };
+  });
+}

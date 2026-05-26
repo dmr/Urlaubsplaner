@@ -1,5 +1,7 @@
-import { useEffect, useRef, useState, useMemo } from "react";
+import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
 import { Offer, ScheduleEntry } from "@/lib/types";
+
+const HikeMapSection = lazy(() => import("./HikeMapSection"));
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
@@ -294,6 +296,81 @@ export default function OfferModal({
               </a>
             )}
           </div>
+
+          {/* Hike Details */}
+          {offer.hikeDetails && (
+            <div className="mt-4 pt-4 border-t border-stone/20 space-y-3">
+              <h3 className="text-[14px] font-medium text-ink">Wanderung Details</h3>
+
+              <div className="grid grid-cols-2 gap-2 text-[12px]">
+                <div className="text-ink/70"><strong>Schwierigkeit:</strong> {offer.hikeDetails.difficulty}</div>
+                <div className="text-ink/70"><strong>Höhe:</strong> {offer.hikeDetails.elevation}</div>
+                <div className="text-ink/70"><strong>Untergrund:</strong> {offer.hikeDetails.surface}</div>
+                <div className="text-ink/70">{offer.hikeDetails.strollerFriendly ? "✓ Buggy-tauglich" : "✗ Kein Buggy"}</div>
+              </div>
+
+              {offer.hikeDetails.elevationProfile && (
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-stone mb-1">Höhenprofil</div>
+                  <div className="flex items-end gap-px h-14 bg-ink/5 rounded p-1">
+                    {offer.hikeDetails.elevationProfile.waypoints.map((wp, i) => {
+                      const min = Math.min(...offer.hikeDetails!.elevationProfile!.waypoints.map(w => w.elevation));
+                      const range = offer.hikeDetails!.elevationProfile!.max - min;
+                      const pct = range > 0 ? ((wp.elevation - min) / range) * 100 : 50;
+                      return (
+                        <div key={i} className="flex-1 bg-moss rounded-t-sm relative group" style={{ height: `${Math.max(pct, 8)}%` }} title={`${wp.name}: ${wp.elevation} m`}>
+                          <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block bg-ink text-parchment text-[9px] px-1.5 py-0.5 rounded whitespace-nowrap z-10">
+                            {wp.elevation} m — {wp.name}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="text-[10px] text-stone mt-1">
+                    {offer.hikeDetails.elevationProfile.start} m → {offer.hikeDetails.elevationProfile.max} m · ↑{offer.hikeDetails.elevationProfile.totalAscent} m ↓{offer.hikeDetails.elevationProfile.totalDescent} m
+                  </div>
+                </div>
+              )}
+
+              {offer.hikeDetails.whatToPack && (
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-stone mb-1">Einpacken</div>
+                  <div className="flex flex-wrap gap-1">{offer.hikeDetails.whatToPack.map((p, i) => <span key={i} className="text-[10px] px-2 py-0.5 rounded bg-amber/10 text-amber-deep border border-amber/20">{p}</span>)}</div>
+                </div>
+              )}
+
+              {offer.hikeDetails.bestTime && (
+                <div className="text-[12px] text-ink/80"><strong className="text-stone">Beste Zeit:</strong> {offer.hikeDetails.bestTime}</div>
+              )}
+              {offer.hikeDetails.waterSources && (
+                <div className="text-[12px] text-ink/80"><strong className="text-stone">Verpflegung:</strong> {offer.hikeDetails.waterSources}</div>
+              )}
+              {offer.hikeDetails.shorterVariant && (
+                <div className="text-[12px] text-ink/80"><strong className="text-stone">Kürzere Variante:</strong> {offer.hikeDetails.shorterVariant}</div>
+              )}
+              {offer.hikeDetails.emergencyInfo && (
+                <div className="text-[12px] text-rust"><strong>Notfall:</strong> {offer.hikeDetails.emergencyInfo}</div>
+              )}
+
+              {offer.hikeDetails.photoSpots.length > 0 && (
+                <div>
+                  <div className="text-[10px] uppercase tracking-wider text-stone mb-1">Foto-Spots</div>
+                  <div className="space-y-2">
+                    {offer.hikeDetails.photoSpots.map((spot, i) => (
+                      <div key={i}>
+                        {spot.image && <img src={spot.image} alt={spot.description} loading="lazy" className="w-full h-[140px] object-cover rounded mb-1" onError={(e) => { (e.target as HTMLImageElement).style.display = "none"; }} />}
+                        <div className="text-[11px] text-ink/70">📸 {spot.description}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Suspense fallback={<div className="py-4 text-center text-stone text-[11px]">Karte lädt …</div>}>
+                <HikeMapSection details={offer.hikeDetails} />
+              </Suspense>
+            </div>
+          )}
 
           {/* Actions */}
           <div className="mt-5 pt-4 border-t border-stone/15 flex flex-wrap gap-2">

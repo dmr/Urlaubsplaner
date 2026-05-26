@@ -13,7 +13,17 @@ export function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT_STATE, ...parsed };
+      const state = { ...DEFAULT_STATE, ...parsed };
+      // Migrate old "hike" entries to "offer" with hike- prefix
+      for (const [date, entries] of Object.entries(state.schedule)) {
+        state.schedule[date] = (entries as ScheduleEntry[]).map((e: any) => {
+          if (e.type === "hike" && e.hikeId) {
+            return { ...e, type: "offer" as const, offerId: `hike-${e.hikeId}`, hikeId: undefined };
+          }
+          return e;
+        });
+      }
+      return state;
     }
 
     // Migrate from v1 (had separate plan + schedule)

@@ -4,7 +4,10 @@ import { loadState, saveState, clearState } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
 import { OFFERS } from "@/data/offers";
+import { hikingRoutesAsOffers } from "@/data/hikingRoutes";
 import { TRIP_DAYS } from "@/data/tripDays";
+
+const ALL_OFFERS = [...OFFERS, ...hikingRoutesAsOffers()];
 import TopoBackground from "@/components/TopoBackground";
 import Header from "@/components/Header";
 import HochschwarzwaldHint from "@/components/HochschwarzwaldHint";
@@ -47,6 +50,36 @@ export default function App() {
   const [hideDismissed, setHideDismissed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
+
+  const openModal = useCallback((offer: Offer) => {
+    setModalOffer(offer);
+    window.history.replaceState(null, "", `#${offer.id}`);
+  }, []);
+
+  const closeModal = useCallback(() => {
+    setModalOffer(null);
+    window.history.replaceState(null, "", window.location.pathname);
+  }, []);
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      const found = ALL_OFFERS.find((o) => o.id === hash);
+      if (found) setModalOffer(found);
+    }
+    const onHashChange = () => {
+      const h = window.location.hash.slice(1);
+      if (h) {
+        const f = ALL_OFFERS.find((o) => o.id === h);
+        if (f) setModalOffer(f);
+      } else {
+        setModalOffer(null);
+      }
+    };
+    window.addEventListener("hashchange", onHashChange);
+    return () => window.removeEventListener("hashchange", onHashChange);
+  }, []);
+
   const [theme, setTheme] = useState<Theme>(() => {
     if (typeof window !== "undefined") {
       return (localStorage.getItem("theme") as Theme) || "dark";
@@ -84,21 +117,6 @@ export default function App() {
         schedule: {
           ...s.schedule,
           [date]: [...entries, { id: nextEntryId(), type: "offer" as const, offerId }],
-        },
-      };
-    });
-  }, []);
-
-  const addHikeToDay = useCallback((hikeId: string, date: string) => {
-    setState((s) => {
-      if (!s) return s;
-      const entries = s.schedule[date] ?? [];
-      if (entries.some((e) => e.type === "hike" && e.hikeId === hikeId)) return s;
-      return {
-        ...s,
-        schedule: {
-          ...s.schedule,
-          [date]: [...entries, { id: nextEntryId(), type: "hike" as const, hikeId }],
         },
       };
     });
@@ -222,7 +240,7 @@ export default function App() {
   const q = searchQuery.toLowerCase().trim();
 
   const filteredOffers = sortOffers(
-    OFFERS.filter((o) => {
+    ALL_OFFERS.filter((o) => {
       if (o.distance > maxDistance) return false;
       if (hideDismissed && dismissedSet.has(o.id)) return false;
       if (hidePlanned && allPlannedSet.has(o.id)) return false;
@@ -428,7 +446,7 @@ export default function App() {
                     activeDay={activeDate}
                     schedule={state.schedule}
                     isDismissed={dismissedSet.has(o.id)}
-                    onOpenDetail={() => setModalOffer(o)}
+                    onOpenDetail={() => openModal(o)}
                   />
                 ))
               )}
@@ -442,7 +460,7 @@ export default function App() {
                 activeDayOfferIds={plannedIds}
                 activeDay={activeDate}
                 schedule={state.schedule}
-                onAddHike={(hikeId, date) => addHikeToDay(hikeId, date)}
+                onAddHike={(hikeId, date) => addToDay(`hike-${hikeId}`, date)}
               />
             </Suspense>
           </section>
@@ -458,7 +476,7 @@ export default function App() {
           activeDay={activeDate}
           schedule={state.schedule}
           isDismissed={dismissedSet.has(modalOffer.id)}
-          onClose={() => setModalOffer(null)}
+          onClose={closeModal}
           onAdd={(date) => addToDay(modalOffer.id, date)}
           onDismiss={() => dismissOffer(modalOffer.id)}
           onUndismiss={() => undismissOffer(modalOffer.id)}

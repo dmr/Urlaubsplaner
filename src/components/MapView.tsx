@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { MapPin, Mountain, AlertTriangle, Route, Plus, Navigation } from "lucide-react";
 import { TRIP_DAYS } from "@/data/tripDays";
-import { isHikePlannedOnDate } from "@/lib/helpers";
+import { isOfferPlannedOnDate } from "@/lib/helpers";
 import { OFFERS } from "@/data/offers";
 import { HIKING_ROUTES, HikingRoute } from "@/data/hikingRoutes";
 import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
@@ -441,7 +441,7 @@ function RouteCard({
                   <div className="text-[10px] text-moss-soft mb-1">Welcher Tag?</div>
                   <div className="grid grid-cols-7 gap-1">
                     {TRIP_DAYS.map((d) => {
-                      const already = isHikePlannedOnDate(schedule, route.id, d.date);
+                      const already = isOfferPlannedOnDate(schedule, `hike-${route.id}`, d.date);
                       return (
                         <button
                           key={d.date}

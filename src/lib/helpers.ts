@@ -1,12 +1,18 @@
 import { Offer, ScheduleEntry } from "./types";
 import { OFFERS } from "@/data/offers";
-import { HIKING_ROUTES, HikingRoute } from "@/data/hikingRoutes";
+import { hikingRoutesAsOffers } from "@/data/hikingRoutes";
+
+let _allOffers: Offer[] | null = null;
+function getAllOffers(): Offer[] {
+  if (!_allOffers) _allOffers = [...OFFERS, ...hikingRoutesAsOffers()];
+  return _allOffers;
+}
 
 export function offerById(
   id: string,
   customOffers: Offer[] = []
 ): Offer | undefined {
-  return OFFERS.find((o) => o.id === id) ?? customOffers.find((o) => o.id === id);
+  return getAllOffers().find((o) => o.id === id) ?? customOffers.find((o) => o.id === id);
 }
 
 export function ageWarning(offer: Offer): string | null {
@@ -39,20 +45,6 @@ export function isOfferPlannedOnDate(
 ): boolean {
   return (schedule[date] ?? []).some(
     (e) => e.type === "offer" && e.offerId === offerId
-  );
-}
-
-export function hikeById(id: string): HikingRoute | undefined {
-  return HIKING_ROUTES.find((r) => r.id === id);
-}
-
-export function isHikePlannedOnDate(
-  schedule: Record<string, ScheduleEntry[]>,
-  hikeId: string,
-  date: string
-): boolean {
-  return (schedule[date] ?? []).some(
-    (e) => e.type === "hike" && e.hikeId === hikeId
   );
 }
 

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect, lazy, Suspense } from "react";
 import { Offer, TripDay, ScheduleEntry, BreakType } from "@/lib/types";
-import { formatDayMonth, hikeById } from "@/lib/helpers";
+import { formatDayMonth } from "@/lib/helpers";
 import {
   AlertTriangle,
   StickyNote,
@@ -8,7 +8,6 @@ import {
   Clock,
   Plus,
   Coffee,
-  Mountain,
   Loader2,
 } from "lucide-react";
 import PlannedItem from "./PlannedItem";
@@ -219,22 +218,6 @@ export default function DayDetail({
                   />
                 );
               }
-              if (entry.type === "hike" && entry.hikeId) {
-                const hike = hikeById(entry.hikeId);
-                if (!hike) return null;
-                return (
-                  <HikeItem
-                    key={entry.id}
-                    hike={hike}
-                    startTime={entry.startTime}
-                    endTime={entry.endTime}
-                    onRemove={() => onRemoveEntry(entry.id)}
-                    onUpdateTime={(start, end) =>
-                      onUpdateEntryTime(entry.id, start, end)
-                    }
-                  />
-                );
-              }
               if (entry.type === "break") {
                 const meta = BREAK_META[entry.breakType || "pause"];
                 const Icon = meta.icon;
@@ -294,7 +277,7 @@ export default function DayDetail({
       </div>
 
       {/* Day Map */}
-      {scheduleEntries.some((e) => e.type === "offer" || e.type === "hike") && (
+      {scheduleEntries.some((e) => e.type === "offer") && (
         <Suspense fallback={<div className="mt-4 py-4 text-center text-moss-soft text-[11px]"><Loader2 size={14} className="animate-spin inline mr-1" />Karte …</div>}>
           <DayMap entries={scheduleEntries} customOffers={customOffers} />
         </Suspense>
@@ -353,45 +336,4 @@ function BreakItem({
   );
 }
 
-function HikeItem({
-  hike,
-  startTime,
-  endTime,
-  onRemove,
-  onUpdateTime,
-}: {
-  hike: { name: string; difficulty: string; distance: string; duration: string; elevation: string };
-  startTime?: string;
-  endTime?: string;
-  onRemove: () => void;
-  onUpdateTime: (start: string, end: string) => void;
-}) {
-  const diffColor = hike.difficulty === "leicht" ? "#5a7f4b" : hike.difficulty === "mittel" ? "#c98a3a" : "#7d1f1f";
-  return (
-    <div className="bg-parchment p-4 rounded-sm border-l-[3px] flex justify-between gap-3 items-start" style={{ borderColor: diffColor }}>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center gap-2">
-          <Mountain size={14} style={{ color: diffColor }} className="shrink-0" />
-          <span className="font-serif text-lg font-medium text-ink leading-tight">{hike.name}</span>
-          <span className="text-[9px] px-1.5 py-0.5 rounded-full font-medium" style={{ backgroundColor: diffColor + "25", color: diffColor }}>
-            {hike.difficulty}
-          </span>
-        </div>
-        <div className="text-xs text-stone mt-1 flex flex-wrap gap-3">
-          <span>{hike.distance}</span>
-          <span>{hike.duration}</span>
-          <span>{hike.elevation}</span>
-        </div>
-        <div className="flex items-center gap-1.5 mt-2">
-          <input type="time" value={startTime || ""} onChange={(e) => onUpdateTime(e.target.value, endTime || "")} className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]" />
-          <span className="text-stone text-[11px]">–</span>
-          <input type="time" value={endTime || ""} onChange={(e) => onUpdateTime(startTime || "", e.target.value)} className="bg-cream-soft border border-stone/20 rounded px-1.5 py-1 text-[11px] text-ink w-[72px]" />
-        </div>
-      </div>
-      <button onClick={onRemove} aria-label="Entfernen" className="bg-transparent border border-ink/20 text-ink w-8 h-8 rounded-sm cursor-pointer flex items-center justify-center shrink-0 hover:bg-ink/5">
-        <span className="text-[14px]">×</span>
-      </button>
-    </div>
-  );
-}
 

@@ -1,6 +1,6 @@
 import { ScheduleEntry, Offer } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
-import { offerById, hikeById } from "@/lib/helpers";
+import { offerById } from "@/lib/helpers";
 import { AlertTriangle } from "lucide-react";
 
 const BREAK_LABELS: Record<string, string> = {
@@ -50,15 +50,11 @@ export default function WeekOverview({
                 <div className="space-y-1">
                   {entries.map((entry) => {
                     const isBreak = entry.type === "break";
-                    const isHike = entry.type === "hike";
                     const offer = entry.type === "offer" && entry.offerId
                       ? offerById(entry.offerId, customOffers)
                       : null;
-                    const hike = isHike && entry.hikeId ? hikeById(entry.hikeId) : null;
                     const name = isBreak
                       ? entry.label || BREAK_LABELS[entry.breakType || "pause"]
-                      : isHike
-                      ? `🥾 ${hike?.name || "?"}`
                       : offer?.name || "?";
                     const time = entry.startTime
                       ? `${entry.startTime} `
