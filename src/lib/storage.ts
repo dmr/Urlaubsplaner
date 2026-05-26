@@ -92,15 +92,16 @@ export function encodeStateToUrl(state: AppState): string {
     const ids = entries.filter((e) => e.type === "offer" && e.offerId).map((e) => e.offerId!);
     if (ids.length > 0) compact[date] = ids;
   }
-  const payload = JSON.stringify({ s: compact, h: state.homeBase.name });
-  return btoa(unescape(encodeURIComponent(payload)));
+  const payload: Record<string, unknown> = { s: compact, h: state.homeBase.name };
+  if (state.dismissed.length > 0) payload.d = state.dismissed;
+  return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
 }
 
-export function decodeStateFromUrl(encoded: string): { schedule: Record<string, string[]>; homeBaseName: string } | null {
+export function decodeStateFromUrl(encoded: string): { schedule: Record<string, string[]>; homeBaseName: string; dismissed: string[] } | null {
   try {
     const json = decodeURIComponent(escape(atob(encoded)));
     const data = JSON.parse(json);
-    return { schedule: data.s ?? {}, homeBaseName: data.h ?? "Löffingen" };
+    return { schedule: data.s ?? {}, homeBaseName: data.h ?? "Löffingen", dismissed: data.d ?? [] };
   } catch {
     return null;
   }

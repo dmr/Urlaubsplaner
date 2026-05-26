@@ -241,16 +241,16 @@ export default function OfferModal({
 
           {/* Pro / Con */}
           {(offer.pro || offer.con) && (
-            <div className="mt-4 pt-4 border-t border-stone/20 space-y-2 text-[13px]">
+            <div className="mt-4 pt-4 border-t border-stone/20 space-y-2 text-[14px]">
               {offer.pro && (
                 <div className="text-ink">
-                  <strong className="text-moss">+ Pro: </strong>
+                  <strong className="text-moss font-bold">+</strong>{" "}
                   {offer.pro}
                 </div>
               )}
               {offer.con && (
                 <div className="text-ink">
-                  <strong className="text-rust">− Contra: </strong>
+                  <strong className="text-rust font-bold">−</strong>{" "}
                   {offer.con}
                 </div>
               )}

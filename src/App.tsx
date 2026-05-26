@@ -116,7 +116,7 @@ export default function App() {
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string } | null>(null);
+  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string; dismissed: string[] } | null>(null);
 
   useEffect(() => {
     const loaded = loadState();
@@ -603,6 +603,11 @@ export default function App() {
                 );
               })}
             </div>
+            {urlImportData.dismissed.length > 0 && (
+              <div className="text-[12px] text-stone mb-3">
+                Außerdem als „nicht interessant" markiert: {urlImportData.dismissed.length} Angebote
+              </div>
+            )}
             <div className="flex gap-2">
               <button
                 onClick={() => {
@@ -619,7 +624,8 @@ export default function App() {
                       }
                       schedule[date] = existing;
                     }
-                    return { ...s, schedule };
+                    const dismissed = [...new Set([...s.dismissed, ...urlImportData.dismissed])];
+                    return { ...s, schedule, dismissed };
                   });
                   setUrlImportData(null);
                 }}
