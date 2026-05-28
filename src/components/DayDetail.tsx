@@ -31,6 +31,7 @@ interface DayDetailProps {
   scheduleEntries: ScheduleEntry[];
   customOffers: Offer[];
   highlightedId: string | null;
+  homeBase: { name: string; lat: number; lng: number };
   onRemove: (offerId: string) => void;
   onMoveToNextDay: ((offerId: string) => void) | null;
   onNoteChange: (text: string) => void;
@@ -52,6 +53,7 @@ export default function DayDetail({
   scheduleEntries,
   customOffers,
   highlightedId,
+  homeBase,
   onRemove,
   onMoveToNextDay,
   onNoteChange,
@@ -282,7 +284,7 @@ export default function DayDetail({
       {/* Day Map */}
       {scheduleEntries.some((e) => e.type === "offer") && (
         <Suspense fallback={<div className="mt-4 py-4 text-center text-moss-soft text-[11px]"><Loader2 size={14} className="animate-spin inline mr-1" />Karte …</div>}>
-          <DayMap entries={scheduleEntries} customOffers={customOffers} highlightedId={highlightedId} />
+          <DayMap entries={scheduleEntries} customOffers={customOffers} highlightedId={highlightedId} homeBase={homeBase} />
         </Suspense>
       )}
     </div>

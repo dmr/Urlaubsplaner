@@ -951,11 +951,12 @@ description:
 
 const DIFFICULTY_LABELS = { leicht: "Leichte Wanderung", mittel: "Mittlere Wanderung", schwer: "Anspruchsvolle Wanderung" };
 
-export function hikingRoutesAsOffers(): Offer[] {
-  return HIKING_ROUTES.map((r) => {
+export function hikingRoutesAsOffersGeneric(routes: HikingRoute[], homeBase: [number, number]): Offer[] {
+  const [baseLat, baseLng] = homeBase;
+  return routes.map((r) => {
     const coords = r.parking?.coords;
     const distKm = coords
-      ? Math.round(Math.sqrt(Math.pow((coords[0] - 47.884) * 111, 2) + Math.pow((coords[1] - 8.343) * 73, 2)))
+      ? Math.round(Math.sqrt(Math.pow((coords[0] - baseLat) * 111, 2) + Math.pow((coords[1] - baseLng) * 73, 2)))
       : 0;
 
     return {
@@ -993,4 +994,8 @@ export function hikingRoutesAsOffers(): Offer[] {
       },
     };
   });
+}
+
+export function hikingRoutesAsOffers(): Offer[] {
+  return hikingRoutesAsOffersGeneric(HIKING_ROUTES, [47.884, 8.343]);
 }

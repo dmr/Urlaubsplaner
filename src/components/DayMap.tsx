@@ -1,32 +1,32 @@
 import { useEffect, useRef } from "react";
 import { ScheduleEntry } from "@/lib/types";
 import { offerById } from "@/lib/helpers";
-import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
-import { HIKING_ROUTES } from "@/data/hikingRoutes";
+import { googleMapsDirectionsUrl } from "@/data/coords";
 import { Navigation } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-
-const LOEFFINGEN: [number, number] = [47.884, 8.343];
 
 export default function DayMap({
   entries,
   customOffers,
   highlightedId,
+  homeBase,
 }: {
   entries: ScheduleEntry[];
   customOffers: import("@/lib/types").Offer[];
   highlightedId?: string | null;
+  homeBase: { name: string; lat: number; lng: number };
 }) {
   const mapRef = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const HOME: [number, number] = [homeBase.lat, homeBase.lng];
 
-  const items: { name: string; coords: [number, number]; isHike: boolean; color: string; offerId: string }[] = [];
+  const items: { name: string; coords: [number, number]; isHike: boolean; color: string; offerId: string; path?: [number, number][] }[] = [];
 
   for (const entry of entries) {
     if (entry.type === "offer" && entry.offerId) {
       const offer = offerById(entry.offerId, customOffers);
-      const coords = OFFER_COORDS[entry.offerId];
+      const coords = offer?.coords ?? offer?.hikeDetails?.parking?.coords;
       if (offer && coords) {
         items.push({
           name: offer.name,
@@ -36,6 +36,7 @@ export default function DayMap({
             ? (offer.hikeDetails.difficulty === "leicht" ? "#6a9458" : offer.hikeDetails.difficulty === "mittel" ? "#d49540" : "#a03030")
             : offer.cardIncluded ? "#d49540" : "#6a9458",
           offerId: entry.offerId,
+          path: offer.hikeDetails?.path,
         });
       }
     }
@@ -47,14 +48,14 @@ export default function DayMap({
     if (items.length === 0) return;
 
     const map = L.map(mapRef.current, {
-      center: LOEFFINGEN, zoom: 11, zoomControl: false, attributionControl: false, scrollWheelZoom: false,
+      center: HOME, zoom: 10, zoomControl: false, attributionControl: false, scrollWheelZoom: false,
     });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 15 }).addTo(map);
 
     const markers: L.LatLng[] = [];
 
-    L.circleMarker(LOEFFINGEN, { radius: 5, fillColor: "#f3ead7", color: "#162820", weight: 1.5, fillOpacity: 0.8 })
-      .addTo(map).bindPopup("<b>Löffingen</b>");
+    L.circleMarker(HOME, { radius: 5, fillColor: "#f3ead7", color: "#162820", weight: 1.5, fillOpacity: 0.8 })
+      .addTo(map).bindPopup(`<b>${homeBase.name}</b>`);
 
     items.forEach((item, i) => {
       const isHighlighted = highlightedId === item.offerId;
@@ -79,26 +80,19 @@ export default function DayMap({
     });
 
     if (items.length > 1) {
-      L.polyline([LOEFFINGEN, ...items.map((i) => i.coords)], {
+      L.polyline([HOME, ...items.map((i) => i.coords)], {
         color: "#d49540", weight: 2, opacity: 0.5, dashArray: "6 4",
       }).addTo(map);
     }
 
     // Draw hiking route paths
-    for (const entry of entries) {
-      if (entry.type === "offer" && entry.offerId?.startsWith("hike-")) {
-        const hikeId = entry.offerId.replace("hike-", "");
-        const route = HIKING_ROUTES.find((r) => r.id === hikeId);
-        if (route && route.path.length > 1) {
-          L.polyline(route.path, {
-            color: route.difficulty === "leicht" ? "#6a9458" : route.difficulty === "mittel" ? "#d49540" : "#a03030",
-            weight: 3, opacity: 0.7,
-          }).addTo(map);
-        }
+    for (const item of items) {
+      if (item.path && item.path.length > 1) {
+        L.polyline(item.path, { color: item.color, weight: 3, opacity: 0.7 }).addTo(map);
       }
     }
 
-    markers.push(L.latLng(LOEFFINGEN));
+    markers.push(L.latLng(HOME));
     if (markers.length > 1) map.fitBounds(L.latLngBounds(markers), { padding: [30, 30] });
     else if (markers.length === 1) map.setView(markers[0], 13);
 

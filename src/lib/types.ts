@@ -66,6 +66,17 @@ export interface Offer {
   images?: string[];
   hikeDetails?: HikeDetails;
   source?: string;
+  coords?: [number, number];
+}
+
+export type RegionId = "loeffingen" | "udine";
+
+export interface Region {
+  id: RegionId;
+  name: string;
+  homeBase: { name: string; lat: number; lng: number };
+  mapCenter: [number, number];
+  mapZoom: number;
 }
 
 export interface TripDay {
@@ -88,18 +99,31 @@ export interface ScheduleEntry {
   endTime?: string;
 }
 
-export interface AppState {
+export interface RegionState {
   schedule: Record<string, ScheduleEntry[]>;
   notes: Record<string, string>;
   customOffers: Offer[];
   dismissed: string[];
-  homeBase: { name: string; lat: number; lng: number };
+  homeBaseName: string;
 }
 
-export const DEFAULT_STATE: AppState = {
+export interface AppState {
+  activeRegion: RegionId;
+  regions: Record<RegionId, RegionState>;
+}
+
+const EMPTY_REGION: RegionState = {
   schedule: {},
   notes: {},
   customOffers: [],
   dismissed: [],
-  homeBase: { name: "Löffingen", lat: 47.884, lng: 8.343 },
+  homeBaseName: "",
+};
+
+export const DEFAULT_STATE: AppState = {
+  activeRegion: "loeffingen",
+  regions: {
+    loeffingen: { ...EMPTY_REGION, homeBaseName: "Löffingen" },
+    udine: { ...EMPTY_REGION, homeBaseName: "Udine" },
+  },
 };

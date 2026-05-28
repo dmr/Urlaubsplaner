@@ -1,8 +1,8 @@
 import { useState, useRef } from "react";
-import { AppState, ScheduleEntry } from "@/lib/types";
+import { Offer, RegionState, ScheduleEntry } from "@/lib/types";
 import { TRIP_DAYS } from "@/data/tripDays";
 import { offerById } from "@/lib/helpers";
-import { exportState, importState, encodeStateToUrl } from "@/lib/storage";
+import { encodeStateToUrl } from "@/lib/storage";
 import {
   Download,
   Upload,
@@ -15,8 +15,9 @@ import {
 } from "lucide-react";
 
 interface PlanManagerProps {
-  state: AppState;
-  onApply: (state: AppState) => void;
+  region: RegionState;
+  customOffers: Offer[];
+  onApply: (region: RegionState) => void;
   onClose: () => void;
 }
 
@@ -29,7 +30,7 @@ interface DayDiff {
   notesDiff: { mine: string; theirs: string } | null;
 }
 
-function computeDiff(mine: AppState, theirs: AppState): DayDiff[] {
+function computeDiff(mine: RegionState, theirs: RegionState): DayDiff[] {
   return TRIP_DAYS.map((day) => {
     const myEntries = (mine.schedule[day.date] ?? []).filter((e) => e.type === "offer").map((e) => e.offerId!);
     const theirEntries = (theirs.schedule[day.date] ?? []).filter((e) => e.type === "offer").map((e) => e.offerId!);
@@ -48,7 +49,7 @@ function computeDiff(mine: AppState, theirs: AppState): DayDiff[] {
   });
 }
 
-function mergeStates(mine: AppState, theirs: AppState, selections: Record<string, "mine" | "theirs" | "both">): AppState {
+function mergeStates(mine: RegionState, theirs: RegionState, selections: Record<string, "mine" | "theirs" | "both">): RegionState {
   const schedule: Record<string, ScheduleEntry[]> = {};
 
   for (const day of TRIP_DAYS) {
@@ -86,22 +87,22 @@ function mergeStates(mine: AppState, theirs: AppState, selections: Record<string
   const customSet = new Set(mine.customOffers.map((o) => o.id));
   const mergedCustom = [...mine.customOffers, ...theirs.customOffers.filter((o) => !customSet.has(o.id))];
 
-  return { schedule, notes, customOffers: mergedCustom, dismissed: mine.dismissed, homeBase: mine.homeBase };
+  return { schedule, notes, customOffers: mergedCustom, dismissed: mine.dismissed, homeBaseName: mine.homeBaseName };
 }
 
-function offerName(id: string, state: AppState): string {
-  return offerById(id, state.customOffers)?.name ?? id;
+function offerName(id: string, customOffers: Offer[]): string {
+  return offerById(id, customOffers)?.name ?? id;
 }
 
-export default function PlanManager({ state, onApply, onClose }: PlanManagerProps) {
-  const [importedState, setImportedState] = useState<AppState | null>(null);
+export default function PlanManager({ region, customOffers, onApply, onClose }: PlanManagerProps) {
+  const [importedState, setImportedState] = useState<RegionState | null>(null);
   const [diff, setDiff] = useState<DayDiff[] | null>(null);
   const [selections, setSelections] = useState<Record<string, "mine" | "theirs" | "both">>({});
   const [error, setError] = useState("");
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleExport = () => {
-    const json = exportState(state);
+    const json = JSON.stringify(region, null, 2);
     const blob = new Blob([json], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
@@ -117,13 +118,25 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
     setError("");
     const reader = new FileReader();
     reader.onload = () => {
-      const result = importState(reader.result as string);
+      let result: RegionState | null = null;
+      try {
+        const parsed = JSON.parse(reader.result as string);
+        if (parsed && typeof parsed.schedule === "object") {
+          result = {
+            schedule: parsed.schedule ?? {},
+            notes: parsed.notes ?? {},
+            customOffers: parsed.customOffers ?? [],
+            dismissed: parsed.dismissed ?? [],
+            homeBaseName: parsed.homeBaseName ?? region.homeBaseName,
+          };
+        }
+      } catch { /* invalid */ }
       if (!result) {
         setError("Ungültige Datei — konnte den Plan nicht lesen.");
         return;
       }
       setImportedState(result);
-      setDiff(computeDiff(state, result));
+      setDiff(computeDiff(region, result));
       const initial: Record<string, "mine" | "theirs" | "both"> = {};
       TRIP_DAYS.forEach((d) => { initial[d.date] = "both"; });
       setSelections(initial);
@@ -134,8 +147,7 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
 
   const handleMerge = () => {
     if (!importedState) return;
-    const merged = mergeStates(state, importedState, selections);
-    onApply(merged);
+    onApply(mergeStates(region, importedState, selections));
   };
 
   const handleReplaceAll = () => {
@@ -146,7 +158,7 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const encoded = encodeStateToUrl(state);
+    const encoded = encodeStateToUrl(region);
     const url = `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
@@ -245,7 +257,7 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
 
                           {d.shared.length > 0 && (
                             <div className="text-[11px] text-stone mb-1">
-                              {d.shared.map((id) => offerName(id, state)).join(", ")}
+                              {d.shared.map((id) => offerName(id, customOffers)).join(", ")}
                             </div>
                           )}
 
@@ -253,7 +265,7 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
                             <div className="flex flex-wrap gap-1 mb-1">
                               {d.onlyMine.map((id) => (
                                 <span key={id} className="text-[10px] px-2 py-0.5 rounded-full bg-moss/15 text-moss border border-moss/30">
-                                  Mein: {offerName(id, state)}
+                                  Mein: {offerName(id, customOffers)}
                                 </span>
                               ))}
                             </div>
@@ -263,7 +275,7 @@ export default function PlanManager({ state, onApply, onClose }: PlanManagerProp
                             <div className="flex flex-wrap gap-1 mb-1">
                               {d.onlyTheirs.map((id) => (
                                 <span key={id} className="text-[10px] px-2 py-0.5 rounded-full bg-amber/15 text-amber-deep border border-amber/30">
-                                  Import: {offerName(id, importedState)}
+                                  Import: {offerName(id, importedState.customOffers)}
                                 </span>
                               ))}
                             </div>

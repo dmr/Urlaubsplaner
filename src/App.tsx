@@ -1,13 +1,11 @@
 import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
-import { AppState, DEFAULT_STATE, BreakType, Offer } from "@/lib/types";
+import { AppState, DEFAULT_STATE, BreakType, Offer, RegionId, RegionState } from "@/lib/types";
 import { loadState, saveState, clearState, decodeStateFromUrl } from "@/lib/storage";
 import { offerById, getPlannedOfferIds } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
-import { OFFERS } from "@/data/offers";
-import { hikingRoutesAsOffers } from "@/data/hikingRoutes";
+import { offersForRegion } from "@/data/regionData";
+import { REGIONS } from "@/data/regions";
 import { TRIP_DAYS } from "@/data/tripDays";
-
-const ALL_OFFERS = [...OFFERS, ...hikingRoutesAsOffers()];
 import TopoBackground from "@/components/TopoBackground";
 import Header from "@/components/Header";
 import HomeBase from "@/components/HomeBase";
@@ -44,25 +42,13 @@ export default function App() {
     return future?.date ?? TRIP_DAYS[0].date;
   });
   const [filter, setFilter] = useState<FilterKey>("all");
-  const [maxDistance, setMaxDistance] = useState<number>(80);
+  const [maxDistance, setMaxDistance] = useState<number>(90);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
   const [viewMode, setViewMode] = useState<ViewMode>("list");
   const [showWeek, setShowWeek] = useState(false);
   const [showDaySheet, setShowDaySheet] = useState(false);
   const [highlightedOfferId, setHighlightedOfferId] = useState<string | null>(null);
   const navRef = useRef<HTMLElement>(null);
-
-  const openDaySheet = useCallback((date?: string) => {
-    if (date) setActiveDate(date);
-    const nav = navRef.current;
-    if (nav) {
-      const navTop = nav.offsetTop;
-      if (window.scrollY < navTop) {
-        window.scrollTo({ top: navTop, behavior: "smooth" });
-      }
-    }
-    setShowDaySheet(true);
-  }, []);
   const [sortKey, setSortKey] = useState<SortKey>("empfohlen");
   const [hidePlanned, setHidePlanned] = useState(() => localStorage.getItem("hidePlanned") === "true");
   const [hideDismissed, setHideDismissed] = useState(() => localStorage.getItem("hideDismissed") !== "false");
@@ -71,6 +57,17 @@ export default function App() {
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [showPlanManager, setShowPlanManager] = useState(false);
   const [undoAction, setUndoAction] = useState<{ label: string; undo: () => void } | null>(null);
+  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string; dismissed: string[] } | null>(null);
+
+  const openDaySheet = useCallback((date?: string) => {
+    if (date) setActiveDate(date);
+    const nav = navRef.current;
+    if (nav) {
+      const navTop = nav.offsetTop;
+      if (window.scrollY < navTop) window.scrollTo({ top: navTop, behavior: "smooth" });
+    }
+    setShowDaySheet(true);
+  }, []);
 
   const openModal = useCallback((offer: Offer) => {
     setModalOffer(offer);
@@ -79,49 +76,36 @@ export default function App() {
 
   const closeModal = useCallback(() => {
     setModalOffer(null);
-    if (window.location.hash) {
-      window.history.back();
-    }
+    if (window.location.hash) window.history.back();
   }, []);
 
   useEffect(() => {
+    const lookup = (id: string) => offerById(id);
     const hash = window.location.hash.slice(1);
     if (hash) {
-      const found = ALL_OFFERS.find((o) => o.id === hash) || state?.customOffers.find((o) => o.id === hash);
+      const found = lookup(hash);
       if (found) setModalOffer(found);
     }
-
     const onPopState = () => {
       const h = window.location.hash.slice(1);
-      if (h) {
-        const f = ALL_OFFERS.find((o) => o.id === h) || state?.customOffers.find((o) => o.id === h);
-        setModalOffer(f ?? null);
-      } else {
-        setModalOffer(null);
-      }
+      setModalOffer(h ? lookup(h) ?? null : null);
     };
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
-  const [theme, setTheme] = useState<Theme>(() => {
-    if (typeof window !== "undefined") {
-      return (localStorage.getItem("theme") as Theme) || "dark";
-    }
-    return "dark";
-  });
+  const [theme, setTheme] = useState<Theme>(() =>
+    (typeof window !== "undefined" && (localStorage.getItem("theme") as Theme)) || "dark"
+  );
 
   useEffect(() => {
     document.documentElement.classList.toggle("light", theme === "light");
     localStorage.setItem("theme", theme);
   }, [theme]);
 
-  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string; dismissed: string[] } | null>(null);
-
   useEffect(() => {
     const loaded = loadState();
-    const urlParams = new URLSearchParams(window.location.search);
-    const planParam = urlParams.get("plan");
+    const planParam = new URLSearchParams(window.location.search).get("plan");
     if (planParam) {
       const decoded = decodeStateFromUrl(planParam);
       if (decoded) {
@@ -143,136 +127,93 @@ export default function App() {
     return () => clearTimeout(t);
   }, [state]);
 
-  const addToDay = useCallback((offerId: string, date: string) => {
+  // Update the active region's state
+  const updateRegion = useCallback((updater: (r: RegionState) => RegionState) => {
     setState((s) => {
       if (!s) return s;
-      const entries = s.schedule[date] ?? [];
-      if (entries.some((e) => e.type === "offer" && e.offerId === offerId)) return s;
-      return {
-        ...s,
-        schedule: {
-          ...s.schedule,
-          [date]: [...entries, { id: nextEntryId(), type: "offer" as const, offerId }],
-        },
-      };
+      return { ...s, regions: { ...s.regions, [s.activeRegion]: updater(s.regions[s.activeRegion]) } };
     });
   }, []);
+
+  const switchRegion = useCallback((region: RegionId) => {
+    setState((s) => (s ? { ...s, activeRegion: region } : s));
+    setFilter("all");
+    setSearchQuery("");
+    setHighlightedOfferId(null);
+  }, []);
+
+  const addToDay = useCallback((offerId: string, date: string) => {
+    updateRegion((r) => {
+      const entries = r.schedule[date] ?? [];
+      if (entries.some((e) => e.type === "offer" && e.offerId === offerId)) return r;
+      return { ...r, schedule: { ...r.schedule, [date]: [...entries, { id: nextEntryId(), type: "offer", offerId }] } };
+    });
+  }, [updateRegion]);
 
   const removeFromDay = useCallback((offerId: string, date: string) => {
     setState((prev) => {
       if (!prev) return prev;
-      const removed = (prev.schedule[date] ?? []).find((e) => e.type === "offer" && e.offerId === offerId);
-      const next = {
-        ...prev,
-        schedule: {
-          ...prev.schedule,
-          [date]: (prev.schedule[date] ?? []).filter(
-            (e) => !(e.type === "offer" && e.offerId === offerId)
-          ),
-        },
+      const r = prev.regions[prev.activeRegion];
+      const removed = (r.schedule[date] ?? []).find((e) => e.type === "offer" && e.offerId === offerId);
+      const nextRegion = {
+        ...r,
+        schedule: { ...r.schedule, [date]: (r.schedule[date] ?? []).filter((e) => !(e.type === "offer" && e.offerId === offerId)) },
       };
       if (removed) {
-        const offer = offerById(offerId, prev.customOffers);
+        const offer = offerById(offerId, r.customOffers);
+        const label = `${offer?.name ?? "Eintrag"} entfernt`;
         setUndoAction({
-          label: `${offer?.name ?? "Eintrag"} entfernt`,
+          label,
           undo: () => {
-            setState((s) => s ? {
-              ...s,
-              schedule: { ...s.schedule, [date]: [...(s.schedule[date] ?? []), removed] },
-            } : s);
+            updateRegion((rr) => ({ ...rr, schedule: { ...rr.schedule, [date]: [...(rr.schedule[date] ?? []), removed] } }));
             setUndoAction(null);
           },
         });
-        setTimeout(() => setUndoAction((a) => a?.label === `${offer?.name ?? "Eintrag"} entfernt` ? null : a), 5000);
+        setTimeout(() => setUndoAction((a) => (a?.label === label ? null : a)), 5000);
       }
-      return next;
+      return { ...prev, regions: { ...prev.regions, [prev.activeRegion]: nextRegion } };
     });
-  }, []);
+  }, [updateRegion]);
 
-  const addBreak = useCallback(
-    (date: string, breakType: BreakType, label?: string) => {
-      setState((s) => {
-        if (!s) return s;
-        return {
-          ...s,
-          schedule: {
-            ...s.schedule,
-            [date]: [
-              ...(s.schedule[date] ?? []),
-              { id: nextEntryId(), type: "break" as const, breakType, label },
-            ],
-          },
-        };
-      });
-    },
-    []
-  );
+  const addBreak = useCallback((date: string, breakType: BreakType, label?: string) => {
+    updateRegion((r) => ({ ...r, schedule: { ...r.schedule, [date]: [...(r.schedule[date] ?? []), { id: nextEntryId(), type: "break", breakType, label }] } }));
+  }, [updateRegion]);
 
   const removeEntry = useCallback((date: string, entryId: string) => {
-    setState((s) => {
-      if (!s) return s;
-      return {
-        ...s,
-        schedule: {
-          ...s.schedule,
-          [date]: (s.schedule[date] ?? []).filter((e) => e.id !== entryId),
-        },
-      };
-    });
-  }, []);
+    updateRegion((r) => ({ ...r, schedule: { ...r.schedule, [date]: (r.schedule[date] ?? []).filter((e) => e.id !== entryId) } }));
+  }, [updateRegion]);
 
-  const updateEntryTime = useCallback(
-    (date: string, entryId: string, startTime: string, endTime: string) => {
-      setState((s) => {
-        if (!s) return s;
-        return {
-          ...s,
-          schedule: {
-            ...s.schedule,
-            [date]: (s.schedule[date] ?? []).map((e) =>
-              e.id === entryId ? { ...e, startTime, endTime } : e
-            ),
-          },
-        };
-      });
-    },
-    []
-  );
+  const updateEntryTime = useCallback((date: string, entryId: string, startTime: string, endTime: string) => {
+    updateRegion((r) => ({ ...r, schedule: { ...r.schedule, [date]: (r.schedule[date] ?? []).map((e) => (e.id === entryId ? { ...e, startTime, endTime } : e)) } }));
+  }, [updateRegion]);
 
   const dismissOffer = useCallback((offerId: string) => {
-    setState((s) => {
-      if (!s) return s;
-      if (s.dismissed.includes(offerId)) return s;
-      return { ...s, dismissed: [...s.dismissed, offerId] };
-    });
-  }, []);
-
-  const addCustomOffer = useCallback((offer: Offer) => {
-    setState((s) => {
-      if (!s) return s;
-      return { ...s, customOffers: [...s.customOffers, offer] };
-    });
-    setShowAddCustom(false);
-  }, []);
+    updateRegion((r) => (r.dismissed.includes(offerId) ? r : { ...r, dismissed: [...r.dismissed, offerId] }));
+  }, [updateRegion]);
 
   const undismissOffer = useCallback((offerId: string) => {
-    setState((s) => {
-      if (!s) return s;
-      return { ...s, dismissed: s.dismissed.filter((id) => id !== offerId) };
-    });
-  }, []);
+    updateRegion((r) => ({ ...r, dismissed: r.dismissed.filter((id) => id !== offerId) }));
+  }, [updateRegion]);
+
+  const addCustomOffer = useCallback((offer: Offer) => {
+    updateRegion((r) => ({ ...r, customOffers: [...r.customOffers, offer] }));
+    setShowAddCustom(false);
+  }, [updateRegion]);
 
   const setNote = useCallback((date: string, text: string) => {
-    setState((s) => (s ? { ...s, notes: { ...s.notes, [date]: text } } : s));
-  }, []);
+    updateRegion((r) => ({ ...r, notes: { ...r.notes, [date]: text } }));
+  }, [updateRegion]);
+
+  const setHomeBaseName = useCallback((name: string) => {
+    updateRegion((r) => ({ ...r, homeBaseName: name }));
+  }, [updateRegion]);
 
   const resetAll = useCallback(() => {
     if (confirm("Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht.")) {
       clearState();
-      setState({ ...DEFAULT_STATE });
+      setState(structuredClone(DEFAULT_STATE));
     }
   }, []);
-
 
   if (!state) {
     return (
@@ -282,23 +223,26 @@ export default function App() {
     );
   }
 
-  const allOffers = [...ALL_OFFERS, ...state.customOffers];
+  const activeRegion = state.activeRegion;
+  const region = state.regions[activeRegion];
+  const regionMeta = REGIONS[activeRegion];
+  const regionOffers = offersForRegion(activeRegion);
+  const allOffers = [...regionOffers, ...region.customOffers];
 
   const activeDay = TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
-  const scheduleEntries = state.schedule[activeDate] ?? [];
+  const scheduleEntries = region.schedule[activeDate] ?? [];
   const plannedIds = getPlannedOfferIds(scheduleEntries);
   const plannedOffers = plannedIds
-    .map((id) => offerById(id, state.customOffers))
+    .map((id) => offerById(id, region.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
 
-  const allPlannedIds = Object.values(state.schedule)
+  const allPlannedIds = Object.values(region.schedule)
     .flat()
     .filter((e) => e.type === "offer" && e.offerId)
     .map((e) => e.offerId!);
 
   const allPlannedSet = new Set(allPlannedIds);
-  const dismissedSet = new Set(state.dismissed);
-
+  const dismissedSet = new Set(region.dismissed);
   const q = searchQuery.toLowerCase().trim();
 
   const filteredOffers = sortOffers(
@@ -315,16 +259,13 @@ export default function App() {
       return o.tags.includes(filter);
     }),
     sortKey,
-    state.schedule,
+    region.schedule,
     activeDate
   );
 
-  const dismissedCount = state.dismissed.length;
+  const dismissedCount = region.dismissed.length;
   const plannedCount = allPlannedSet.size;
-
-  const counts = Object.fromEntries(
-    TRIP_DAYS.map((d) => [d.date, (state.schedule[d.date] ?? []).length])
-  );
+  const counts = Object.fromEntries(TRIP_DAYS.map((d) => [d.date, (region.schedule[d.date] ?? []).length]));
 
   return (
     <div className="min-h-screen bg-forest-gradient text-cream relative">
@@ -333,13 +274,14 @@ export default function App() {
       <div className="max-w-[1100px] mx-auto relative z-10">
         <Header />
         <HomeBase
-          name={state.homeBase.name}
-          onChangeName={(name) => setState((s) => s ? { ...s, homeBase: { ...s.homeBase, name } } : s)}
+          name={region.homeBaseName}
+          activeRegion={activeRegion}
+          onChangeName={setHomeBaseName}
+          onSwitchRegion={switchRegion}
         />
 
         {/* Sticky navigation bar */}
         <nav ref={navRef} className="sticky top-0 z-30 border-b border-cream/8" style={{ backgroundColor: "var(--c-forest-deep)" }}>
-          {/* Row 1: Controls */}
           <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <span className="font-serif italic text-[15px] text-cream">
@@ -350,113 +292,65 @@ export default function App() {
               </span>
             </div>
             <div className="flex items-center gap-1.5">
-              <button
-                onClick={() => setViewMode("list")}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${
-                  viewMode === "list" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"
-                }`}
-              >
+              <button onClick={() => setViewMode("list")} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${viewMode === "list" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"}`}>
                 <List size={11} /> Liste
               </button>
-              <button
-                onClick={() => setViewMode("map")}
-                className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${
-                  viewMode === "map" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"
-                }`}
-              >
+              <button onClick={() => setViewMode("map")} className={`flex items-center gap-1 px-2.5 py-1 rounded text-[10px] font-medium transition-colors ${viewMode === "map" ? "bg-moss text-cream" : "text-moss-soft hover:text-cream"}`}>
                 <Map size={11} /> Karte
               </button>
               <span className="w-px h-4 bg-cream/10 mx-0.5" />
-              <button
-                onClick={() => setShowWeek(!showWeek)}
-                className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${
-                  showWeek ? "bg-moss/80 text-cream" : "text-moss-soft hover:text-cream"
-                }`}
-              >
+              <button onClick={() => setShowWeek(!showWeek)} className={`flex items-center gap-1 px-2 py-1 rounded text-[10px] transition-colors ${showWeek ? "bg-moss/80 text-cream" : "text-moss-soft hover:text-cream"}`}>
                 <Calendar size={10} />
               </button>
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="flex items-center justify-center w-6 h-6 rounded-full text-moss-soft hover:text-cream transition-colors"
-              >
+              <button onClick={() => setTheme(theme === "dark" ? "light" : "dark")} className="flex items-center justify-center w-6 h-6 rounded-full text-moss-soft hover:text-cream transition-colors">
                 {theme === "dark" ? <Sun size={12} /> : <Moon size={12} />}
               </button>
-              {/* Save indicator — tap opens Plan Manager */}
-              <button
-                onClick={() => setShowPlanManager(true)}
-                className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1 hover:text-cream transition-colors"
-                title="Plan teilen / exportieren"
-              >
+              <button onClick={() => setShowPlanManager(true)} className="text-[9px] text-moss-soft tracking-wider uppercase flex items-center gap-0.5 ml-1 hover:text-cream transition-colors" title="Plan teilen / exportieren">
                 {saveStatus === "saving" && <Loader2 size={10} className="animate-spin" />}
                 {saveStatus === "saved" && <Check size={10} />}
                 {saveStatus === "idle" && <Save size={10} />}
               </button>
             </div>
           </div>
-          {/* Row 2: Day Strip */}
           <div className="px-5 pb-2.5">
-            <DayStrip
-              days={TRIP_DAYS}
-              activeDate={activeDate}
-              counts={counts}
-              onSelect={(date) => openDaySheet(date)}
-            />
+            <DayStrip days={TRIP_DAYS} activeDate={activeDate} counts={counts} onSelect={(date) => openDaySheet(date)} />
           </div>
         </nav>
 
         {showWeek && (
           <section className="px-5 py-4">
             <WeekOverview
-              schedule={state.schedule}
-              customOffers={state.customOffers}
-              onDayClick={(date) => {
-                setShowWeek(false);
-                openDaySheet(date);
-              }}
+              schedule={region.schedule}
+              customOffers={region.customOffers}
+              onDayClick={(date) => { setShowWeek(false); openDaySheet(date); }}
             />
           </section>
         )}
 
-        {/* Catalog or Map */}
         {viewMode === "list" ? (
           <section className="px-5 pb-10">
             <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
-              <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">
-                Angebote
-              </h2>
+              <h2 className="font-serif font-light italic text-[22px] text-cream m-0 -tracking-[0.01em]">Angebote</h2>
               <div className="flex items-center gap-3">
-                <button
-                  onClick={() => setShowAddCustom(true)}
-                  className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase text-amber hover:text-cream bg-amber/15 hover:bg-amber/25 border border-amber/30 transition-colors"
-                >
+                <button onClick={() => setShowAddCustom(true)} className="flex items-center gap-1 px-2.5 py-1 rounded text-[10px] tracking-wider uppercase text-amber hover:text-cream bg-amber/15 hover:bg-amber/25 border border-amber/30 transition-colors">
                   <Plus size={10} /> Eigener Ort
                 </button>
                 {dismissedCount > 0 && (
                   <label className="flex items-center gap-1.5 text-[10px] text-moss-soft cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={hideDismissed}
-                      onChange={(e) => { setHideDismissed(e.target.checked); localStorage.setItem("hideDismissed", String(e.target.checked)); }}
-                      className="accent-amber w-3 h-3"
-                    />
+                    <input type="checkbox" checked={hideDismissed} onChange={(e) => { setHideDismissed(e.target.checked); localStorage.setItem("hideDismissed", String(e.target.checked)); }} className="accent-amber w-3 h-3" />
                     {dismissedCount} ausgeblendet
                   </label>
                 )}
                 {plannedCount > 0 && (
                   <label className="flex items-center gap-1.5 text-[10px] text-moss-soft cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={hidePlanned}
-                      onChange={(e) => { setHidePlanned(e.target.checked); localStorage.setItem("hidePlanned", String(e.target.checked)); }}
-                      className="accent-amber w-3 h-3"
-                    />
+                    <input type="checkbox" checked={hidePlanned} onChange={(e) => { setHidePlanned(e.target.checked); localStorage.setItem("hidePlanned", String(e.target.checked)); }} className="accent-amber w-3 h-3" />
                     Geplante ausblenden
                   </label>
                 )}
               </div>
             </div>
             <div className="text-[11px] text-moss-soft mb-4">
-              {filteredOffers.length} Vorschläge — kuratiert rund um Löffingen
+              {filteredOffers.length} Vorschläge — kuratiert rund um {region.homeBaseName}
             </div>
 
             <FilterBar
@@ -474,10 +368,7 @@ export default function App() {
               {filteredOffers.length === 0 ? (
                 <div className="col-span-full py-7 text-center text-moss-soft text-[14px] space-y-2">
                   <div className="italic">Nichts gefunden.</div>
-                  <button
-                    onClick={() => { setFilter("all"); setMaxDistance(80); setSearchQuery(""); }}
-                    className="text-amber underline text-[13px]"
-                  >
+                  <button onClick={() => { setFilter("all"); setMaxDistance(90); setSearchQuery(""); }} className="text-amber underline text-[13px]">
                     Alle Filter zurücksetzen
                   </button>
                 </div>
@@ -487,7 +378,7 @@ export default function App() {
                     key={o.id}
                     offer={o}
                     activeDay={activeDate}
-                    schedule={state.schedule}
+                    schedule={region.schedule}
                     isDismissed={dismissedSet.has(o.id)}
                     onOpenDetail={() => openModal(o)}
                   />
@@ -499,6 +390,10 @@ export default function App() {
           <section className="px-5 pb-10">
             <Suspense fallback={<div className="py-20 text-center text-moss-soft"><Loader2 size={20} className="animate-spin inline mr-2" />Karte lädt …</div>}>
               <MapView
+                offers={regionOffers}
+                homeBase={regionMeta.homeBase}
+                mapCenter={regionMeta.mapCenter}
+                mapZoom={regionMeta.mapZoom}
                 plannedOfferIds={allPlannedIds}
                 activeDayOfferIds={plannedIds}
               />
@@ -509,12 +404,11 @@ export default function App() {
         <Footer onReset={resetAll} onShare={() => setShowPlanManager(true)} />
       </div>
 
-      {/* Detail Modal */}
       {modalOffer && (
         <OfferModal
           offer={modalOffer}
           activeDay={activeDate}
-          schedule={state.schedule}
+          schedule={region.schedule}
           isDismissed={dismissedSet.has(modalOffer.id)}
           onClose={closeModal}
           onAdd={(date) => addToDay(modalOffer.id, date)}
@@ -523,38 +417,30 @@ export default function App() {
         />
       )}
 
-      {showAddCustom && (
-        <AddCustomOffer
-          onAdd={addCustomOffer}
-          onClose={() => setShowAddCustom(false)}
-        />
-      )}
+      {showAddCustom && <AddCustomOffer onAdd={addCustomOffer} onClose={() => setShowAddCustom(false)} />}
 
-      {/* Day Detail Bottom Sheet */}
       <BottomSheet
         open={showDaySheet}
         onClose={() => setShowDaySheet(false)}
         title={`${activeDay.full}, ${activeDay.day}. Mai`}
-        subtitle={`Tag ${activeDay.day} von 7 — Tagesplan bearbeiten`}
+        subtitle={`Tag ${activeDay.day} von 7 — ${region.homeBaseName}`}
         badge={scheduleEntries.length > 0 ? `${scheduleEntries.length} Einträge` : "leer"}
         accent="#6a9458"
       >
         <DayDetail
           day={activeDay}
           plannedOffers={plannedOffers}
-          note={state.notes[activeDate] ?? ""}
+          note={region.notes[activeDate] ?? ""}
           scheduleEntries={scheduleEntries}
-          customOffers={state.customOffers}
+          customOffers={region.customOffers}
           highlightedId={highlightedOfferId}
+          homeBase={regionMeta.homeBase}
           onRemove={(id) => removeFromDay(id, activeDate)}
           onMoveToNextDay={(() => {
             const idx = TRIP_DAYS.findIndex((d) => d.date === activeDate);
             if (idx < 0 || idx >= TRIP_DAYS.length - 1) return null;
             const nextDate = TRIP_DAYS[idx + 1].date;
-            return (offerId: string) => {
-              removeFromDay(offerId, activeDate);
-              addToDay(offerId, nextDate);
-            };
+            return (offerId: string) => { removeFromDay(offerId, activeDate); addToDay(offerId, nextDate); };
           })()}
           onNoteChange={(text) => setNote(activeDate, text)}
           onAddBreak={(breakType, label) => addBreak(activeDate, breakType, label)}
@@ -565,42 +451,37 @@ export default function App() {
             const found = allOffers.find((o) => o.id === offerId);
             if (found) openModal(found);
           }}
-          onUpdateEntryTime={(entryId, start, end) =>
-            updateEntryTime(activeDate, entryId, start, end)
-          }
+          onUpdateEntryTime={(entryId, start, end) => updateEntryTime(activeDate, entryId, start, end)}
         />
       </BottomSheet>
 
       {showPlanManager && (
         <PlanManager
-          state={state}
+          region={region}
+          customOffers={region.customOffers}
           onApply={(merged) => {
-            setState(merged);
-            saveState(merged);
+            updateRegion(() => merged);
             setShowPlanManager(false);
           }}
           onClose={() => setShowPlanManager(false)}
         />
       )}
 
-      {/* URL Import Dialog */}
-      {urlImportData && state && (
+      {urlImportData && (
         <div className="fixed inset-0 z-50 bg-ink/70 flex items-center justify-center p-4" onClick={() => setUrlImportData(null)}>
           <div className="bg-parchment rounded-xl w-full max-w-[440px] p-5" onClick={(e) => e.stopPropagation()}>
             <h2 className="font-serif font-medium text-[22px] text-ink mb-2">Plan empfangen</h2>
-            <p className="text-[13px] text-stone mb-4">
-              Jemand hat dir einen Plan geschickt. Diese Aktivitäten sind enthalten:
-            </p>
+            <p className="text-[13px] text-stone mb-4">Jemand hat dir einen Plan geschickt. Diese Aktivitäten sind enthalten:</p>
             <div className="space-y-2 mb-4 max-h-[40vh] overflow-y-auto">
               {TRIP_DAYS.map((day) => {
                 const ids = urlImportData.schedule[day.date];
                 if (!ids || ids.length === 0) return null;
-                const existingIds = new Set(getPlannedOfferIds(state.schedule[day.date] ?? []));
+                const existingIds = new Set(getPlannedOfferIds(region.schedule[day.date] ?? []));
                 return (
                   <div key={day.date} className="bg-ink/5 rounded-lg p-3">
                     <div className="text-[12px] font-medium text-ink mb-1">{day.weekday} {new Date(day.date).getDate()}. Mai</div>
                     {ids.map((id) => {
-                      const offer = allOffers.find((o) => o.id === id);
+                      const offer = offerById(id, region.customOffers);
                       const alreadyHave = existingIds.has(id);
                       return (
                         <div key={id} className={`text-[12px] ${alreadyHave ? "text-stone line-through" : "text-ink"}`}>
@@ -613,28 +494,23 @@ export default function App() {
               })}
             </div>
             {urlImportData.dismissed.length > 0 && (
-              <div className="text-[12px] text-stone mb-3">
-                Außerdem als „nicht interessant" markiert: {urlImportData.dismissed.length} Angebote
-              </div>
+              <div className="text-[12px] text-stone mb-3">Außerdem als „nicht interessant" markiert: {urlImportData.dismissed.length} Angebote</div>
             )}
             <div className="flex gap-2">
               <button
                 onClick={() => {
-                  setState((s) => {
-                    if (!s) return s;
-                    const schedule = { ...s.schedule };
-                    for (const [date, offerIds] of Object.entries(urlImportData.schedule)) {
+                  const data = urlImportData;
+                  updateRegion((r) => {
+                    const schedule = { ...r.schedule };
+                    for (const [date, offerIds] of Object.entries(data.schedule)) {
                       const existing = [...(schedule[date] ?? [])];
                       const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
                       for (const offerId of offerIds) {
-                        if (!existingSet.has(offerId)) {
-                          existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer" as const, offerId });
-                        }
+                        if (!existingSet.has(offerId)) existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer", offerId });
                       }
                       schedule[date] = existing;
                     }
-                    const dismissed = [...new Set([...s.dismissed, ...urlImportData.dismissed])];
-                    return { ...s, schedule, dismissed };
+                    return { ...r, schedule, dismissed: [...new Set([...r.dismissed, ...data.dismissed])] };
                   });
                   setUrlImportData(null);
                 }}
@@ -642,10 +518,7 @@ export default function App() {
               >
                 Übernehmen
               </button>
-              <button
-                onClick={() => setUrlImportData(null)}
-                className="py-3 px-5 bg-stone/15 text-ink rounded-lg text-[13px] font-medium hover:bg-stone/25"
-              >
+              <button onClick={() => setUrlImportData(null)} className="py-3 px-5 bg-stone/15 text-ink rounded-lg text-[13px] font-medium hover:bg-stone/25">
                 Verwerfen
               </button>
             </div>
@@ -653,22 +526,11 @@ export default function App() {
         </div>
       )}
 
-      {/* Undo toast */}
       {undoAction && (
         <div className="fixed bottom-16 left-1/2 -translate-x-1/2 z-[60] bg-ink text-cream px-4 py-3 rounded-lg shadow-xl flex items-center gap-3 text-[13px] max-w-[90vw]">
           <span>{undoAction.label}</span>
-          <button
-            onClick={undoAction.undo}
-            className="text-amber font-semibold hover:text-cream transition-colors whitespace-nowrap"
-          >
-            Rückgängig
-          </button>
-          <button
-            onClick={() => setUndoAction(null)}
-            className="text-cream/50 hover:text-cream ml-1"
-          >
-            <X size={14} />
-          </button>
+          <button onClick={undoAction.undo} className="text-amber font-semibold hover:text-cream transition-colors whitespace-nowrap">Rückgängig</button>
+          <button onClick={() => setUndoAction(null)} className="text-cream/50 hover:text-cream ml-1"><X size={14} /></button>
         </div>
       )}
 

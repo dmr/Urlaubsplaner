@@ -1,10 +1,9 @@
 import { Offer, ScheduleEntry } from "./types";
-import { OFFERS } from "@/data/offers";
-import { hikingRoutesAsOffers } from "@/data/hikingRoutes";
+import { offersForRegion } from "@/data/regionData";
 
 let _allOffers: Offer[] | null = null;
 function getAllOffers(): Offer[] {
-  if (!_allOffers) _allOffers = [...OFFERS, ...hikingRoutesAsOffers()];
+  if (!_allOffers) _allOffers = [...offersForRegion("loeffingen"), ...offersForRegion("udine")];
   return _allOffers;
 }
 

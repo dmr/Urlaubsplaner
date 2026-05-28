@@ -1,11 +1,10 @@
-import { AppState, DEFAULT_STATE, ScheduleEntry } from "./types";
+import { AppState, DEFAULT_STATE, RegionState, ScheduleEntry } from "./types";
 
-const STORAGE_KEY = "schwarzwald-loeffingen-2026-v2";
-const LEGACY_KEY = "schwarzwald-loeffingen-2026-v1";
+const STORAGE_KEY = "schwarzwald-loeffingen-2026-v3";
+const LEGACY_V2 = "schwarzwald-loeffingen-2026-v2";
 
-let entryCounter = 0;
-function nextEntryId(): string {
-  return `entry-${Date.now()}-${++entryCounter}`;
+function emptyRegion(name: string): RegionState {
+  return { schedule: {}, notes: {}, customOffers: [], dismissed: [], homeBaseName: name };
 }
 
 export function loadState(): AppState {
@@ -13,57 +12,48 @@ export function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const state = { ...DEFAULT_STATE, ...parsed };
-      // Migrate old "hike" entries to "offer" with hike- prefix
-      for (const [date, entries] of Object.entries(state.schedule)) {
-        state.schedule[date] = (entries as ScheduleEntry[]).map((e: any) => {
-          if (e.type === "hike" && e.hikeId) {
-            return { ...e, type: "offer" as const, offerId: `hike-${e.hikeId}`, hikeId: undefined };
-          }
-          return e;
-        });
-      }
-      return state;
+      return {
+        activeRegion: parsed.activeRegion ?? "loeffingen",
+        regions: {
+          loeffingen: { ...emptyRegion("Löffingen"), ...(parsed.regions?.loeffingen ?? {}) },
+          udine: { ...emptyRegion("Udine"), ...(parsed.regions?.udine ?? {}) },
+        },
+      };
     }
 
-    // Migrate from v1 (had separate plan + schedule)
-    const legacy = localStorage.getItem(LEGACY_KEY);
-    if (legacy) {
-      const old = JSON.parse(legacy);
-      const schedule: Record<string, ScheduleEntry[]> = old.schedule ?? {};
-
-      // Migrate plan entries into schedule if they aren't there yet
-      if (old.plan) {
-        for (const [date, offerIds] of Object.entries(old.plan)) {
-          const ids = offerIds as string[];
-          const existing = schedule[date] ?? [];
-          const existingOfferIds = new Set(
-            existing.filter((e) => e.type === "offer").map((e) => e.offerId)
-          );
-          for (const offerId of ids) {
-            if (!existingOfferIds.has(offerId)) {
-              existing.push({ id: nextEntryId(), type: "offer", offerId });
-            }
-          }
-          schedule[date] = existing;
-        }
+    // Migrate flat v2 state into loeffingen region
+    const v2 = localStorage.getItem(LEGACY_V2);
+    if (v2) {
+      const old = JSON.parse(v2);
+      const schedule: Record<string, ScheduleEntry[]> = {};
+      for (const [date, entries] of Object.entries(old.schedule ?? {})) {
+        schedule[date] = (entries as ScheduleEntry[]).map((e: any) =>
+          e.type === "hike" && e.hikeId
+            ? { ...e, type: "offer" as const, offerId: `hike-${e.hikeId}`, hikeId: undefined }
+            : e
+        );
       }
-
       const migrated: AppState = {
-        schedule,
-        notes: old.notes ?? {},
-        customOffers: old.customOffers ?? [],
-        dismissed: old.dismissed ?? [],
-        homeBase: old.homeBase ?? DEFAULT_STATE.homeBase,
+        activeRegion: "loeffingen",
+        regions: {
+          loeffingen: {
+            schedule,
+            notes: old.notes ?? {},
+            customOffers: old.customOffers ?? [],
+            dismissed: old.dismissed ?? [],
+            homeBaseName: old.homeBase?.name ?? "Löffingen",
+          },
+          udine: emptyRegion("Udine"),
+        },
       };
       saveState(migrated);
       return migrated;
     }
 
-    return DEFAULT_STATE;
+    return structuredClone(DEFAULT_STATE);
   } catch (err) {
     console.warn("[storage] load failed, resetting", err);
-    return DEFAULT_STATE;
+    return structuredClone(DEFAULT_STATE);
   }
 }
 
@@ -79,21 +69,21 @@ export function saveState(state: AppState): boolean {
 
 export function clearState(): void {
   localStorage.removeItem(STORAGE_KEY);
-  localStorage.removeItem(LEGACY_KEY);
+  localStorage.removeItem(LEGACY_V2);
 }
 
 export function exportState(state: AppState): string {
   return JSON.stringify(state, null, 2);
 }
 
-export function encodeStateToUrl(state: AppState): string {
+export function encodeStateToUrl(region: RegionState): string {
   const compact: Record<string, string[]> = {};
-  for (const [date, entries] of Object.entries(state.schedule)) {
+  for (const [date, entries] of Object.entries(region.schedule)) {
     const ids = entries.filter((e) => e.type === "offer" && e.offerId).map((e) => e.offerId!);
     if (ids.length > 0) compact[date] = ids;
   }
-  const payload: Record<string, unknown> = { s: compact, h: state.homeBase.name };
-  if (state.dismissed.length > 0) payload.d = state.dismissed;
+  const payload: Record<string, unknown> = { s: compact, h: region.homeBaseName };
+  if (region.dismissed.length > 0) payload.d = region.dismissed;
   return btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
 }
 
@@ -101,7 +91,7 @@ export function decodeStateFromUrl(encoded: string): { schedule: Record<string, 
   try {
     const json = decodeURIComponent(escape(atob(encoded)));
     const data = JSON.parse(json);
-    return { schedule: data.s ?? {}, homeBaseName: data.h ?? "Löffingen", dismissed: data.d ?? [] };
+    return { schedule: data.s ?? {}, homeBaseName: data.h ?? "", dismissed: data.d ?? [] };
   } catch {
     return null;
   }
@@ -110,21 +100,14 @@ export function decodeStateFromUrl(encoded: string): { schedule: Record<string, 
 export function importState(json: string): AppState | null {
   try {
     const parsed = JSON.parse(json);
-    if (parsed && typeof parsed.schedule === "object") {
-      return { ...DEFAULT_STATE, ...parsed };
-    }
-    // Try legacy format
-    if (parsed && typeof parsed.plan === "object") {
-      const schedule: Record<string, ScheduleEntry[]> = parsed.schedule ?? {};
-      for (const [date, offerIds] of Object.entries(parsed.plan)) {
-        const ids = offerIds as string[];
-        const existing = schedule[date] ?? [];
-        for (const offerId of ids) {
-          existing.push({ id: nextEntryId(), type: "offer", offerId });
-        }
-        schedule[date] = existing;
-      }
-      return { schedule, notes: parsed.notes ?? {}, customOffers: parsed.customOffers ?? [], dismissed: parsed.dismissed ?? [], homeBase: parsed.homeBase ?? DEFAULT_STATE.homeBase };
+    if (parsed && parsed.regions) {
+      return {
+        activeRegion: parsed.activeRegion ?? "loeffingen",
+        regions: {
+          loeffingen: { ...emptyRegion("Löffingen"), ...(parsed.regions.loeffingen ?? {}) },
+          udine: { ...emptyRegion("Udine"), ...(parsed.regions.udine ?? {}) },
+        },
+      };
     }
     return null;
   } catch {

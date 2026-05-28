@@ -5,7 +5,7 @@ const HikeMapSection = lazy(() => import("./HikeMapSection"));
 import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
-import { OFFER_COORDS, googleMapsDirectionsUrl } from "@/data/coords";
+import { googleMapsDirectionsUrl } from "@/data/coords";
 import { computeRanking, getRankingExplanation } from "@/lib/ranking";
 import {
   X,
@@ -304,9 +304,9 @@ export default function OfferModal({
                 <ExternalLink size={13} /> Website
               </a>
             )}
-            {OFFER_COORDS[offer.id] && (
+            {offer.coords && (
               <a
-                href={googleMapsDirectionsUrl(OFFER_COORDS[offer.id][0], OFFER_COORDS[offer.id][1])}
+                href={googleMapsDirectionsUrl(offer.coords[0], offer.coords[1])}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-1.5 text-[13px] text-stone underline hover:text-ink"
