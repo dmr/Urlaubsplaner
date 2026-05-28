@@ -17,6 +17,7 @@ export function loadState(): AppState {
         regions: {
           loeffingen: { ...emptyRegion("Löffingen"), ...(parsed.regions?.loeffingen ?? {}) },
           udine: { ...emptyRegion("Udine"), ...(parsed.regions?.udine ?? {}) },
+          freiburg: { ...emptyRegion("Freiburg"), ...(parsed.regions?.freiburg ?? {}) },
         },
       };
     }
@@ -44,6 +45,7 @@ export function loadState(): AppState {
             homeBaseName: old.homeBase?.name ?? "Löffingen",
           },
           udine: emptyRegion("Udine"),
+          freiburg: emptyRegion("Freiburg"),
         },
       };
       saveState(migrated);
@@ -106,6 +108,7 @@ export function importState(json: string): AppState | null {
         regions: {
           loeffingen: { ...emptyRegion("Löffingen"), ...(parsed.regions.loeffingen ?? {}) },
           udine: { ...emptyRegion("Udine"), ...(parsed.regions.udine ?? {}) },
+          freiburg: { ...emptyRegion("Freiburg"), ...(parsed.regions.freiburg ?? {}) },
         },
       };
     }
