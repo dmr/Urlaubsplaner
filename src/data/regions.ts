@@ -22,6 +22,18 @@ export const REGIONS: Record<RegionId, Region> = {
     mapCenter: [47.95, 7.9],
     mapZoom: 10,
   },
+  hamburg: {
+    id: "hamburg",
+    name: "Hamburg",
+    homeBase: { name: "Hamburg", lat: 53.5511, lng: 9.9937 },
+    mapCenter: [53.55, 10.0],
+    mapZoom: 10,
+  },
 };
 
-export const REGION_LIST: Region[] = [REGIONS.loeffingen, REGIONS.udine, REGIONS.freiburg];
+export const REGION_LIST: Region[] = [
+  REGIONS.loeffingen,
+  REGIONS.udine,
+  REGIONS.freiburg,
+  REGIONS.hamburg,
+];

@@ -6,6 +6,8 @@ import { OFFERS_UDINE, OFFER_COORDS_UDINE } from "@/data/offersUdine";
 import { hikingRoutesUdineAsOffers, HIKING_ROUTES_UDINE } from "@/data/hikingRoutesUdine";
 import { OFFERS_FREIBURG, OFFER_COORDS_FREIBURG } from "@/data/offersFreiburg";
 import { hikingRoutesFreiburgAsOffers, HIKING_ROUTES_FREIBURG } from "@/data/hikingRoutesFreiburg";
+import { OFFERS_HAMBURG, OFFER_COORDS_HAMBURG } from "@/data/offersHamburg";
+import { hikingRoutesHamburgAsOffers, HIKING_ROUTES_HAMBURG } from "@/data/hikingRoutesHamburg";
 import { REGIONS } from "@/data/regions";
 
 const cache: Partial<Record<RegionId, Offer[]>> = {};
@@ -40,6 +42,12 @@ export function offersForRegion(region: RegionId): Offer[] {
     result = attachCoords(
       [...OFFERS_FREIBURG, ...hikingRoutesFreiburgAsOffers([hb.lat, hb.lng])],
       { ...OFFER_COORDS_FREIBURG, ...hikeCoordsFor(HIKING_ROUTES_FREIBURG) }
+    );
+  } else if (region === "hamburg") {
+    const hb = REGIONS.hamburg.homeBase;
+    result = attachCoords(
+      [...OFFERS_HAMBURG, ...hikingRoutesHamburgAsOffers([hb.lat, hb.lng])],
+      { ...OFFER_COORDS_HAMBURG, ...hikeCoordsFor(HIKING_ROUTES_HAMBURG) }
     );
   } else {
     result = attachCoords([...OFFERS, ...hikingRoutesAsOffers()], OFFER_COORDS);

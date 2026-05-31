@@ -1,6 +1,5 @@
 import { useState, useRef } from "react";
-import { Offer, RegionState, ScheduleEntry } from "@/lib/types";
-import { TRIP_DAYS } from "@/data/tripDays";
+import { Offer, RegionId, RegionState, ScheduleEntry, TripDay } from "@/lib/types";
 import { offerById } from "@/lib/helpers";
 import { encodeStateToUrl } from "@/lib/storage";
 import {
@@ -15,7 +14,9 @@ import {
 } from "lucide-react";
 
 interface PlanManagerProps {
+  regionId: RegionId;
   region: RegionState;
+  days: TripDay[];
   customOffers: Offer[];
   onApply: (region: RegionState) => void;
   onClose: () => void;
@@ -30,8 +31,8 @@ interface DayDiff {
   notesDiff: { mine: string; theirs: string } | null;
 }
 
-function computeDiff(mine: RegionState, theirs: RegionState): DayDiff[] {
-  return TRIP_DAYS.map((day) => {
+function computeDiff(days: TripDay[], mine: RegionState, theirs: RegionState): DayDiff[] {
+  return days.map((day) => {
     const myEntries = (mine.schedule[day.date] ?? []).filter((e) => e.type === "offer").map((e) => e.offerId!);
     const theirEntries = (theirs.schedule[day.date] ?? []).filter((e) => e.type === "offer").map((e) => e.offerId!);
     const mySet = new Set(myEntries);
@@ -49,10 +50,10 @@ function computeDiff(mine: RegionState, theirs: RegionState): DayDiff[] {
   });
 }
 
-function mergeStates(mine: RegionState, theirs: RegionState, selections: Record<string, "mine" | "theirs" | "both">): RegionState {
+function mergeStates(days: TripDay[], mine: RegionState, theirs: RegionState, selections: Record<string, "mine" | "theirs" | "both">): RegionState {
   const schedule: Record<string, ScheduleEntry[]> = {};
 
-  for (const day of TRIP_DAYS) {
+  for (const day of days) {
     const sel = selections[day.date] ?? "both";
     const myEntries = mine.schedule[day.date] ?? [];
     const theirEntries = theirs.schedule[day.date] ?? [];
@@ -78,7 +79,7 @@ function mergeStates(mine: RegionState, theirs: RegionState, selections: Record<
   }
 
   const notes = { ...mine.notes };
-  for (const day of TRIP_DAYS) {
+  for (const day of days) {
     const sel = selections[day.date] ?? "both";
     if (sel === "theirs" && theirs.notes[day.date]) notes[day.date] = theirs.notes[day.date];
     if (sel === "both" && theirs.notes[day.date] && !mine.notes[day.date]) notes[day.date] = theirs.notes[day.date];
@@ -87,14 +88,22 @@ function mergeStates(mine: RegionState, theirs: RegionState, selections: Record<
   const customSet = new Set(mine.customOffers.map((o) => o.id));
   const mergedCustom = [...mine.customOffers, ...theirs.customOffers.filter((o) => !customSet.has(o.id))];
 
-  return { schedule, notes, customOffers: mergedCustom, dismissed: mine.dismissed, homeBaseName: mine.homeBaseName };
+  return {
+    schedule,
+    notes,
+    customOffers: mergedCustom,
+    dismissed: mine.dismissed,
+    homeBaseName: mine.homeBaseName,
+    startDate: mine.startDate,
+    endDate: mine.endDate,
+  };
 }
 
 function offerName(id: string, customOffers: Offer[]): string {
   return offerById(id, customOffers)?.name ?? id;
 }
 
-export default function PlanManager({ region, customOffers, onApply, onClose }: PlanManagerProps) {
+export default function PlanManager({ regionId, region, days, customOffers, onApply, onClose }: PlanManagerProps) {
   const [importedState, setImportedState] = useState<RegionState | null>(null);
   const [diff, setDiff] = useState<DayDiff[] | null>(null);
   const [selections, setSelections] = useState<Record<string, "mine" | "theirs" | "both">>({});
@@ -136,9 +145,9 @@ export default function PlanManager({ region, customOffers, onApply, onClose }: 
         return;
       }
       setImportedState(result);
-      setDiff(computeDiff(region, result));
+      setDiff(computeDiff(days, region, result));
       const initial: Record<string, "mine" | "theirs" | "both"> = {};
-      TRIP_DAYS.forEach((d) => { initial[d.date] = "both"; });
+      days.forEach((d) => { initial[d.date] = "both"; });
       setSelections(initial);
     };
     reader.readAsText(file);
@@ -147,7 +156,7 @@ export default function PlanManager({ region, customOffers, onApply, onClose }: 
 
   const handleMerge = () => {
     if (!importedState) return;
-    onApply(mergeStates(region, importedState, selections));
+    onApply(mergeStates(days, region, importedState, selections));
   };
 
   const handleReplaceAll = () => {
@@ -158,7 +167,7 @@ export default function PlanManager({ region, customOffers, onApply, onClose }: 
   const [copied, setCopied] = useState(false);
 
   const handleCopyLink = () => {
-    const encoded = encodeStateToUrl(region);
+    const encoded = encodeStateToUrl(regionId, region);
     const url = `${window.location.origin}${window.location.pathname}?plan=${encoded}`;
     navigator.clipboard.writeText(url).then(() => {
       setCopied(true);
@@ -231,7 +240,7 @@ export default function PlanManager({ region, customOffers, onApply, onClose }: 
 
                   <div className="space-y-3">
                     {diff.filter((d) => d.onlyMine.length > 0 || d.onlyTheirs.length > 0 || d.notesDiff).map((d) => {
-                      const dayData = TRIP_DAYS.find((t) => t.date === d.date)!;
+                      const dayData = days.find((t) => t.date === d.date)!;
                       const sel = selections[d.date] ?? "both";
 
                       return (

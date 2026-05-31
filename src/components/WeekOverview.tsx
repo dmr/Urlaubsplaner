@@ -1,5 +1,4 @@
-import { ScheduleEntry, Offer } from "@/lib/types";
-import { TRIP_DAYS } from "@/data/tripDays";
+import { ScheduleEntry, Offer, TripDay } from "@/lib/types";
 import { offerById } from "@/lib/helpers";
 import { AlertTriangle } from "lucide-react";
 
@@ -12,10 +11,12 @@ const BREAK_LABELS: Record<string, string> = {
 };
 
 export default function WeekOverview({
+  days,
   schedule,
   customOffers,
   onDayClick,
 }: {
+  days: TripDay[];
   schedule: Record<string, ScheduleEntry[]>;
   customOffers: Offer[];
   onDayClick: (date: string) => void;
@@ -25,8 +26,8 @@ export default function WeekOverview({
       <h3 className="font-serif font-light italic text-[18px] text-cream mb-3">
         Wochenübersicht
       </h3>
-      <div className="grid grid-cols-1 sm:grid-cols-7 gap-2 min-w-0">
-        {TRIP_DAYS.map((day) => {
+      <div className={`grid grid-cols-1 gap-2 min-w-0 ${days.length <= 7 ? "sm:grid-cols-7" : "sm:grid-cols-7 lg:grid-cols-[repeat(auto-fit,minmax(120px,1fr))]"}`}>
+        {days.map((day) => {
           const entries = schedule[day.date] ?? [];
           return (
             <button

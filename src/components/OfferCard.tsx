@@ -1,5 +1,4 @@
-import { Offer, ScheduleEntry } from "@/lib/types";
-import { TRIP_DAYS } from "@/data/tripDays";
+import { Offer, ScheduleEntry, TripDay } from "@/lib/types";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
 import {
@@ -15,6 +14,7 @@ import {
 interface OfferCardProps {
   offer: Offer;
   activeDay: string;
+  days: TripDay[];
   schedule: Record<string, ScheduleEntry[]>;
   isDismissed: boolean;
   onOpenDetail: () => void;
@@ -23,6 +23,7 @@ interface OfferCardProps {
 export default function OfferCard({
   offer,
   activeDay,
+  days,
   schedule,
   isDismissed,
   onOpenDetail,
@@ -30,11 +31,11 @@ export default function OfferCard({
   const warn = ageWarning(offer);
   const images = offer.images ?? [];
 
-  const plannedDates = TRIP_DAYS
+  const plannedDates = days
     .filter((d) => isOfferPlannedOnDate(schedule, offer.id, d.date))
     .map((d) => d.weekday);
 
-  const activeDayData = TRIP_DAYS.find((d) => d.date === activeDay);
+  const activeDayData = days.find((d) => d.date === activeDay);
   const notAvailableToday =
     offer.availableDays &&
     activeDayData &&

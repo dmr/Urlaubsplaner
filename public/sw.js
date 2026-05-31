@@ -1,4 +1,4 @@
-const CACHE_NAME = "urlaubsplaner-v4";
+const CACHE_NAME = "urlaubsplaner-v5";
 const APP_SHELL = [
   "/Urlaubsplaner/",
   "/Urlaubsplaner/index.html",

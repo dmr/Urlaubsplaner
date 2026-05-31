@@ -69,7 +69,7 @@ export interface Offer {
   coords?: [number, number];
 }
 
-export type RegionId = "loeffingen" | "udine" | "freiburg";
+export type RegionId = "loeffingen" | "udine" | "freiburg" | "hamburg";
 
 export interface Region {
   id: RegionId;
@@ -105,6 +105,8 @@ export interface RegionState {
   customOffers: Offer[];
   dismissed: string[];
   homeBaseName: string;
+  startDate?: string;
+  endDate?: string;
 }
 
 export interface AppState {
@@ -126,5 +128,6 @@ export const DEFAULT_STATE: AppState = {
     loeffingen: { ...EMPTY_REGION, homeBaseName: "Löffingen" },
     udine: { ...EMPTY_REGION, homeBaseName: "Udine" },
     freiburg: { ...EMPTY_REGION, homeBaseName: "Freiburg" },
+    hamburg: { ...EMPTY_REGION, homeBaseName: "Hamburg" },
   },
 };

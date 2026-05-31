@@ -1,11 +1,11 @@
-import { useState, useEffect, useCallback, useRef, lazy, Suspense } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, lazy, Suspense } from "react";
 import { AppState, DEFAULT_STATE, BreakType, Offer, RegionId, RegionState } from "@/lib/types";
-import { loadState, saveState, clearState, decodeStateFromUrl } from "@/lib/storage";
-import { offerById, getPlannedOfferIds } from "@/lib/helpers";
+import { loadState, saveState, clearState, decodeStateFromUrl, SharedPlan } from "@/lib/storage";
+import { offerById, getPlannedOfferIds, formatDayMonth } from "@/lib/helpers";
 import { sortOffers, SortKey } from "@/lib/ranking";
 import { offersForRegion } from "@/data/regionData";
 import { REGIONS } from "@/data/regions";
-import { TRIP_DAYS } from "@/data/tripDays";
+import { computeTripDays } from "@/lib/dateUtils";
 import TopoBackground from "@/components/TopoBackground";
 import Header from "@/components/Header";
 import HomeBase from "@/components/HomeBase";
@@ -18,6 +18,7 @@ import OfferCard from "@/components/OfferCard";
 import OfferModal from "@/components/OfferModal";
 import AddCustomOffer from "@/components/AddCustomOffer";
 import PlanManager from "@/components/PlanManager";
+import RegionSetupModal from "@/components/RegionSetupModal";
 import Footer from "@/components/Footer";
 import { Loader2, Save, Check, List, Map, Calendar, Sun, Moon, Plus, ChevronUp, X } from "lucide-react";
 
@@ -34,13 +35,7 @@ function nextEntryId(): string {
 
 export default function App() {
   const [state, setState] = useState<AppState | null>(null);
-  const [activeDate, setActiveDate] = useState<string>(() => {
-    const today = new Date().toISOString().slice(0, 10);
-    const match = TRIP_DAYS.find((d) => d.date === today);
-    if (match) return match.date;
-    const future = TRIP_DAYS.find((d) => d.date >= today);
-    return future?.date ?? TRIP_DAYS[0].date;
-  });
+  const [activeDate, setActiveDate] = useState<string>("");
   const [filter, setFilter] = useState<FilterKey>("all");
   const [maxDistance, setMaxDistance] = useState<number>(90);
   const [saveStatus, setSaveStatus] = useState<SaveStatus>("idle");
@@ -56,8 +51,9 @@ export default function App() {
   const [modalOffer, setModalOffer] = useState<Offer | null>(null);
   const [showAddCustom, setShowAddCustom] = useState(false);
   const [showPlanManager, setShowPlanManager] = useState(false);
+  const [showSetup, setShowSetup] = useState(false);
   const [undoAction, setUndoAction] = useState<{ label: string; undo: () => void } | null>(null);
-  const [urlImportData, setUrlImportData] = useState<{ schedule: Record<string, string[]>; homeBaseName: string; dismissed: string[] } | null>(null);
+  const [urlImportData, setUrlImportData] = useState<SharedPlan | null>(null);
 
   const openDaySheet = useCallback((date?: string) => {
     if (date) setActiveDate(date);
@@ -127,7 +123,6 @@ export default function App() {
     return () => clearTimeout(t);
   }, [state]);
 
-  // Update the active region's state
   const updateRegion = useCallback((updater: (r: RegionState) => RegionState) => {
     setState((s) => {
       if (!s) return s;
@@ -141,6 +136,31 @@ export default function App() {
     setSearchQuery("");
     setHighlightedOfferId(null);
   }, []);
+
+  const applySetup = useCallback(
+    (regionId: RegionId, startDate: string, endDate: string, homeBaseName: string) => {
+      setState((s) => {
+        if (!s) return s;
+        return {
+          ...s,
+          activeRegion: regionId,
+          regions: {
+            ...s.regions,
+            [regionId]: {
+              ...s.regions[regionId],
+              startDate,
+              endDate,
+              homeBaseName,
+            },
+          },
+        };
+      });
+      setShowSetup(false);
+      // Reset active date so it picks first day of new range
+      setActiveDate("");
+    },
+    []
+  );
 
   const addToDay = useCallback((offerId: string, date: string) => {
     updateRegion((r) => {
@@ -212,8 +232,27 @@ export default function App() {
     if (confirm("Wirklich alles zurücksetzen? Alle geplanten Tage werden gelöscht.")) {
       clearState();
       setState(structuredClone(DEFAULT_STATE));
+      setActiveDate("");
     }
   }, []);
+
+  // Derive trip days from active region
+  const activeRegion = state?.activeRegion;
+  const region = state && activeRegion ? state.regions[activeRegion] : null;
+  const tripDays = useMemo(
+    () => (region?.startDate && region?.endDate ? computeTripDays(region.startDate, region.endDate) : []),
+    [region?.startDate, region?.endDate]
+  );
+
+  // Ensure activeDate is within tripDays; default to today if in range, else first day
+  useEffect(() => {
+    if (tripDays.length === 0) return;
+    if (activeDate && tripDays.some((d) => d.date === activeDate)) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const todayMatch = tripDays.find((d) => d.date === today);
+    const futureMatch = tripDays.find((d) => d.date >= today);
+    setActiveDate(todayMatch?.date ?? futureMatch?.date ?? tripDays[0].date);
+  }, [tripDays, activeDate]);
 
   if (!state) {
     return (
@@ -223,26 +262,59 @@ export default function App() {
     );
   }
 
-  const activeRegion = state.activeRegion;
-  const region = state.regions[activeRegion];
-  const regionMeta = REGIONS[activeRegion];
-  const regionOffers = offersForRegion(activeRegion);
-  const allOffers = [...regionOffers, ...region.customOffers];
+  // Onboarding gate: if active region has no dates set, show setup
+  const needsSetup = !region!.startDate || !region!.endDate;
 
-  const activeDay = TRIP_DAYS.find((d) => d.date === activeDate) ?? TRIP_DAYS[0];
-  const scheduleEntries = region.schedule[activeDate] ?? [];
+  if (needsSetup && !urlImportData) {
+    return (
+      <div className="min-h-screen bg-forest-gradient text-cream relative">
+        <TopoBackground />
+        <div className="max-w-[1100px] mx-auto relative z-10">
+          <Header
+            regionName={REGIONS[activeRegion!].name}
+            homeBaseName={region!.homeBaseName}
+            startDate={region!.startDate}
+            endDate={region!.endDate}
+            onEditTrip={() => {}}
+          />
+          <HomeBase
+            name={region!.homeBaseName}
+            activeRegion={activeRegion!}
+            onChangeName={setHomeBaseName}
+            onSwitchRegion={switchRegion}
+          />
+        </div>
+        <RegionSetupModal
+          key={activeRegion}
+          initialRegion={activeRegion!}
+          initialStartDate={region!.startDate}
+          initialEndDate={region!.endDate}
+          initialHomeBaseName={region!.homeBaseName}
+          isFirstSetup={true}
+          onApply={applySetup}
+        />
+      </div>
+    );
+  }
+
+  const regionMeta = REGIONS[activeRegion!];
+  const regionOffers = offersForRegion(activeRegion!);
+  const allOffers = [...regionOffers, ...region!.customOffers];
+
+  const activeDay = tripDays.find((d) => d.date === activeDate) ?? tripDays[0];
+  const scheduleEntries = region!.schedule[activeDate] ?? [];
   const plannedIds = getPlannedOfferIds(scheduleEntries);
   const plannedOffers = plannedIds
-    .map((id) => offerById(id, region.customOffers))
+    .map((id) => offerById(id, region!.customOffers))
     .filter((o): o is NonNullable<typeof o> => Boolean(o));
 
-  const allPlannedIds = Object.values(region.schedule)
+  const allPlannedIds = Object.values(region!.schedule)
     .flat()
     .filter((e) => e.type === "offer" && e.offerId)
     .map((e) => e.offerId!);
 
   const allPlannedSet = new Set(allPlannedIds);
-  const dismissedSet = new Set(region.dismissed);
+  const dismissedSet = new Set(region!.dismissed);
   const q = searchQuery.toLowerCase().trim();
 
   const filteredOffers = sortOffers(
@@ -259,23 +331,29 @@ export default function App() {
       return o.tags.includes(filter);
     }),
     sortKey,
-    region.schedule,
+    region!.schedule,
     activeDate
   );
 
-  const dismissedCount = region.dismissed.length;
+  const dismissedCount = region!.dismissed.length;
   const plannedCount = allPlannedSet.size;
-  const counts = Object.fromEntries(TRIP_DAYS.map((d) => [d.date, (region.schedule[d.date] ?? []).length]));
+  const counts = Object.fromEntries(tripDays.map((d) => [d.date, (region!.schedule[d.date] ?? []).length]));
 
   return (
     <div className="min-h-screen bg-forest-gradient text-cream relative">
       <TopoBackground />
 
       <div className="max-w-[1100px] mx-auto relative z-10">
-        <Header />
+        <Header
+          regionName={regionMeta.name}
+          homeBaseName={region!.homeBaseName}
+          startDate={region!.startDate}
+          endDate={region!.endDate}
+          onEditTrip={() => setShowSetup(true)}
+        />
         <HomeBase
-          name={region.homeBaseName}
-          activeRegion={activeRegion}
+          name={region!.homeBaseName}
+          activeRegion={activeRegion!}
           onChangeName={setHomeBaseName}
           onSwitchRegion={switchRegion}
         />
@@ -285,7 +363,7 @@ export default function App() {
           <div className="px-5 pt-2.5 pb-1.5 flex justify-between items-center">
             <div className="flex items-center gap-3">
               <span className="font-serif italic text-[15px] text-cream">
-                {activeDay.weekday}, {activeDay.day}. Mai
+                {activeDay.weekday}, {formatDayMonth(activeDay.date)}
               </span>
               <span className="text-[10px] text-moss-soft">
                 {Object.values(counts).reduce((a, b) => a + b, 0)} geplant
@@ -313,15 +391,16 @@ export default function App() {
             </div>
           </div>
           <div className="px-5 pb-2.5">
-            <DayStrip days={TRIP_DAYS} activeDate={activeDate} counts={counts} onSelect={(date) => openDaySheet(date)} />
+            <DayStrip days={tripDays} activeDate={activeDate} counts={counts} onSelect={(date) => openDaySheet(date)} />
           </div>
         </nav>
 
         {showWeek && (
           <section className="px-5 py-4">
             <WeekOverview
-              schedule={region.schedule}
-              customOffers={region.customOffers}
+              days={tripDays}
+              schedule={region!.schedule}
+              customOffers={region!.customOffers}
               onDayClick={(date) => { setShowWeek(false); openDaySheet(date); }}
             />
           </section>
@@ -350,7 +429,7 @@ export default function App() {
               </div>
             </div>
             <div className="text-[11px] text-moss-soft mb-4">
-              {filteredOffers.length} Vorschläge — kuratiert rund um {region.homeBaseName}
+              {filteredOffers.length} Vorschläge — kuratiert rund um {region!.homeBaseName}
             </div>
 
             <FilterBar
@@ -378,7 +457,8 @@ export default function App() {
                     key={o.id}
                     offer={o}
                     activeDay={activeDate}
-                    schedule={region.schedule}
+                    days={tripDays}
+                    schedule={region!.schedule}
                     isDismissed={dismissedSet.has(o.id)}
                     onOpenDetail={() => openModal(o)}
                   />
@@ -408,7 +488,8 @@ export default function App() {
         <OfferModal
           offer={modalOffer}
           activeDay={activeDate}
-          schedule={region.schedule}
+          days={tripDays}
+          schedule={region!.schedule}
           isDismissed={dismissedSet.has(modalOffer.id)}
           onClose={closeModal}
           onAdd={(date) => addToDay(modalOffer.id, date)}
@@ -422,24 +503,24 @@ export default function App() {
       <BottomSheet
         open={showDaySheet}
         onClose={() => setShowDaySheet(false)}
-        title={`${activeDay.full}, ${activeDay.day}. Mai`}
-        subtitle={`Tag ${activeDay.day} von 7 — ${region.homeBaseName}`}
+        title={`${activeDay.full}, ${formatDayMonth(activeDay.date)}`}
+        subtitle={`Tag ${activeDay.day} von ${tripDays.length} — ${region!.homeBaseName}`}
         badge={scheduleEntries.length > 0 ? `${scheduleEntries.length} Einträge` : "leer"}
         accent="#6a9458"
       >
         <DayDetail
           day={activeDay}
           plannedOffers={plannedOffers}
-          note={region.notes[activeDate] ?? ""}
+          note={region!.notes[activeDate] ?? ""}
           scheduleEntries={scheduleEntries}
-          customOffers={region.customOffers}
+          customOffers={region!.customOffers}
           highlightedId={highlightedOfferId}
           homeBase={regionMeta.homeBase}
           onRemove={(id) => removeFromDay(id, activeDate)}
           onMoveToNextDay={(() => {
-            const idx = TRIP_DAYS.findIndex((d) => d.date === activeDate);
-            if (idx < 0 || idx >= TRIP_DAYS.length - 1) return null;
-            const nextDate = TRIP_DAYS[idx + 1].date;
+            const idx = tripDays.findIndex((d) => d.date === activeDate);
+            if (idx < 0 || idx >= tripDays.length - 1) return null;
+            const nextDate = tripDays[idx + 1].date;
             return (offerId: string) => { removeFromDay(offerId, activeDate); addToDay(offerId, nextDate); };
           })()}
           onNoteChange={(text) => setNote(activeDate, text)}
@@ -457,8 +538,10 @@ export default function App() {
 
       {showPlanManager && (
         <PlanManager
-          region={region}
-          customOffers={region.customOffers}
+          regionId={activeRegion!}
+          region={region!}
+          days={tripDays}
+          customOffers={region!.customOffers}
           onApply={(merged) => {
             updateRegion(() => merged);
             setShowPlanManager(false);
@@ -467,63 +550,60 @@ export default function App() {
         />
       )}
 
+      {showSetup && (
+        <RegionSetupModal
+          initialRegion={activeRegion!}
+          initialStartDate={region!.startDate}
+          initialEndDate={region!.endDate}
+          initialHomeBaseName={region!.homeBaseName}
+          isFirstSetup={false}
+          onApply={applySetup}
+          onClose={() => setShowSetup(false)}
+        />
+      )}
+
       {urlImportData && (
-        <div className="fixed inset-0 z-50 bg-ink/70 flex items-center justify-center p-4" onClick={() => setUrlImportData(null)}>
-          <div className="bg-parchment rounded-xl w-full max-w-[440px] p-5" onClick={(e) => e.stopPropagation()}>
-            <h2 className="font-serif font-medium text-[22px] text-ink mb-2">Plan empfangen</h2>
-            <p className="text-[13px] text-stone mb-4">Jemand hat dir einen Plan geschickt. Diese Aktivitäten sind enthalten:</p>
-            <div className="space-y-2 mb-4 max-h-[40vh] overflow-y-auto">
-              {TRIP_DAYS.map((day) => {
-                const ids = urlImportData.schedule[day.date];
-                if (!ids || ids.length === 0) return null;
-                const existingIds = new Set(getPlannedOfferIds(region.schedule[day.date] ?? []));
-                return (
-                  <div key={day.date} className="bg-ink/5 rounded-lg p-3">
-                    <div className="text-[12px] font-medium text-ink mb-1">{day.weekday} {new Date(day.date).getDate()}. Mai</div>
-                    {ids.map((id) => {
-                      const offer = offerById(id, region.customOffers);
-                      const alreadyHave = existingIds.has(id);
-                      return (
-                        <div key={id} className={`text-[12px] ${alreadyHave ? "text-stone line-through" : "text-ink"}`}>
-                          {alreadyHave ? "✓ " : "+ "}{offer?.name ?? id}
-                        </div>
-                      );
-                    })}
-                  </div>
-                );
-              })}
-            </div>
-            {urlImportData.dismissed.length > 0 && (
-              <div className="text-[12px] text-stone mb-3">Außerdem als „nicht interessant" markiert: {urlImportData.dismissed.length} Angebote</div>
-            )}
-            <div className="flex gap-2">
-              <button
-                onClick={() => {
-                  const data = urlImportData;
-                  updateRegion((r) => {
-                    const schedule = { ...r.schedule };
-                    for (const [date, offerIds] of Object.entries(data.schedule)) {
-                      const existing = [...(schedule[date] ?? [])];
-                      const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
-                      for (const offerId of offerIds) {
-                        if (!existingSet.has(offerId)) existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer", offerId });
-                      }
-                      schedule[date] = existing;
-                    }
-                    return { ...r, schedule, dismissed: [...new Set([...r.dismissed, ...data.dismissed])] };
-                  });
-                  setUrlImportData(null);
-                }}
-                className="flex-1 py-3 bg-moss text-cream rounded-lg text-[13px] font-medium hover:bg-moss/80"
-              >
-                Übernehmen
-              </button>
-              <button onClick={() => setUrlImportData(null)} className="py-3 px-5 bg-stone/15 text-ink rounded-lg text-[13px] font-medium hover:bg-stone/25">
-                Verwerfen
-              </button>
-            </div>
-          </div>
-        </div>
+        <UrlImportDialog
+          data={urlImportData}
+          currentRegionId={activeRegion!}
+          currentRegion={region!}
+          onAccept={(target) => {
+            const data = urlImportData;
+            setState((s) => {
+              if (!s) return s;
+              const targetRegion = s.regions[target];
+              const newSchedule = { ...targetRegion.schedule };
+              for (const [date, offerIds] of Object.entries(data.schedule)) {
+                const existing = [...(newSchedule[date] ?? [])];
+                const existingSet = new Set(existing.filter((e) => e.type === "offer").map((e) => e.offerId));
+                for (const offerId of offerIds) {
+                  if (!existingSet.has(offerId)) {
+                    existing.push({ id: `entry-url-${Date.now()}-${Math.random()}`, type: "offer", offerId });
+                  }
+                }
+                newSchedule[date] = existing;
+              }
+              return {
+                ...s,
+                activeRegion: target,
+                regions: {
+                  ...s.regions,
+                  [target]: {
+                    ...targetRegion,
+                    schedule: newSchedule,
+                    dismissed: [...new Set([...targetRegion.dismissed, ...data.dismissed])],
+                    homeBaseName: data.homeBaseName || targetRegion.homeBaseName,
+                    startDate: data.startDate ?? targetRegion.startDate,
+                    endDate: data.endDate ?? targetRegion.endDate,
+                  },
+                },
+              };
+            });
+            setActiveDate("");
+            setUrlImportData(null);
+          }}
+          onDismiss={() => setUrlImportData(null)}
+        />
       )}
 
       {undoAction && (
@@ -535,6 +615,92 @@ export default function App() {
       )}
 
       <ScrollToTop />
+    </div>
+  );
+}
+
+function UrlImportDialog({
+  data,
+  currentRegionId,
+  currentRegion,
+  onAccept,
+  onDismiss,
+}: {
+  data: SharedPlan;
+  currentRegionId: RegionId;
+  currentRegion: RegionState;
+  onAccept: (targetRegion: RegionId) => void;
+  onDismiss: () => void;
+}) {
+  const targetRegion: RegionId = (data.regionId as RegionId) ?? currentRegionId;
+  const regionChanges = targetRegion !== currentRegionId;
+  const dateChanges =
+    (data.startDate && data.startDate !== currentRegion.startDate) ||
+    (data.endDate && data.endDate !== currentRegion.endDate);
+
+  const offersByDate = Object.entries(data.schedule);
+  const allIds = offersByDate.flatMap(([, ids]) => ids);
+
+  return (
+    <div className="fixed inset-0 z-50 bg-ink/70 flex items-center justify-center p-4" onClick={onDismiss}>
+      <div className="bg-parchment rounded-xl w-full max-w-[480px] p-5 max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <h2 className="font-serif font-medium text-[22px] text-ink mb-2">Plan empfangen</h2>
+        <p className="text-[13px] text-stone mb-3">
+          Geteilter Plan mit {allIds.length} Aktivität{allIds.length === 1 ? "" : "en"}.
+        </p>
+
+        {(regionChanges || dateChanges) && (
+          <div className="mb-4 px-3 py-2.5 bg-amber/10 border border-amber/30 rounded-md text-[12px] text-ink space-y-1">
+            {regionChanges && (
+              <div>
+                Region: <strong>{REGIONS[targetRegion].name}</strong> (aktuell: {REGIONS[currentRegionId].name})
+              </div>
+            )}
+            {data.startDate && data.endDate && (
+              <div>
+                Zeitraum: <strong>{formatDayMonth(data.startDate)} – {formatDayMonth(data.endDate)}</strong>
+              </div>
+            )}
+            {data.homeBaseName && (
+              <div>
+                Unterkunft: <strong>{data.homeBaseName}</strong>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="space-y-2 mb-4 max-h-[40vh] overflow-y-auto">
+          {offersByDate.map(([date, ids]) => (
+            <div key={date} className="bg-ink/5 rounded-lg p-3">
+              <div className="text-[12px] font-medium text-ink mb-1">{formatDayMonth(date)}</div>
+              {ids.map((id) => {
+                const offer = offerById(id, currentRegion.customOffers);
+                return (
+                  <div key={id} className="text-[12px] text-ink">+ {offer?.name ?? id}</div>
+                );
+              })}
+            </div>
+          ))}
+        </div>
+
+        {data.dismissed.length > 0 && (
+          <div className="text-[12px] text-stone mb-3">
+            Außerdem als „nicht interessant" markiert: {data.dismissed.length} Angebote
+          </div>
+        )}
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => onAccept(targetRegion)}
+            className="flex-1 py-3 bg-moss text-cream rounded-lg text-[13px] font-medium hover:bg-moss/80"
+          >
+            Übernehmen
+          </button>
+          <button onClick={onDismiss} className="py-3 px-5 bg-stone/15 text-ink rounded-lg text-[13px] font-medium hover:bg-stone/25">
+            Verwerfen
+          </button>
+        </div>
+      </div>
     </div>
   );
 }

@@ -3,7 +3,12 @@ import { offersForRegion } from "@/data/regionData";
 
 let _allOffers: Offer[] | null = null;
 function getAllOffers(): Offer[] {
-  if (!_allOffers) _allOffers = [...offersForRegion("loeffingen"), ...offersForRegion("udine"), ...offersForRegion("freiburg")];
+  if (!_allOffers) _allOffers = [
+    ...offersForRegion("loeffingen"),
+    ...offersForRegion("udine"),
+    ...offersForRegion("freiburg"),
+    ...offersForRegion("hamburg"),
+  ];
   return _allOffers;
 }
 

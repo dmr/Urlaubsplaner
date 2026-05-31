@@ -1,8 +1,7 @@
 import { useEffect, useRef, useState, useMemo, lazy, Suspense } from "react";
-import { Offer, ScheduleEntry } from "@/lib/types";
+import { Offer, ScheduleEntry, TripDay } from "@/lib/types";
 
 const HikeMapSection = lazy(() => import("./HikeMapSection"));
-import { TRIP_DAYS } from "@/data/tripDays";
 import { TAG_META } from "@/data/offers";
 import { ageWarning, isOfferPlannedOnDate } from "@/lib/helpers";
 import { googleMapsDirectionsUrl } from "@/data/coords";
@@ -26,6 +25,7 @@ import {
 interface OfferModalProps {
   offer: Offer;
   activeDay: string;
+  days: TripDay[];
   schedule: Record<string, ScheduleEntry[]>;
   isDismissed: boolean;
   onClose: () => void;
@@ -37,6 +37,7 @@ interface OfferModalProps {
 export default function OfferModal({
   offer,
   activeDay,
+  days,
   schedule,
   isDismissed,
   onClose,
@@ -51,13 +52,13 @@ export default function OfferModal({
   const warn = ageWarning(offer);
   const images = offer.images ?? [];
 
-  const activeDayData = TRIP_DAYS.find((d) => d.date === activeDay);
+  const activeDayData = days.find((d) => d.date === activeDay);
   const notAvailableToday =
     offer.availableDays &&
     activeDayData &&
     !offer.availableDays.includes(activeDayData.weekday);
 
-  const plannedDates = TRIP_DAYS.filter((d) =>
+  const plannedDates = days.filter((d) =>
     isOfferPlannedOnDate(schedule, offer.id, d.date)
   );
 
@@ -412,8 +413,8 @@ export default function OfferModal({
               <div className="text-[10px] tracking-wider uppercase text-stone mb-1.5">
                 An Tag hinzufügen
               </div>
-              <div className="grid grid-cols-7 gap-1">
-                {TRIP_DAYS.map((d) => {
+              <div className={`grid gap-1 ${days.length <= 7 ? "grid-cols-7" : "grid-cols-[repeat(auto-fill,minmax(44px,1fr))]"}`}>
+                {days.map((d) => {
                   const already = isOfferPlannedOnDate(schedule, offer.id, d.date);
                   return (
                     <button
