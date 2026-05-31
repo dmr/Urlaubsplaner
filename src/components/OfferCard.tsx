@@ -17,6 +17,7 @@ interface OfferCardProps {
   days: TripDay[];
   schedule: Record<string, ScheduleEntry[]>;
   isDismissed: boolean;
+  showCardFeatures: boolean;
   onOpenDetail: () => void;
 }
 
@@ -26,6 +27,7 @@ export default function OfferCard({
   days,
   schedule,
   isDismissed,
+  showCardFeatures,
   onOpenDetail,
 }: OfferCardProps) {
   const warn = ageWarning(offer);
@@ -96,7 +98,7 @@ export default function OfferCard({
                 <CheckCircle size={10} /> {plannedDates.join(",")}
               </span>
             )}
-            {offer.cardIncluded && (
+            {showCardFeatures && offer.cardIncluded && (
               <span className="px-1.5 py-0.5 bg-amber/15 text-amber-deep border border-amber/40 rounded-sm text-[9px] font-semibold flex items-center gap-0.5">
                 <Ticket size={9} /> CARD
               </span>

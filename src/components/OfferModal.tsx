@@ -28,6 +28,7 @@ interface OfferModalProps {
   days: TripDay[];
   schedule: Record<string, ScheduleEntry[]>;
   isDismissed: boolean;
+  showCardFeatures: boolean;
   onClose: () => void;
   onAdd: (date: string) => void;
   onDismiss: () => void;
@@ -40,6 +41,7 @@ export default function OfferModal({
   days,
   schedule,
   isDismissed,
+  showCardFeatures,
   onClose,
   onAdd,
   onDismiss,
@@ -172,12 +174,12 @@ export default function OfferModal({
 
           {/* Badges */}
           <div className="flex flex-wrap gap-1.5 mt-3">
-            {offer.cardIncluded && (
+            {showCardFeatures && offer.cardIncluded && (
               <span className="px-2.5 py-1 bg-amber/15 text-amber-deep border border-amber/40 rounded-sm text-[11px] font-semibold flex items-center gap-1">
                 <Ticket size={11} /> Card inklusive
               </span>
             )}
-            {offer.cardDiscount && (
+            {showCardFeatures && offer.cardDiscount && (
               <span className="px-2.5 py-1 bg-amber/10 text-amber-deep border border-amber/30 rounded-sm text-[11px] flex items-center gap-1">
                 <Ticket size={11} /> {offer.cardDiscount}
               </span>

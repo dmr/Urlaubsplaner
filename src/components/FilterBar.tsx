@@ -17,14 +17,15 @@ export type FilterKey =
   | "waterfall"
   | "badWeather";
 
-const PRIMARY_FILTERS: { id: FilterKey; label: string }[] = [
+const BASE_PRIMARY_FILTERS: { id: FilterKey; label: string }[] = [
   { id: "all", label: "Alle" },
-  { id: "card", label: "Card-inkl." },
   { id: "outdoor", label: "Outdoor" },
   { id: "indoor", label: "Indoor" },
   { id: "water", label: "Wasser" },
   { id: "hike", label: "Wandern" },
 ];
+
+const CARD_FILTER: { id: FilterKey; label: string } = { id: "card", label: "Card-inkl." };
 
 const MORE_FILTERS: { id: FilterKey; label: string }[] = [
   { id: "animals", label: "Tiere" },
@@ -48,6 +49,7 @@ interface FilterBarProps {
   maxDistance: number;
   sortKey: SortKey;
   searchQuery: string;
+  showCardFilter: boolean;
   onFilterChange: (f: FilterKey) => void;
   onDistanceChange: (km: number) => void;
   onSortChange: (s: SortKey) => void;
@@ -59,11 +61,15 @@ export default function FilterBar({
   maxDistance,
   sortKey,
   searchQuery,
+  showCardFilter,
   onFilterChange,
   onDistanceChange,
   onSortChange,
   onSearchChange,
 }: FilterBarProps) {
+  const PRIMARY_FILTERS = showCardFilter
+    ? [BASE_PRIMARY_FILTERS[0], CARD_FILTER, ...BASE_PRIMARY_FILTERS.slice(1)]
+    : BASE_PRIMARY_FILTERS;
   const [showMore, setShowMore] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
 

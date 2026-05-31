@@ -338,6 +338,7 @@ export default function App() {
   const dismissedCount = region!.dismissed.length;
   const plannedCount = allPlannedSet.size;
   const counts = Object.fromEntries(tripDays.map((d) => [d.date, (region!.schedule[d.date] ?? []).length]));
+  const showCardFeatures = activeRegion === "loeffingen";
 
   return (
     <div className="min-h-screen bg-forest-gradient text-cream relative">
@@ -437,6 +438,7 @@ export default function App() {
               maxDistance={maxDistance}
               sortKey={sortKey}
               searchQuery={searchQuery}
+              showCardFilter={showCardFeatures}
               onFilterChange={setFilter}
               onDistanceChange={setMaxDistance}
               onSortChange={setSortKey}
@@ -460,6 +462,7 @@ export default function App() {
                     days={tripDays}
                     schedule={region!.schedule}
                     isDismissed={dismissedSet.has(o.id)}
+                    showCardFeatures={showCardFeatures}
                     onOpenDetail={() => openModal(o)}
                   />
                 ))
@@ -491,6 +494,7 @@ export default function App() {
           days={tripDays}
           schedule={region!.schedule}
           isDismissed={dismissedSet.has(modalOffer.id)}
+          showCardFeatures={showCardFeatures}
           onClose={closeModal}
           onAdd={(date) => addToDay(modalOffer.id, date)}
           onDismiss={() => dismissOffer(modalOffer.id)}
